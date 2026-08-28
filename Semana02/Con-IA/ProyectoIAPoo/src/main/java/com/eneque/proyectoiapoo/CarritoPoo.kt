@@ -76,5 +76,43 @@ class Carrito {
 }
 
 fun main() {
-    println("Proyecto POO - Carrito de Compras (con IA)")
+    println("=========================================")
+    println(" CARRITO DE COMPRAS POO - TIENDA TECSUP ")
+    println("=========================================")
+
+    val laptop = Producto("P01", "Laptop HP", 2500.0, 10)
+    val mouse = Producto("P02", "Mouse Logitech", 45.5, 50)
+    val teclado = Producto("P03", "Teclado Mecanico", 120.0, 20)
+    val monitor = Producto("P04", "Monitor 24", 650.0, 15)
+
+    val carrito = Carrito()
+    carrito.agregarProducto(laptop, 1)
+    carrito.agregarProducto(mouse, 2)
+    carrito.agregarProducto(teclado, 1)
+    carrito.agregarProducto(monitor, 2)
+
+    println()
+    carrito.mostrarDetalle()
+
+    val subtotal = carrito.calcularSubtotal()
+    val igv = carrito.calcularIGV(subtotal)
+    val montoBase = subtotal + igv
+
+    val descuento: Descuento? = when {
+        montoBase > 5000 -> DescuentoPorcentaje(10.0)
+        montoBase > 3000 -> DescuentoPorcentaje(5.0)
+        else -> null
+    }
+
+    val total = carrito.calcularTotal(subtotal, igv, descuento)
+
+    println()
+    println(String.format("Subtotal: S/ %.2f", subtotal))
+    println(String.format("IGV (18%%): S/ %.2f", igv))
+    if (descuento != null) {
+        println("Descuento aplicado (polimorfismo: ${descuento::class.simpleName})")
+    } else {
+        println("No se aplico descuento")
+    }
+    println(String.format("TOTAL FINAL: S/ %.2f", total))
 }
