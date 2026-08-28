@@ -20,6 +20,10 @@ data class Producto(
     }
 }
 
+abstract class Descuento {
+    abstract fun aplicar(monto: Double): Double
+}
+
 fun main() {
     println("Proyecto POO - Carrito de Compras (con IA)")
 }
