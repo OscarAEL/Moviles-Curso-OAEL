@@ -104,15 +104,17 @@ fun main() {
         else -> null
     }
 
-    val total = carrito.calcularTotal(subtotal, igv, descuento)
+    val totalFinal = carrito.calcularTotal(subtotal, igv, descuento)
+    val ahorro = montoBase - totalFinal // <--- Calculamos cuánto se ahorró
 
     println()
-    println(String.format("Subtotal: S/ %.2f", subtotal))
-    println(String.format("IGV (18%%): S/ %.2f", igv))
+    println(String.format("Subtotal: S/ %8.2f", subtotal))
+    println(String.format("IGV (18%%): S/ %8.2f", igv))
     if (descuento != null) {
-        println("Descuento aplicado (polimorfismo: ${descuento::class.simpleName})")
+        println(String.format("Descuento (%-11s): -S/ %8.2f", descuento::class.simpleName, ahorro))
     } else {
         println("No se aplico descuento")
     }
-    println(String.format("TOTAL FINAL: S/ %.2f", total))
+    println("---------------------------------------")
+    println(String.format("TOTAL FINAL:    S/ %8.2f", totalFinal))
 }
