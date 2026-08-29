@@ -1,9 +1,9 @@
 package com.eneque.lab02viernes
 
 fun main() {
-    println("=========================================")
-    println("          SISTEMA DE MATRICULA")
-    println("=========================================")
+    println("==============================================")
+    println("              SISTEMA DE MATRICULA")
+    println("==============================================")
 
     print("Nombre del estudiante: ")
     val nombreEstudiante = readLine() ?: ""
@@ -55,6 +55,7 @@ fun main() {
     }
 
     val cantidadCuotas: Int
+
     if (totalPagar > 2500) {
         cantidadCuotas = 3
     } else {
@@ -63,16 +64,26 @@ fun main() {
 
     val valorCuota = totalPagar / cantidadCuotas
 
-    println("=========================================")
-    println("           CALCULOS DE MATRICULA")
-    println("=========================================")
-
+    println()
+    println("==============================================")
+    println("             RESUMEN DE MATRICULA")
+    println("==============================================")
     println("Estudiante: $nombreEstudiante")
+    println()
+
+    println(
+        String.format(
+            "%-25s %10s %15s",
+            "Curso", "Creditos", "Costo"
+        )
+    )
+
+    println("----------------------------------------------")
 
     for (i in 0 until cantidadCursos) {
         println(
             String.format(
-                "Curso: %-20s Creditos: %d Costo: S/ %.2f",
+                "%-25s %10d %15.2f",
                 nombresCursos[i],
                 creditosCursos[i],
                 costosCursos[i]
@@ -80,7 +91,9 @@ fun main() {
         )
     }
 
+    println("----------------------------------------------")
     println()
+
     println("Cursos matriculados: $cantidadCursos")
     println("Total de creditos: $totalCreditos")
     println(String.format("TOTAL A PAGAR: S/ %.2f", totalPagar))
@@ -93,5 +106,6 @@ fun main() {
         )
     )
 
-}
+    println("==============================================")
 
+}
