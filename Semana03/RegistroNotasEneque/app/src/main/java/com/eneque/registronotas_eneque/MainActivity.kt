@@ -93,6 +93,7 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             var nota4 by remember { mutableFloatStateOf(0f) }
             var redondear by remember { mutableStateOf(false) }
             var confirmado by remember { mutableStateOf(false) }
+            var calculado by remember { mutableStateOf(false) }
 
             FilaCurso(curso = listaCursos[0], nota = nota1, onNotaChange = { nota1 = it })
             Spacer(modifier = Modifier.height(20.dp))
@@ -131,6 +132,29 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = { calculado = true },
+                enabled = confirmado,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = Color.LightGray
+                )
+            ) {
+                Text("CALCULAR PROMEDIO", fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!calculado) {
+                Text(
+                    text = "Asigna las notas y confirma para calcular",
+                    color = MaterialTheme.colorScheme.outline,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                // aquí irá la tarjeta de resultados (Commit 5 y 6)
+            }
         }
         Text(
             text = "Desarrollado por: Oscar Eneque",
