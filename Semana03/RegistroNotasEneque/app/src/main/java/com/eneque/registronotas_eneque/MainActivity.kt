@@ -91,6 +91,8 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             var nota2 by remember { mutableFloatStateOf(0f) }
             var nota3 by remember { mutableFloatStateOf(0f) }
             var nota4 by remember { mutableFloatStateOf(0f) }
+            var redondear by remember { mutableStateOf(false) }
+            var confirmado by remember { mutableStateOf(false) }
 
             FilaCurso(curso = listaCursos[0], nota = nota1, onNotaChange = { nota1 = it })
             Spacer(modifier = Modifier.height(20.dp))
@@ -100,6 +102,35 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(20.dp))
             FilaCurso(curso = listaCursos[3], nota = nota4, onNotaChange = { nota4 = it })
             Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Redondear promedio final",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Switch(
+                    checked = redondear,
+                    onCheckedChange = { redondear = it }
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = confirmado,
+                    onCheckedChange = { confirmado = it }
+                )
+                Text(
+                    text = "Confirmo que las notas son correctas",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
         }
         Text(
             text = "Desarrollado por: Oscar Eneque",
