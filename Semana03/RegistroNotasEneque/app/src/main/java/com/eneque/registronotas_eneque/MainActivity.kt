@@ -179,10 +179,52 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                     else -> Color(0xFFD32F2F)             // rojo
                 }
 
-                // Verificación temporal — se reemplaza por la tarjeta final en el Commit 6
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(
+                            text = "Promedio ponderado: ${String.format(Locale.US, "%.2f", promedioPonderado)}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Promedio final: ${
+                                if (redondear) promedioFinal.toInt().toString()
+                                else String.format(Locale.US, "%.2f", promedioFinal)
+                            }",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (redondear) {
+                            Text(
+                                text = "(redondeado)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = colorChip.copy(alpha = 0.15f)
+                        ) {
+                            Text(
+                                text = observacion,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                fontWeight = FontWeight.Bold,
+                                color = colorChip
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Ponderado: ${String.format(Locale.US, "%.2f", promedioPonderado)} | " +
-                            "Final: ${String.format(Locale.US, "%.2f", promedioFinal)} | $observacion"
+                    text = "✓ Promedio calculado correctamente",
+                    color = Color(0xFF2E7D32),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
