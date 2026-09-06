@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -85,7 +86,20 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.outline
             )
             Spacer(modifier = Modifier.height(16.dp))
-            // aquí irán las filas de curso, switch, checkbox, boton y resultado
+
+            var nota1 by remember { mutableFloatStateOf(0f) }
+            var nota2 by remember { mutableFloatStateOf(0f) }
+            var nota3 by remember { mutableFloatStateOf(0f) }
+            var nota4 by remember { mutableFloatStateOf(0f) }
+
+            FilaCurso(curso = listaCursos[0], nota = nota1, onNotaChange = { nota1 = it })
+            Spacer(modifier = Modifier.height(20.dp))
+            FilaCurso(curso = listaCursos[1], nota = nota2, onNotaChange = { nota2 = it })
+            Spacer(modifier = Modifier.height(20.dp))
+            FilaCurso(curso = listaCursos[2], nota = nota3, onNotaChange = { nota3 = it })
+            Spacer(modifier = Modifier.height(20.dp))
+            FilaCurso(curso = listaCursos[3], nota = nota4, onNotaChange = { nota4 = it })
+            Spacer(modifier = Modifier.height(24.dp))
         }
         Text(
             text = "Desarrollado por: Oscar Eneque",
@@ -95,6 +109,56 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilaCurso(curso: Curso, nota: Float, onNotaChange: (Float) -> Unit) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row {
+                Text(
+                    text = curso.nombre,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "(${(curso.peso * 100).toInt()}%)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Text(
+                    text = "${nota.toInt()}",
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        Slider(
+            value = nota,
+            onValueChange = onNotaChange,
+            valueRange = 0f..20f,
+            steps = 19,
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                )
+            }
         )
     }
 }
