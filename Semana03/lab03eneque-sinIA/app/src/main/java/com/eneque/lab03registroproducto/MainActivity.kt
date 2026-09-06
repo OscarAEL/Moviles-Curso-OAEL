@@ -108,7 +108,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         ) {
             Text("AGREGAR PRODUCTO")
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
             onClick = {
                 nombre = ""
@@ -119,7 +119,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("LIMPIAR")
+            Text("LIMPIAR DATOS INGRESADOS")
         }
         Spacer(modifier = Modifier.height(24.dp))
         if (mostrarError) {
