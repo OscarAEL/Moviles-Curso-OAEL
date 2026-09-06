@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.eneque.registronotas_eneque.ui.theme.RegistroNotasEnequeTheme
 import kotlin.math.roundToInt
 import androidx.compose.material3.ExperimentalMaterial3Api
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -153,7 +154,36 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             } else {
-                // aquí irá la tarjeta de resultados (Commit 5 y 6)
+                val promedioPonderado = nota1 * listaCursos[0].peso +
+                        nota2 * listaCursos[1].peso +
+                        nota3 * listaCursos[2].peso +
+                        nota4 * listaCursos[3].peso
+
+                val promedioFinal = if (redondear) {
+                    promedioPonderado.roundToInt().toFloat()
+                } else {
+                    promedioPonderado
+                }
+
+                val observacion = when {
+                    promedioFinal >= 17f -> "EXCELENTE"
+                    promedioFinal >= 13f -> "APROBADO"
+                    promedioFinal >= 10f -> "EN RECUPERACIÓN"
+                    else -> "DESAPROBADO"
+                }
+
+                val colorChip = when (observacion) {
+                    "EXCELENTE" -> Color(0xFF1B5E20)      // verde oscuro
+                    "APROBADO" -> Color(0xFF4CAF50)       // verde
+                    "EN RECUPERACIÓN" -> Color(0xFFFFA000) // ámbar
+                    else -> Color(0xFFD32F2F)             // rojo
+                }
+
+                // Verificación temporal — se reemplaza por la tarjeta final en el Commit 6
+                Text(
+                    text = "Ponderado: ${String.format(Locale.US, "%.2f", promedioPonderado)} | " +
+                            "Final: ${String.format(Locale.US, "%.2f", promedioFinal)} | $observacion"
+                )
             }
         }
         Text(
