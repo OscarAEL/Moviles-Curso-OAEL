@@ -42,7 +42,7 @@ data class OpcionFecha(
 fun AgendarCitaScreen(
     medicoId: Int,
     onBackClick: () -> Unit,
-    onConfirmarClick: () -> Unit = {}
+    onConfirmarClick: (fecha: String, hora: String) -> Unit = { _, _ -> }
 ) {
     val opcionesFecha = listOf(
         OpcionFecha("Jue", "26"),
@@ -192,7 +192,7 @@ fun AgendarCitaScreen(
 
             // Botón inferior "Confirmar cita"
             Button(
-                onClick = onConfirmarClick,
+                onClick = { onConfirmarClick(fechaSeleccionada, horaSeleccionada) },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = PurpleDarkHeader
