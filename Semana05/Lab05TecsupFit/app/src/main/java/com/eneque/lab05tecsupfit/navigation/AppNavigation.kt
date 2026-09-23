@@ -34,7 +34,10 @@ fun AppNavigation() {
             val claseId = backStackEntry.arguments?.getInt("claseId") ?: 0
             DetalleClaseScreen(
                 claseId = claseId,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onReservarClick = {
+                    // Callback preparado para navegar a la futura pantalla ConfirmacionReservaScreen
+                }
             )
         }
     }

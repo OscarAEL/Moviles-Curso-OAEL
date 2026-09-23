@@ -48,7 +48,7 @@ fun DetalleClaseScreen(
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
-            // Botón verde oscuro cerca de la parte inferior con padding de la barra de navegación del sistema
+            // Botón verde oscuro cerca de la parte inferior
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -133,7 +133,7 @@ fun DetalleClaseScreen(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Horario · Sala · Duración en una sola línea
+                // Horario · Sala · Duración en una sola línea (de la clase seleccionada)
                 Text(
                     text = "${clase.horario} · ${clase.sala} · ${clase.duracion}",
                     fontSize = 14.sp,
