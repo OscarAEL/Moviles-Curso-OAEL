@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.eneque.lab05tecsupfit.ui.HomeScreen
+import com.eneque.lab05tecsupfit.navigation.AppNavigation
 import com.eneque.lab05tecsupfit.ui.theme.Lab05TecsupFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Lab05TecsupFitTheme {
-                HomeScreen()
+                AppNavigation()
             }
         }
     }

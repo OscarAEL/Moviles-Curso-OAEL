@@ -1,5 +1,6 @@
 package com.eneque.lab05tecsupfit.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,12 +29,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eneque.lab05tecsupfit.model.ClaseFit
+import com.eneque.lab05tecsupfit.model.ClaseRepository
 import com.eneque.lab05tecsupfit.ui.theme.GreenDarkHeader
 import com.eneque.lab05tecsupfit.ui.theme.GreenLightIconBg
 import com.eneque.lab05tecsupfit.ui.theme.GreenSelectedFilter
@@ -42,20 +48,16 @@ import com.eneque.lab05tecsupfit.ui.theme.TextDark
 import com.eneque.lab05tecsupfit.ui.theme.TextSecondary
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onClaseClick: (Int) -> Unit = {}
+) {
     // Estado simple para el filtro seleccionado ("Hoy" por defecto)
     var filtroSeleccionado by remember { mutableStateOf("Hoy") }
 
-    // Lista de clases solicitadas
-    val listaClases = remember {
-        listOf(
-            ClaseFit(id = 1, nombre = "Yoga funcional", horario = "7:00 am · Sala 2", filtro = "Hoy"),
-            ClaseFit(id = 2, nombre = "Cross Training", horario = "6:00 pm · Sala 1", filtro = "Hoy"),
-            ClaseFit(id = 3, nombre = "Spinning", horario = "7:30 pm · Sala 3", filtro = "Hoy")
-        )
-    }
+    // Obtener las clases del repositorio
+    val listaClases = remember { ClaseRepository.listaClases }
 
-    // Filtrar clases: "Hoy" muestra las 3 clases, "Esta semana" muestra las clases filtradas
+    // Filtrar clases según la opción seleccionada
     val clasesFiltradas = if (filtroSeleccionado == "Hoy") {
         listaClases
     } else {
@@ -71,7 +73,7 @@ fun HomeScreen() {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Cabecera superior compacta de color verde oscuro (#0F7A5C)
+            // Cabecera superior compacta de color verde oscuro
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,7 +98,7 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Sección de filtros horizontales compactos
+            // Sección de filtros horizontales
             val filtros = listOf("Hoy", "Esta semana")
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
@@ -141,7 +143,10 @@ fun HomeScreen() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(clasesFiltradas) { clase ->
-                    ClaseCard(clase = clase)
+                    ClaseCard(
+                        clase = clase,
+                        onClick = { onClaseClick(clase.id) }
+                    )
                 }
             }
         }
@@ -149,27 +154,30 @@ fun HomeScreen() {
 }
 
 @Composable
-fun ClaseCard(clase: ClaseFit) {
+fun ClaseCard(
+    clase: ClaseFit,
+    onClick: () -> Unit = {}
+) {
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = LightGreyCardBg,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Recuadro verde claro (#D9F3EA) con símbolo de gimnasio
+            // Recuadro verde claro (#D9F3EA) con icono de mancuerna/pesa dibujado
             Box(
                 modifier = Modifier
                     .size(38.dp)
                     .background(GreenLightIconBg, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "🏋",
-                    fontSize = 18.sp
-                )
+                DumbbellIcon()
             }
 
             // Nombre y horario con sala
@@ -186,7 +194,7 @@ fun ClaseCard(clase: ClaseFit) {
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = clase.horario,
+                    text = "${clase.horario} · ${clase.sala}",
                     fontSize = 12.sp,
                     color = TextSecondary
                 )
@@ -200,6 +208,56 @@ fun ClaseCard(clase: ClaseFit) {
                 color = TextSecondary
             )
         }
+    }
+}
+
+@Composable
+fun DumbbellIcon(
+    modifier: Modifier = Modifier,
+    color: Color = GreenDarkHeader
+) {
+    Canvas(modifier = modifier.size(20.dp)) {
+        val w = size.width
+        val h = size.height
+
+        // Barra central de la mancuerna
+        drawLine(
+            color = color,
+            start = Offset(w * 0.2f, h * 0.5f),
+            end = Offset(w * 0.8f, h * 0.5f),
+            strokeWidth = h * 0.16f,
+            cap = StrokeCap.Round
+        )
+
+        // Disco interno izquierdo
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(w * 0.18f, h * 0.22f),
+            size = Size(w * 0.1f, h * 0.56f),
+            cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+        // Disco externo izquierdo
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(w * 0.08f, h * 0.3f),
+            size = Size(w * 0.08f, h * 0.4f),
+            cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+
+        // Disco interno derecho
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(w * 0.72f, h * 0.22f),
+            size = Size(w * 0.1f, h * 0.56f),
+            cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+        // Disco externo derecho
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(w * 0.84f, h * 0.3f),
+            size = Size(w * 0.08f, h * 0.4f),
+            cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
     }
 }
 
