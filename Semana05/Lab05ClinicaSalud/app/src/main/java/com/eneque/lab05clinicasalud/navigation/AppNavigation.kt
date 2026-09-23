@@ -1,19 +1,36 @@
 package com.eneque.lab05clinicasalud.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.eneque.lab05clinicasalud.model.Cita
 import com.eneque.lab05clinicasalud.ui.AgendarCitaScreen
 import com.eneque.lab05clinicasalud.ui.ConfirmacionCitaScreen
 import com.eneque.lab05clinicasalud.ui.HomeScreen
+import com.eneque.lab05clinicasalud.ui.MisCitasScreen
 import com.eneque.lab05clinicasalud.ui.PerfilMedicoScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+
+    // Citas almacenadas temporalmente en memoria para la ejecución actual
+    val citas = remember {
+        mutableStateListOf(
+            Cita(
+                id = 1,
+                medicoId = 2,
+                fecha = "Miércoles 15",
+                hora = "3:00 pm",
+                estado = "Completada"
+            )
+        )
+    }
 
     NavHost(
         navController = navController,
@@ -23,6 +40,9 @@ fun AppNavigation() {
             HomeScreen(
                 onMedicoClick = { medicoId ->
                     navController.navigate(Routes.perfilMedico(medicoId))
+                },
+                onMisCitasClick = {
+                    navController.navigate(Routes.MIS_CITAS)
                 }
             )
         }
@@ -62,6 +82,14 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onConfirmarClick = { fecha, hora ->
+                    val nuevaCita = Cita(
+                        id = citas.size + 1,
+                        medicoId = medicoId,
+                        fecha = fecha,
+                        hora = hora,
+                        estado = "Confirmada"
+                    )
+                    citas.add(nuevaCita)
                     navController.navigate(Routes.confirmacionCita(medicoId, fecha, hora))
                 }
             )
@@ -89,7 +117,23 @@ fun AppNavigation() {
                 fecha = fecha,
                 hora = hora,
                 onVerMisCitasClick = {
-                    // Callback listo para la pantalla Mis Citas en los siguientes avances
+                    navController.navigate(Routes.MIS_CITAS)
+                }
+            )
+        }
+
+        composable(Routes.MIS_CITAS) {
+            MisCitasScreen(
+                citas = citas,
+                onInicioClick = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onMisCitasClick = {
+                    // Permanecer en la pantalla actual
                 }
             )
         }

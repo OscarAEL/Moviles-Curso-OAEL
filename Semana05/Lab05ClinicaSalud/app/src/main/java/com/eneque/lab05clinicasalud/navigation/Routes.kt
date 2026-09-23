@@ -5,6 +5,7 @@ object Routes {
     const val PERFIL_MEDICO = "perfil_medico/{medicoId}"
     const val AGENDAR_CITA = "agendar_cita/{medicoId}"
     const val CONFIRMACION_CITA = "confirmacion_cita/{medicoId}/{fecha}/{hora}"
+    const val MIS_CITAS = "mis_citas"
 
     fun perfilMedico(medicoId: Int): String {
         return "perfil_medico/$medicoId"
