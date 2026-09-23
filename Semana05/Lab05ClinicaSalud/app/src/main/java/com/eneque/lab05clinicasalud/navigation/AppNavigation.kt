@@ -43,10 +43,14 @@ fun AppNavigation() {
                     navController.navigate(Routes.perfilMedico(medicoId))
                 },
                 onMisCitasClick = {
-                    navController.navigate(Routes.MIS_CITAS)
+                    navController.navigate(Routes.MIS_CITAS) {
+                        launchSingleTop = true
+                    }
                 },
                 onHistorialClick = {
-                    navController.navigate(Routes.HISTORIAL_MEDICO)
+                    navController.navigate(Routes.HISTORIAL_MEDICO) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -86,14 +90,19 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onConfirmarClick = { fecha, hora ->
-                    val nuevaCita = Cita(
-                        id = citas.size + 1,
-                        medicoId = medicoId,
-                        fecha = fecha,
-                        hora = hora,
-                        estado = "Confirmada"
-                    )
-                    citas.add(nuevaCita)
+                    val yaExiste = citas.any {
+                        it.medicoId == medicoId && it.fecha == fecha && it.hora == hora && it.estado == "Confirmada"
+                    }
+                    if (!yaExiste) {
+                        val nuevaCita = Cita(
+                            id = citas.size + 1,
+                            medicoId = medicoId,
+                            fecha = fecha,
+                            hora = hora,
+                            estado = "Confirmada"
+                        )
+                        citas.add(nuevaCita)
+                    }
                     navController.navigate(Routes.confirmacionCita(medicoId, fecha, hora))
                 }
             )
@@ -121,7 +130,9 @@ fun AppNavigation() {
                 fecha = fecha,
                 hora = hora,
                 onVerMisCitasClick = {
-                    navController.navigate(Routes.MIS_CITAS)
+                    navController.navigate(Routes.MIS_CITAS) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -134,13 +145,16 @@ fun AppNavigation() {
                         popUpTo(Routes.HOME) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 onMisCitasClick = {
                     // Permanecer en la pantalla actual
                 },
                 onHistorialClick = {
-                    navController.navigate(Routes.HISTORIAL_MEDICO)
+                    navController.navigate(Routes.HISTORIAL_MEDICO) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -152,10 +166,13 @@ fun AppNavigation() {
                         popUpTo(Routes.HOME) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 onMisCitasClick = {
-                    navController.navigate(Routes.MIS_CITAS)
+                    navController.navigate(Routes.MIS_CITAS) {
+                        launchSingleTop = true
+                    }
                 },
                 onHistorialClick = {
                     // Permanecer en la pantalla actual
