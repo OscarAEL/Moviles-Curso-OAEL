@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,14 +30,15 @@ import androidx.compose.ui.unit.sp
 import com.eneque.lab05clinicasalud.model.listaMedicos
 import com.eneque.lab05clinicasalud.ui.theme.GraySubtitle
 import com.eneque.lab05clinicasalud.ui.theme.Lab05ClinicaSaludTheme
-import com.eneque.lab05clinicasalud.ui.theme.PurpleCardBg
+import com.eneque.lab05clinicasalud.ui.theme.PurpleCircleIconBg
 import com.eneque.lab05clinicasalud.ui.theme.PurpleDarkHeader
 import com.eneque.lab05clinicasalud.ui.theme.StarYellow
 
 @Composable
 fun PerfilMedicoScreen(
     medicoId: Int,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onAgendarCitaClick: () -> Unit = {}
 ) {
     val medico = listaMedicos.find { it.id == medicoId }
 
@@ -47,101 +51,146 @@ fun PerfilMedicoScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = innerPadding.calculateBottomPadding())
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding()
+                )
         ) {
-            // Cabecera con botón para volver atrás y el título "Perfil del médico"
-            Box(
+            // Encabezado superior con fondo blanco
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(PurpleDarkHeader)
-                    .padding(
-                        top = innerPadding.calculateTopPadding() + 16.dp,
-                        bottom = 16.dp,
-                        start = 16.dp,
-                        end = 16.dp
-                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "←",
-                        color = Color.White,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .clickable { onBackClick() }
-                            .padding(end = 12.dp)
-                    )
-                    Text(
-                        text = "Perfil del médico",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                }
+                Text(
+                    text = "←",
+                    color = Color.Black,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clickable { onBackClick() }
+                        .padding(end = 12.dp)
+                )
+                Text(
+                    text = "Perfil del médico",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Información básica del médico seleccionado
             if (medico != null) {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = PurpleCardBg
-                    ),
+                // Área de contenido que ocupa el espacio disponible antes del botón
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp)
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Círculo grande de color lila muy claro con símbolo "+" morado
+                    Surface(
+                        shape = CircleShape,
+                        color = PurpleCircleIconBg,
+                        modifier = Modifier.size(90.dp)
                     ) {
-                        Text(
-                            text = medico.nombre,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Especialidad: ${medico.especialidad}",
-                            fontSize = 15.sp,
-                            color = GraySubtitle
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                        Box(
+                            contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Calificación: ",
-                                fontSize = 15.sp,
-                                color = GraySubtitle
-                            )
-                            Text(
-                                text = "★",
-                                color = StarYellow,
-                                fontSize = 16.sp
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = medico.calificacion.toString(),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                color = Color.Black
+                                text = "+",
+                                color = PurpleDarkHeader,
+                                fontSize = 52.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Nombre del médico
+                    Text(
+                        text = medico.nombre,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Especialidad y años de experiencia
+                    Text(
+                        text = "${medico.especialidad} · ${medico.experiencia} años exp.",
+                        fontSize = 15.sp,
+                        color = GraySubtitle
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Calificación y reseñas
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "★",
+                            color = StarYellow,
+                            fontSize = 18.sp
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${medico.calificacion} (${medico.resenas} reseñas)",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Descripción del médico
+                    Text(
+                        text = medico.descripcion,
+                        fontSize = 15.sp,
+                        color = Color(0xFF333333),
+                        lineHeight = 22.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                    )
+                }
+
+                // Botón ancho "Agendar cita" en la parte inferior
+                Button(
+                    onClick = onAgendarCitaClick,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PurpleDarkHeader
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .height(50.dp)
+                ) {
+                    Text(
+                        text = "Agendar cita",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             } else {
-                Text(
-                    text = "Médico no encontrado",
-                    color = Color.Red,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Médico no encontrado",
+                        color = Color.Red,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }
