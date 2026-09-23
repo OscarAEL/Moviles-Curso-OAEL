@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.eneque.lab05tecsupfit.ui.ConfirmacionReservaScreen
 import com.eneque.lab05tecsupfit.ui.DetalleClaseScreen
 import com.eneque.lab05tecsupfit.ui.HomeScreen
 
@@ -36,7 +37,22 @@ fun AppNavigation() {
                 claseId = claseId,
                 onBackClick = { navController.popBackStack() },
                 onReservarClick = {
-                    // Callback preparado para navegar a la futura pantalla ConfirmacionReservaScreen
+                    navController.navigate(Screen.ConfirmacionReserva.createRoute(claseId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.ConfirmacionReserva.route,
+            arguments = listOf(
+                navArgument("claseId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val claseId = backStackEntry.arguments?.getInt("claseId") ?: 0
+            ConfirmacionReservaScreen(
+                claseId = claseId,
+                onVerReservasClick = {
+                    // callback preparado para el siguiente avance
                 }
             )
         }
