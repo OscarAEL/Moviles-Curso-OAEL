@@ -49,7 +49,8 @@ import com.eneque.lab05tecsupfit.ui.theme.TextSecondary
 
 @Composable
 fun HomeScreen(
-    onClaseClick: (Int) -> Unit = {}
+    onClaseClick: (Int) -> Unit = {},
+    bottomBar: @Composable () -> Unit = {}
 ) {
     // Estado simple para el filtro seleccionado ("Hoy" por defecto)
     var filtroSeleccionado by remember { mutableStateOf("Hoy") }
@@ -66,6 +67,7 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color.White,
+        bottomBar = bottomBar,
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         Column(
