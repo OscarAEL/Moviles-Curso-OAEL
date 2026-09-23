@@ -1,6 +1,7 @@
 package com.eneque.lab05clinicasalud.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,13 +21,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eneque.lab05clinicasalud.model.Medico
 import com.eneque.lab05clinicasalud.model.listaMedicos
+import com.eneque.lab05clinicasalud.ui.components.AppDrawerContent
 import com.eneque.lab05clinicasalud.ui.theme.GraySubtitle
 import com.eneque.lab05clinicasalud.ui.theme.Lab05ClinicaSaludTheme
 import com.eneque.lab05clinicasalud.ui.theme.PurpleCardBg
@@ -44,10 +50,12 @@ import com.eneque.lab05clinicasalud.ui.theme.PurpleCircleIconBg
 import com.eneque.lab05clinicasalud.ui.theme.PurpleDarkHeader
 import com.eneque.lab05clinicasalud.ui.theme.PurpleLightChipBg
 import com.eneque.lab05clinicasalud.ui.theme.StarYellow
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    onMedicoClick: (Int) -> Unit = {}
+    onMedicoClick: (Int) -> Unit = {},
+    onMisCitasClick: () -> Unit = {}
 ) {
     var filtroSeleccionado by remember { mutableStateOf("Todos") }
 
@@ -59,104 +67,148 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        containerColor = Color.White
-    ) { innerPadding ->
-        Column(
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            AppDrawerContent(
+                opcionSeleccionada = "Inicio",
+                onInicioClick = {
+                    scope.launch { drawerState.close() }
+                },
+                onMisCitasClick = {
+                    scope.launch { drawerState.close() }
+                    onMisCitasClick()
+                },
+                onHistorialClick = {
+                    scope.launch { drawerState.close() }
+                },
+                onPerfilClick = {
+                    scope.launch { drawerState.close() }
+                }
+            )
+        }
+    ) {
+        Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = innerPadding.calculateBottomPadding())
-        ) {
-            // Cabecera rectangular de color morado oscuro (#6A2996)
-            Box(
+                .background(Color.White),
+            containerColor = Color.White
+        ) { innerPadding ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(PurpleDarkHeader)
-                    .padding(
-                        top = innerPadding.calculateTopPadding() + 16.dp,
-                        bottom = 20.dp,
-                        start = 16.dp,
-                        end = 16.dp
-                    )
+                    .fillMaxSize()
+                    .padding(bottom = innerPadding.calculateBottomPadding())
             ) {
-                Column {
-                    Text(
-                        text = "Clínica Salud+",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Hola, Oscar",
-                        color = Color.White.copy(alpha = 0.9f),
-                        fontSize = 15.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Filtros de especialidad
-            val opcionesFiltro = listOf("Todos", "Cardiología", "Pediatría", "Dermatología")
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp)
-            ) {
-                items(opcionesFiltro) { opcion ->
-                    val esSeleccionado = opcion == filtroSeleccionado
-                    Surface(
-                        onClick = { filtroSeleccionado = opcion },
-                        shape = RoundedCornerShape(20.dp),
-                        color = if (esSeleccionado) PurpleDarkHeader else PurpleLightChipBg,
-                        modifier = Modifier.height(36.dp)
+                // Cabecera rectangular morado oscuro (#6A2996) con botón hamburguesa ☰
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(PurpleDarkHeader)
+                        .padding(
+                            top = innerPadding.calculateTopPadding() + 16.dp,
+                            bottom = 20.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        ) {
+                        Column {
                             Text(
-                                text = opcion,
-                                color = if (esSeleccionado) Color.White else Color(0xFF333333),
-                                fontSize = 14.sp,
-                                fontWeight = if (esSeleccionado) FontWeight.Bold else FontWeight.Normal
+                                text = "Clínica Salud+",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp
                             )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Hola, Oscar",
+                                color = Color.White.copy(alpha = 0.9f),
+                                fontSize = 15.sp
+                            )
+                        }
+
+                        // Icono hamburguesa ☰ para abrir el drawer
+                        Text(
+                            text = "☰",
+                            color = Color.White,
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .clickable {
+                                    scope.launch { drawerState.open() }
+                                }
+                                .padding(8.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Filtros de especialidad
+                val opcionesFiltro = listOf("Todos", "Cardiología", "Pediatría", "Dermatología")
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    items(opcionesFiltro) { opcion ->
+                        val esSeleccionado = opcion == filtroSeleccionado
+                        Surface(
+                            onClick = { filtroSeleccionado = opcion },
+                            shape = RoundedCornerShape(20.dp),
+                            color = if (esSeleccionado) PurpleDarkHeader else PurpleLightChipBg,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Text(
+                                    text = opcion,
+                                    color = if (esSeleccionado) Color.White else Color(0xFF333333),
+                                    fontSize = 14.sp,
+                                    fontWeight = if (esSeleccionado) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Título "Médicos disponibles"
-            Text(
-                text = "Médicos disponibles",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                // Título "Médicos disponibles"
+                Text(
+                    text = "Médicos disponibles",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Lista de médicos
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(
-                    items = medicosFiltrados,
-                    key = { it.id }
-                ) { medico ->
-                    MedicoItem(
-                        medico = medico,
-                        onClick = { onMedicoClick(medico.id) }
-                    )
+                // Lista de médicos
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(
+                        items = medicosFiltrados,
+                        key = { it.id }
+                    ) { medico ->
+                        MedicoItem(
+                            medico = medico,
+                            onClick = { onMedicoClick(medico.id) }
+                        )
+                    }
                 }
             }
         }
