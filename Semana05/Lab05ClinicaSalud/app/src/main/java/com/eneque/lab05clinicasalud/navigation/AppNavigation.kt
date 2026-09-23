@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.eneque.lab05clinicasalud.ui.AgendarCitaScreen
 import com.eneque.lab05clinicasalud.ui.HomeScreen
 import com.eneque.lab05clinicasalud.ui.PerfilMedicoScreen
 
@@ -38,6 +39,29 @@ fun AppNavigation() {
                 medicoId = medicoId,
                 onBackClick = {
                     navController.popBackStack()
+                },
+                onAgendarCitaClick = {
+                    navController.navigate(Routes.agendarCita(medicoId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.AGENDAR_CITA,
+            arguments = listOf(
+                navArgument("medicoId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            AgendarCitaScreen(
+                medicoId = medicoId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onConfirmarClick = {
+                    // Preparado para navegar a la pantalla de confirmación final en el siguiente avance
                 }
             )
         }
