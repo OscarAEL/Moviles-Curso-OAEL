@@ -2,13 +2,15 @@ package com.eneque.lab05tecsupfit.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.eneque.lab05tecsupfit.model.Reserva
 import com.eneque.lab05tecsupfit.ui.ConfirmacionReservaScreen
 import com.eneque.lab05tecsupfit.ui.DetalleClaseScreen
 import com.eneque.lab05tecsupfit.ui.HomeScreen
@@ -23,14 +25,20 @@ fun AppNavigation() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // Lista temporal de reservas guardadas en memoria
+    val listaReservas = remember {
+        mutableStateListOf(
+            Reserva(id = 1, claseId = 1, estado = "Completada") // Yoga funcional - Completada
+        )
+    }
+
     val onTabSelected: (String) -> Unit = { targetRoute ->
         if (targetRoute != currentRoute) {
             navController.navigate(targetRoute) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
+                popUpTo(Screen.Home.route) {
+                    inclusive = false
                 }
                 launchSingleTop = true
-                restoreState = true
             }
         }
     }
@@ -55,6 +63,7 @@ fun AppNavigation() {
 
         composable(Screen.Reservas.route) {
             ReservasScreen(
+                reservas = listaReservas,
                 bottomBar = {
                     AppBottomBar(
                         currentRoute = currentRoute,
@@ -97,6 +106,20 @@ fun AppNavigation() {
                 claseId = claseId,
                 onBackClick = { navController.popBackStack() },
                 onReservarClick = {
+                    // Evitar duplicar si ya existe la reserva para esta clase
+                    val existenteIndex = listaReservas.indexOfFirst { it.claseId == claseId }
+                    if (existenteIndex != -1) {
+                        listaReservas[existenteIndex] = listaReservas[existenteIndex].copy(estado = "Confirmada")
+                    } else {
+                        listaReservas.add(
+                            Reserva(
+                                id = listaReservas.size + 1,
+                                claseId = claseId,
+                                estado = "Confirmada"
+                            )
+                        )
+                    }
+
                     navController.navigate(Screen.ConfirmacionReserva.createRoute(claseId))
                 }
             )
@@ -113,11 +136,10 @@ fun AppNavigation() {
                 claseId = claseId,
                 onVerReservasClick = {
                     navController.navigate(Screen.Reservas.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
                         }
                         launchSingleTop = true
-                        restoreState = true
                     }
                 }
             )
