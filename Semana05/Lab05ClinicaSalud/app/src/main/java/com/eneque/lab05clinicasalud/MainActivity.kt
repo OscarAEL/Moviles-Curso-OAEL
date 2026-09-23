@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.eneque.lab05clinicasalud.ui.HomeScreen
+import com.eneque.lab05clinicasalud.navigation.AppNavigation
 import com.eneque.lab05clinicasalud.ui.theme.Lab05ClinicaSaludTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Lab05ClinicaSaludTheme {
-                HomeScreen()
+                AppNavigation()
             }
         }
     }

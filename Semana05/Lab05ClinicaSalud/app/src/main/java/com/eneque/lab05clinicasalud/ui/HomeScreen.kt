@@ -46,7 +46,9 @@ import com.eneque.lab05clinicasalud.ui.theme.PurpleLightChipBg
 import com.eneque.lab05clinicasalud.ui.theme.StarYellow
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onMedicoClick: (Int) -> Unit = {}
+) {
     var filtroSeleccionado by remember { mutableStateOf("Todos") }
 
     val medicosFiltrados = remember(filtroSeleccionado) {
@@ -151,7 +153,10 @@ fun HomeScreen() {
                     items = medicosFiltrados,
                     key = { it.id }
                 ) { medico ->
-                    MedicoItem(medico = medico)
+                    MedicoItem(
+                        medico = medico,
+                        onClick = { onMedicoClick(medico.id) }
+                    )
                 }
             }
         }
@@ -159,8 +164,12 @@ fun HomeScreen() {
 }
 
 @Composable
-fun MedicoItem(medico: Medico) {
+fun MedicoItem(
+    medico: Medico,
+    onClick: () -> Unit
+) {
     Card(
+        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = PurpleCardBg
