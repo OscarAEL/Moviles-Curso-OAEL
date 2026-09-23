@@ -5,16 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eneque.lab05clinicasalud.model.Cita
 import com.eneque.lab05clinicasalud.model.listaMedicos
 import com.eneque.lab05clinicasalud.ui.components.AppDrawerContent
 import com.eneque.lab05clinicasalud.ui.theme.GraySubtitle
@@ -44,9 +40,31 @@ import com.eneque.lab05clinicasalud.ui.theme.PurpleCardBg
 import com.eneque.lab05clinicasalud.ui.theme.PurpleDarkHeader
 import kotlinx.coroutines.launch
 
+data class RegistroHistorial(
+    val id: Int,
+    val medicoId: Int,
+    val especialidad: String,
+    val fecha: String,
+    val estado: String = "Atendido"
+)
+
+val listaHistorial = listOf(
+    RegistroHistorial(
+        id = 1,
+        medicoId = 1,
+        especialidad = "Cardiología",
+        fecha = "Lun 12"
+    ),
+    RegistroHistorial(
+        id = 2,
+        medicoId = 2,
+        especialidad = "Pediatría",
+        fecha = "Mar 06"
+    )
+)
+
 @Composable
-fun MisCitasScreen(
-    citas: List<Cita>,
+fun HistorialMedicoScreen(
     onInicioClick: () -> Unit = {},
     onMisCitasClick: () -> Unit = {},
     onHistorialClick: () -> Unit = {}
@@ -58,7 +76,7 @@ fun MisCitasScreen(
         drawerState = drawerState,
         drawerContent = {
             AppDrawerContent(
-                opcionSeleccionada = "Mis citas",
+                opcionSeleccionada = "Historial médico",
                 onInicioClick = {
                     scope.launch { drawerState.close() }
                     onInicioClick()
@@ -91,7 +109,7 @@ fun MisCitasScreen(
                         bottom = innerPadding.calculateBottomPadding()
                     )
             ) {
-                // Encabezado con título "Mis citas" y botón hamburguesa ☰
+                // Encabezado con título "Historial médico" e icono ☰
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -100,7 +118,7 @@ fun MisCitasScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Mis citas",
+                        text = "Historial médico",
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         color = Color.Black
@@ -119,19 +137,27 @@ fun MisCitasScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                // Subtítulo "Atenciones anteriores"
+                Text(
+                    text = "Atenciones anteriores",
+                    fontSize = 15.sp,
+                    color = GraySubtitle,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
 
-                // Lista de citas utilizando LazyColumn
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // LazyColumn con el historial
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(
-                        items = citas,
+                        items = listaHistorial,
                         key = { it.id }
-                    ) { cita ->
-                        CitaCardItem(cita = cita)
+                    ) { registro ->
+                        HistorialCardItem(registro = registro)
                     }
                 }
             }
@@ -140,13 +166,8 @@ fun MisCitasScreen(
 }
 
 @Composable
-fun CitaCardItem(cita: Cita) {
-    val medico = listaMedicos.find { it.id == cita.medicoId }
-    val esConfirmada = cita.estado == "Confirmada"
-
-    val lineaColor = if (esConfirmada) PurpleDarkHeader else Color(0xFF888888)
-    val chipBgColor = if (esConfirmada) Color(0xFFE8F5E9) else Color(0xFFEEEEEE)
-    val chipTextColor = if (esConfirmada) Color(0xFF2E7D32) else Color(0xFF666666)
+fun HistorialCardItem(registro: RegistroHistorial) {
+    val medico = listaMedicos.find { it.id == registro.medicoId }
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -156,23 +177,15 @@ fun CitaCardItem(cita: Cita) {
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+                .padding(16.dp)
         ) {
-            // Línea vertical lateral izquierda de color
-            Box(
-                modifier = Modifier
-                    .width(6.dp)
-                    .fillMaxHeight()
-                    .background(lineaColor)
-            )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = medico?.nombre ?: "Médico",
@@ -180,26 +193,11 @@ fun CitaCardItem(cita: Cita) {
                     fontSize = 16.sp,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(4.dp))
 
-                val textoHora = if (cita.hora.lowercase().contains("am") || cita.hora.lowercase().contains("pm")) {
-                    cita.hora
-                } else {
-                    "${cita.hora} am"
-                }
-
-                Text(
-                    text = "${cita.fecha}, $textoHora",
-                    fontSize = 14.sp,
-                    color = GraySubtitle
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Etiqueta del estado
+                // Etiqueta "Atendido"
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = chipBgColor,
+                    color = Color(0xFFE8DEF8),
                     modifier = Modifier.height(26.dp)
                 ) {
                     Box(
@@ -207,39 +205,38 @@ fun CitaCardItem(cita: Cita) {
                         modifier = Modifier.padding(horizontal = 12.dp)
                     ) {
                         Text(
-                            text = cita.estado,
-                            color = chipTextColor,
+                            text = registro.estado,
+                            color = PurpleDarkHeader,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = registro.especialidad,
+                fontSize = 14.sp,
+                color = GraySubtitle
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Fecha: ${registro.fecha}",
+                fontSize = 13.sp,
+                color = Color(0xFF555555)
+            )
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MisCitasScreenPreview() {
+fun HistorialMedicoScreenPreview() {
     Lab05ClinicaSaludTheme {
-        MisCitasScreen(
-            citas = listOf(
-                Cita(
-                    id = 1,
-                    medicoId = 2,
-                    fecha = "Miércoles 15",
-                    hora = "3:00 pm",
-                    estado = "Completada"
-                ),
-                Cita(
-                    id = 2,
-                    medicoId = 1,
-                    fecha = "Vie 27",
-                    hora = "10:30",
-                    estado = "Confirmada"
-                )
-            )
-        )
+        HistorialMedicoScreen()
     }
 }

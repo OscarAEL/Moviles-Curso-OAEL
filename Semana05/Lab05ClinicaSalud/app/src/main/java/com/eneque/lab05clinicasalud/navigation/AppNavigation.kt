@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.eneque.lab05clinicasalud.model.Cita
 import com.eneque.lab05clinicasalud.ui.AgendarCitaScreen
 import com.eneque.lab05clinicasalud.ui.ConfirmacionCitaScreen
+import com.eneque.lab05clinicasalud.ui.HistorialMedicoScreen
 import com.eneque.lab05clinicasalud.ui.HomeScreen
 import com.eneque.lab05clinicasalud.ui.MisCitasScreen
 import com.eneque.lab05clinicasalud.ui.PerfilMedicoScreen
@@ -43,6 +44,9 @@ fun AppNavigation() {
                 },
                 onMisCitasClick = {
                     navController.navigate(Routes.MIS_CITAS)
+                },
+                onHistorialClick = {
+                    navController.navigate(Routes.HISTORIAL_MEDICO)
                 }
             )
         }
@@ -133,6 +137,27 @@ fun AppNavigation() {
                     }
                 },
                 onMisCitasClick = {
+                    // Permanecer en la pantalla actual
+                },
+                onHistorialClick = {
+                    navController.navigate(Routes.HISTORIAL_MEDICO)
+                }
+            )
+        }
+
+        composable(Routes.HISTORIAL_MEDICO) {
+            HistorialMedicoScreen(
+                onInicioClick = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onMisCitasClick = {
+                    navController.navigate(Routes.MIS_CITAS)
+                },
+                onHistorialClick = {
                     // Permanecer en la pantalla actual
                 }
             )

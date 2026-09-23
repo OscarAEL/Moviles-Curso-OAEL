@@ -55,7 +55,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     onMedicoClick: (Int) -> Unit = {},
-    onMisCitasClick: () -> Unit = {}
+    onMisCitasClick: () -> Unit = {},
+    onHistorialClick: () -> Unit = {}
 ) {
     var filtroSeleccionado by remember { mutableStateOf("Todos") }
 
@@ -84,6 +85,7 @@ fun HomeScreen(
                 },
                 onHistorialClick = {
                     scope.launch { drawerState.close() }
+                    onHistorialClick()
                 },
                 onPerfilClick = {
                     scope.launch { drawerState.close() }
