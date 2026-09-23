@@ -2,16 +2,19 @@ package com.eneque.lab05navegacion.navigation
 
 sealed class Screen(val route: String) {
 
-    // Pantalla de inicio
+    // Pantalla de Inicio de Sesión
+    object Login : Screen("login")
+
+    // Pantalla Principal / Bienvenida
     object Home : Screen("home")
 
-    // Pantalla de lista
+    // Directorio de Alumnos
     object List : Screen("list")
 
-    // Pantalla de perfil
+    // Mi Perfil Académico
     object Profile : Screen("profile")
 
-    // Pantalla de detalle con argumento
+    // Expediente Académico del alumno seleccionado
     object Detail : Screen("detail/{itemId}") {
 
         fun createRoute(itemId: Int): String = "detail/$itemId"

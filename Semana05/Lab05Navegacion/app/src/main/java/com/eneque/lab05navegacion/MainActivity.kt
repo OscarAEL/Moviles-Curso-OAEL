@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.eneque.lab05navegacion.navigation.AppNavigation
+import com.eneque.lab05navegacion.ui.theme.Lab05NavegacionTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -14,7 +15,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            AppNavigation()
+            Lab05NavegacionTheme {
+                AppNavigation()
+            }
         }
     }
 }
