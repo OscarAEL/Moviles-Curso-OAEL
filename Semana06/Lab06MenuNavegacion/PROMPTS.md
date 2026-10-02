@@ -180,3 +180,62 @@ Al terminar, indícame:
 2. Qué parámetro nuevo agregaste.
 3. Cómo se actualiza automáticamente el contador.
 4. Qué componente de Material 3 usaste para mostrar el badge.
+
+
+
+## Prompt 4 - Mantener productos al navegar entre secciones
+
+### Prompt
+Estoy trabajando en el mismo proyecto Android con Kotlin y Jetpack Compose.
+
+Actualmente tengo:
+- AppNavegacion.kt
+- AppDrawer.kt
+- TarjetaProducto.kt
+- MainActivity.kt
+- Estado compartido de favoritos en AppNavegacion.kt.
+- Badge contador de favoritos funcionando correctamente en el NavigationDrawer.
+
+Encontré un problema de estado:
+
+En PantallaCarrito actualmente la lista de productos se crea con remember/mutableStateListOf dentro de la propia pantalla.
+
+Por eso ocurre lo siguiente:
+1. Agrego productos en Inicio.
+2. Navego desde el Drawer a Favoritos, Mis pedidos o Perfil.
+3. Regreso a Inicio.
+4. Los productos que había agregado desaparecen.
+
+Quiero corregir SOLO este problema.
+
+Objetivo:
+La lista de productos debe conservarse mientras la aplicación esté abierta aunque el usuario navegue entre las secciones del NavigationDrawer.
+
+Requisitos:
+- Mueve el estado de la lista de productos a AppNavegacion.kt, igual que se hizo con la lista de favoritos.
+- PantallaCarrito no debe crear nuevamente su propia lista de productos.
+- Pasa la lista de productos y los callbacks necesarios por parámetros.
+- Mantén funcionando:
+    - agregar productos
+    - eliminar productos
+    - subtotal
+    - IGV
+    - total
+    - DropdownMenu
+    - favoritos
+    - prevención de favoritos duplicados
+    - badge contador del Drawer
+- No uses ViewModel.
+- No uses Room.
+- No uses Firebase.
+- No uses base de datos.
+- Mantén una solución sencilla con estado de Jetpack Compose.
+- No hagas cambios visuales todavía.
+- No agregues nuevas funcionalidades.
+
+Al terminar indícame:
+1. Qué archivos modificaste.
+2. Dónde quedó almacenada ahora la lista de productos.
+3. Qué parámetros nuevos recibe PantallaCarrito.
+4. Por qué ahora los productos no desaparecen al cambiar de sección.
+
