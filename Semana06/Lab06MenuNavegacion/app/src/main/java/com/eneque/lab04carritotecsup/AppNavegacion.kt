@@ -46,6 +46,7 @@ fun AppNavegacion() {
         drawerContent = {
             AppDrawer(
                 seccionActual = seccionActual,
+                cantidadFavoritos = favoritos.size,
                 onSeccionSeleccionada = { nuevaSeccion ->
                     seccionActual = nuevaSeccion
                     scope.launch {

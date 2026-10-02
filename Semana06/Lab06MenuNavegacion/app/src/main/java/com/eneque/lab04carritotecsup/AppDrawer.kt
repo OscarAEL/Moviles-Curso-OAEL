@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Badge
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AppDrawer(
     seccionActual: String,
+    cantidadFavoritos: Int = 0,
     onSeccionSeleccionada: (String) -> Unit
 ) {
     ModalDrawerSheet {
@@ -114,6 +116,13 @@ fun AppDrawer(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null
                 )
+            },
+            badge = {
+                if (cantidadFavoritos > 0) {
+                    Badge {
+                        Text(text = cantidadFavoritos.toString())
+                    }
+                }
             },
             colors = NavigationDrawerItemDefaults.colors(
                 selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
