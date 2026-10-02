@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -259,6 +260,7 @@ fun TarjetaProducto(
     producto: Producto,
     onEliminar: () -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -291,6 +293,15 @@ fun TarjetaProducto(
             Text(
                 text = "S/ %.2f".format(importe)
             )
+
+            IconButton(
+                onClick = { expanded = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Más opciones"
+                )
+            }
 
             IconButton(
                 onClick = onEliminar
