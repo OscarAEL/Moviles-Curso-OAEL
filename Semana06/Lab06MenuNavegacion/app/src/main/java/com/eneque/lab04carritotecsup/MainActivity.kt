@@ -29,6 +29,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -300,6 +302,32 @@ fun TarjetaProducto(
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "Más opciones"
+                )
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Favoritos") },
+                    onClick = {
+                        expanded = false
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { Text("Compartir") },
+                    onClick = {
+                        expanded = false
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { Text("Reportar") },
+                    onClick = {
+                        expanded = false
+                    }
                 )
             }
 
