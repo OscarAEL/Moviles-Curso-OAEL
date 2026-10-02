@@ -74,6 +74,8 @@ class MainActivity : ComponentActivity() {
 
                 val scope = rememberCoroutineScope()
 
+                var seccionActual by remember { mutableStateOf("Inicio") }
+
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
@@ -87,8 +89,13 @@ class MainActivity : ComponentActivity() {
 
                             NavigationDrawerItem(
                                 label = { Text("Inicio") },
-                                selected = true,
-                                onClick = { },
+                                selected = seccionActual == "Inicio",
+                                onClick = {
+                                    seccionActual = "Inicio"
+                                    scope.launch {
+                                        drawerState.close()
+                                    }
+                                },
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.Home,
@@ -99,8 +106,13 @@ class MainActivity : ComponentActivity() {
 
                             NavigationDrawerItem(
                                 label = { Text("Mis pedidos") },
-                                selected = false,
-                                onClick = { },
+                                selected = seccionActual == "Mis pedidos",
+                                onClick = {
+                                    seccionActual = "Mis pedidos"
+                                    scope.launch {
+                                        drawerState.close()
+                                    }
+                                },
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.ShoppingCart,
@@ -111,8 +123,13 @@ class MainActivity : ComponentActivity() {
 
                             NavigationDrawerItem(
                                 label = { Text("Favoritos") },
-                                selected = false,
-                                onClick = { },
+                                selected = seccionActual == "Favoritos",
+                                onClick = {
+                                    seccionActual = "Favoritos"
+                                    scope.launch {
+                                        drawerState.close()
+                                    }
+                                },
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.Favorite,
@@ -123,8 +140,13 @@ class MainActivity : ComponentActivity() {
 
                             NavigationDrawerItem(
                                 label = { Text("Perfil") },
-                                selected = false,
-                                onClick = { },
+                                selected = seccionActual == "Perfil",
+                                onClick = {
+                                    seccionActual = "Perfil"
+                                    scope.launch {
+                                        drawerState.close()
+                                    }
+                                },
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.Person,
@@ -177,13 +199,56 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { innerPadding ->
 
-                        PantallaCarrito(
-                            modifier = Modifier.padding(innerPadding)
-                        )
+                        when (seccionActual) {
+
+                            "Inicio" -> {
+                                PantallaCarrito(
+                                    modifier = Modifier.padding(innerPadding)
+                                )
+                            }
+
+                            "Mis pedidos" -> {
+                                PantallaSeccion(
+                                    titulo = "Mis pedidos",
+                                    modifier = Modifier.padding(innerPadding)
+                                )
+                            }
+
+                            "Favoritos" -> {
+                                PantallaSeccion(
+                                    titulo = "Favoritos",
+                                    modifier = Modifier.padding(innerPadding)
+                                )
+                            }
+
+                            "Perfil" -> {
+                                PantallaSeccion(
+                                    titulo = "Perfil",
+                                    modifier = Modifier.padding(innerPadding)
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PantallaSeccion(
+    titulo: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
