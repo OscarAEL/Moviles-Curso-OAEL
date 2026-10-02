@@ -44,6 +44,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
@@ -81,11 +82,40 @@ class MainActivity : ComponentActivity() {
                     drawerContent = {
                         ModalDrawerSheet {
 
-                            Text(
-                                text = "Oscar Eneque",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(16.dp)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Surface(
+                                    shape = MaterialTheme.shapes.large,
+                                    color = MaterialTheme.colorScheme.primaryContainer
+                                ) {
+                                    Box(
+                                        modifier = Modifier.padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "OE",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Text(
+                                    text = "Oscar Eneque",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Text(
+                                    text = "Estudiante TECSUP",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
 
                             NavigationDrawerItem(
                                 label = { Text("Inicio") },
@@ -101,7 +131,12 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.Home,
                                         contentDescription = null
                                     )
-                                }
+                                },
+                                colors = NavigationDrawerItemDefaults.colors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary
+                                )
                             )
 
                             NavigationDrawerItem(
@@ -118,7 +153,12 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.ShoppingCart,
                                         contentDescription = null
                                     )
-                                }
+                                },
+                                colors = NavigationDrawerItemDefaults.colors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary
+                                )
                             )
 
                             NavigationDrawerItem(
@@ -135,7 +175,12 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.Favorite,
                                         contentDescription = null
                                     )
-                                }
+                                },
+                                colors = NavigationDrawerItemDefaults.colors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary
+                                )
                             )
 
                             NavigationDrawerItem(
@@ -152,7 +197,12 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.Person,
                                         contentDescription = null
                                     )
-                                }
+                                },
+                                colors = NavigationDrawerItemDefaults.colors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary
+                                )
                             )
                         }
                     }
