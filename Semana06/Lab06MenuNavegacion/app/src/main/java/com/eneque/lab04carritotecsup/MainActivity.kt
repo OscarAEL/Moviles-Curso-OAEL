@@ -35,6 +35,17 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -57,29 +68,119 @@ class MainActivity : ComponentActivity() {
                 darkTheme = false,
                 dynamicColor = false
             ) {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        Surface(
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .statusBarsPadding()
-                        ) {
+                val drawerState = rememberDrawerState(
+                    initialValue = DrawerValue.Closed
+                )
+
+                val scope = rememberCoroutineScope()
+
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
+
                             Text(
-                                text = "Mi Carrito TECSUP",
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                text = "Oscar Eneque",
                                 style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(16.dp)
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Inicio") },
+                                selected = true,
+                                onClick = { },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Mis pedidos") },
+                                selected = false,
+                                onClick = { },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.ShoppingCart,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Favoritos") },
+                                selected = false,
+                                onClick = { },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Favorite,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Perfil") },
+                                selected = false,
+                                onClick = { },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = null
+                                    )
+                                }
                             )
                         }
                     }
-                ) { innerPadding ->
+                ) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = {
+                            Surface(
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .statusBarsPadding()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
 
-                    PantallaCarrito(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Menu,
+                                            contentDescription = "Abrir menú",
+                                            tint = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    }
+
+                                    Text(
+                                        text = "Oscar Eneque",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    ) { innerPadding ->
+
+                        PantallaCarrito(
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
