@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,6 +38,8 @@ fun AppNavegacion() {
     val scope = rememberCoroutineScope()
 
     var seccionActual by remember { mutableStateOf("Inicio") }
+
+    val favoritos = remember { mutableStateListOf<Producto>() }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -98,6 +101,11 @@ fun AppNavegacion() {
 
                 "Inicio" -> {
                     PantallaCarrito(
+                        onAgregarFavorito = { producto ->
+                            if (!favoritos.contains(producto)) {
+                                favoritos.add(producto)
+                            }
+                        },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

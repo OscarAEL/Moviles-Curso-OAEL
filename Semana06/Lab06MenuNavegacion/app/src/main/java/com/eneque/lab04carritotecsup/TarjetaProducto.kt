@@ -32,7 +32,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TarjetaProducto(
     producto: Producto,
-    onEliminar: () -> Unit
+    onEliminar: () -> Unit,
+    onAgregarFavorito: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     Card(
@@ -91,6 +92,7 @@ fun TarjetaProducto(
                         )
                     },
                     onClick = {
+                        onAgregarFavorito()
                         expanded = false
                     }
                 )

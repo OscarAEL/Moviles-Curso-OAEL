@@ -66,7 +66,10 @@ fun PantallaSeccion(
 }
 
 @Composable
-fun PantallaCarrito(modifier: Modifier = Modifier) {
+fun PantallaCarrito(
+    onAgregarFavorito: (Producto) -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
@@ -184,6 +187,9 @@ fun PantallaCarrito(modifier: Modifier = Modifier) {
                         producto = producto,
                         onEliminar = {
                             productos.remove(producto)
+                        },
+                        onAgregarFavorito = {
+                            onAgregarFavorito(producto)
                         }
                     )
                 }
