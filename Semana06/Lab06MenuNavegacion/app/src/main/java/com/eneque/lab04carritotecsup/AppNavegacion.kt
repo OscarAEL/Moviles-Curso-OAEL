@@ -39,6 +39,7 @@ fun AppNavegacion() {
 
     var seccionActual by remember { mutableStateOf("Inicio") }
 
+    val productos = remember { mutableStateListOf<Producto>() }
     val favoritos = remember { mutableStateListOf<Producto>() }
 
     ModalNavigationDrawer(
@@ -102,6 +103,13 @@ fun AppNavegacion() {
 
                 "Inicio" -> {
                     PantallaCarrito(
+                        productos = productos,
+                        onAgregarProducto = { nuevoProducto ->
+                            productos.add(nuevoProducto)
+                        },
+                        onEliminarProducto = { producto ->
+                            productos.remove(producto)
+                        },
                         onAgregarFavorito = { producto ->
                             if (!favoritos.contains(producto)) {
                                 favoritos.add(producto)

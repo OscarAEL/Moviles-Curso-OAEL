@@ -22,7 +22,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,6 +66,9 @@ fun PantallaSeccion(
 
 @Composable
 fun PantallaCarrito(
+    productos: List<Producto>,
+    onAgregarProducto: (Producto) -> Unit,
+    onEliminarProducto: (Producto) -> Unit,
     onAgregarFavorito: (Producto) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -74,10 +76,6 @@ fun PantallaCarrito(
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
-
-    val productos = remember {
-        mutableStateListOf<Producto>()
-    }
 
     val subtotal = productos.sumOf { it.precio * it.cantidad }
     val igv = subtotal * 0.18
@@ -130,7 +128,7 @@ fun PantallaCarrito(
                     precioNum > 0 &&
                     cantidadNum > 0
                 ) {
-                    productos.add(
+                    onAgregarProducto(
                         Producto(
                             nombre = nombre,
                             precio = precioNum,
@@ -186,7 +184,7 @@ fun PantallaCarrito(
                     TarjetaProducto(
                         producto = producto,
                         onEliminar = {
-                            productos.remove(producto)
+                            onEliminarProducto(producto)
                         },
                         onAgregarFavorito = {
                             onAgregarFavorito(producto)
