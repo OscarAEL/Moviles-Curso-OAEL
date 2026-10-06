@@ -1,5 +1,7 @@
 package com.saludplus.citas.ui.screens.agendamiento
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,64 +20,81 @@ import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.model.Cita
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.EncabezadoConAtras
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ConfirmarCitaScreen(
     medicoId: Int,
     fecha: String,
     hora: String,
     onCitaConfirmada: (Int) -> Unit,
-    onAtrasClick: () -> Unit
+    onAtrasClick: () -> Unit,
 ) {
 
     val medico = Repositorio.obtenerMedico(medicoId)
     val usuario = Repositorio.usuarioActual
 
+    val fechaFormateada = remember(fecha) {
+        try {
+            val localeEs = Locale.forLanguageTag("es-ES")
+            val localDate = LocalDate.parse(fecha)
+            val formatter = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM yyyy", localeEs)
+            localDate.format(formatter).replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(localeEs) else it.toString()
+            }
+        } catch (_: Exception) {
+            fecha
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .padding(20.dp),
     ) {
 
         EncabezadoConAtras(
             titulo = "Confirmar cita",
-            onAtrasClick = onAtrasClick
+            onAtrasClick = onAtrasClick,
         )
 
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
 
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(20.dp),
             ) {
 
                 Text(
                     text = medico?.nombre ?: "Médico",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Spacer(
-                    modifier = Modifier.height(8.dp)
+                    modifier = Modifier.height(8.dp),
                 )
 
                 Text(
-                    text = "Especialidad: ${medico?.especialidad ?: ""}"
+                    text = "Especialidad: ${medico?.especialidad ?: ""}",
                 )
 
                 Text(
-                    text = "Fecha: $fecha"
+                    text = "Fecha: $fechaFormateada",
                 )
 
                 Text(
-                    text = "Hora: $hora"
+                    text = "Hora: $hora",
                 )
             }
         }
 
         Spacer(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(24.dp),
         )
 
         Button(
@@ -90,7 +110,7 @@ fun ConfirmarCitaScreen(
                         usuarioId = usuario.id,
                         medicoId = medicoId,
                         fecha = fecha,
-                        hora = hora
+                        hora = hora,
                     )
 
                     val agendada =
@@ -101,7 +121,7 @@ fun ConfirmarCitaScreen(
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Confirmar cita")
         }
