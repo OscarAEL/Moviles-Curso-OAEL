@@ -2,6 +2,7 @@ package com.saludplus.citas.ui.screens.agendamiento
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,11 +12,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
@@ -34,9 +39,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.saludplus.citas.R
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.EncabezadoConAtras
 import java.time.DayOfWeek
@@ -105,7 +115,7 @@ fun FechaHoraScreen(
         if (fechaSeleccionada.isNotEmpty()) {
             Repositorio.horariosDisponibles(
                 medicoId = medicoId,
-                fecha = fechaSeleccionada
+                fecha = fechaSeleccionada,
             )
         } else {
             emptyList()
@@ -114,71 +124,105 @@ fun FechaHoraScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
 
         EncabezadoConAtras(
             titulo = "Seleccionar fecha y hora",
-            onAtrasClick = onAtrasClick
+            onAtrasClick = onAtrasClick,
         )
 
-        Text(
-            text = medico?.nombre ?: "Médico"
-        )
-
-        Text(
-            text = medico?.especialidad ?: ""
-        )
-
-        Spacer(
-            modifier = Modifier.height(24.dp),
-        )
-
-        Row(
+        // 2. INFORMACIÓN DEL MÉDICO
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFE3F2FD),
+            ),
         ) {
-            Text(
-                text = mesAno,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    painter = painterResource(id = obtenerImagenMedico(medico?.nombre)),
+                    contentDescription = medico?.nombre ?: "Médico",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(58.dp)
+                        .clip(CircleShape),
+                )
 
-            Row {
-                IconButton(
-                    onClick = {
-                        if (semanaOffset > 0) {
-                            semanaOffset--
-                        }
-                    },
-                    enabled = semanaOffset > 0
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronLeft,
-                        contentDescription = "Semana anterior"
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column {
+                    Text(
+                        text = medico?.nombre ?: "Médico",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
                     )
-                }
-
-                IconButton(
-                    onClick = {
-                        semanaOffset++
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Semana siguiente"
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = medico?.especialidad ?: "",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
         }
 
         Spacer(
-            modifier = Modifier.height(12.dp),
+            modifier = Modifier.height(18.dp),
         )
 
+        // 3. NAVEGACIÓN DEL MES
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(
+                onClick = {
+                    if (semanaOffset > 0) {
+                        semanaOffset--
+                    }
+                },
+                enabled = semanaOffset > 0,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ChevronLeft,
+                    contentDescription = "Semana anterior",
+                )
+            }
+
+            Text(
+                text = mesAno,
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = MaterialTheme.colorScheme.primary,
+            )
+
+            IconButton(
+                onClick = {
+                    semanaOffset++
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Semana siguiente",
+                )
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(10.dp),
+        )
+
+        // 4. DÍAS DISPONIBLES
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
             items(dias) { fecha ->
@@ -197,32 +241,40 @@ fun FechaHoraScreen(
                             fechaSeleccionada = fechaString
                             horaSeleccionada = ""
                         },
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor =
-                            if (seleccionado) {
-                                MaterialTheme.colorScheme.primaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            }
-                    )
+                        containerColor = if (seleccionado) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color(0xFFE3F2FD)
+                        },
+                        contentColor = if (seleccionado) {
+                            Color.White
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                    ),
                 ) {
 
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
 
                         Text(
                             text = nombreDia,
                             style = MaterialTheme.typography.bodySmall,
-                            fontWeight = if (seleccionado) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (seleccionado) FontWeight.Bold else FontWeight.Normal,
+                            color = if (seleccionado) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
                             text = numeroDia,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = if (seleccionado) Color.White else MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -230,28 +282,32 @@ fun FechaHoraScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(20.dp),
         )
 
+        // 5. HORARIOS DISPONIBLES
         Text(
             text = "Horarios disponibles",
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(10.dp),
         )
 
         if (fechaSeleccionada.isEmpty()) {
 
             Text(
-                text = "Selecciona primero un día"
+                text = "Selecciona primero un día",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
         } else if (horariosDisponibles.isEmpty()) {
 
             Text(
-                text = "No hay horarios disponibles"
+                text = "No hay horarios disponibles",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
         } else {
@@ -260,13 +316,12 @@ fun FechaHoraScreen(
                 columns = GridCells.Fixed(3),
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
 
                 items(horariosDisponibles) { hora ->
 
-                    val seleccionado =
-                        horaSeleccionada == hora
+                    val seleccionado = horaSeleccionada == hora
 
                     Card(
                         modifier = Modifier
@@ -274,27 +329,33 @@ fun FechaHoraScreen(
                             .clickable {
                                 horaSeleccionada = hora
                             },
+                        shape = RoundedCornerShape(10.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor =
-                                if (seleccionado) {
-                                    MaterialTheme.colorScheme.primaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                },
-                        )
+                            containerColor = if (seleccionado) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            },
+                            contentColor = if (seleccionado) {
+                                Color.White
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
+                        ),
                     ) {
 
                         Row(
-                            modifier = Modifier.padding(12.dp)
+                            modifier = Modifier.padding(12.dp),
+                            horizontalArrangement = Arrangement.Center,
                         ) {
                             Text(
                                 text = hora,
-                                fontWeight =
-                                    if (seleccionado) {
-                                        FontWeight.Bold
-                                    } else {
-                                        FontWeight.Normal
-                                    }
+                                fontWeight = if (seleccionado) {
+                                    FontWeight.Bold
+                                } else {
+                                    FontWeight.Normal
+                                },
+                                color = if (seleccionado) Color.White else MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }
@@ -303,22 +364,28 @@ fun FechaHoraScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier = Modifier.height(16.dp),
         )
 
+        // 6. BOTÓN CONTINUAR
         Button(
             onClick = {
                 onContinuarClick(
                     fechaSeleccionada,
-                    horaSeleccionada
+                    horaSeleccionada,
                 )
             },
-            enabled =
-                fechaSeleccionada.isNotEmpty() &&
-                        horaSeleccionada.isNotEmpty(),
-            modifier = Modifier.fillMaxWidth(),
+            enabled = fechaSeleccionada.isNotEmpty() && horaSeleccionada.isNotEmpty(),
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
         ) {
-            Text("Continuar")
+            Text(
+                text = "Continuar",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
@@ -334,4 +401,14 @@ private fun obtenerProximosDiasHabiles(inicio: LocalDate, cantidad: Int = 5): Li
         actual = actual.plusDays(1)
     }
     return dias
+}
+
+private fun obtenerImagenMedico(nombre: String?): Int {
+    return when (nombre) {
+        "Dra. Ana Torres" -> R.drawable.doctora_1
+        "Dra. Mariana Soto" -> R.drawable.doctora_2
+        "Dr. Carlos Rojas" -> R.drawable.doctor_1
+        "Dr. Luis Ramírez" -> R.drawable.doctor_2
+        else -> R.drawable.doctor_1
+    }
 }

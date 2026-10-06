@@ -1,17 +1,39 @@
 package com.saludplus.citas.ui.screens.perfil
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,10 +46,11 @@ fun PerfilScreen(
     onInicioClick: () -> Unit,
     onCitasClick: () -> Unit,
     onResultadosClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
 ) {
 
     val usuario = Repositorio.usuarioActual
+    val scrollState = rememberScrollState()
 
     Scaffold(
         bottomBar = {
@@ -36,78 +59,200 @@ fun PerfilScreen(
                 onInicioClick = onInicioClick,
                 onCitasClick = onCitasClick,
                 onResultadosClick = onResultadosClick,
-                onPerfilClick = onPerfilClick
+                onPerfilClick = onPerfilClick,
             )
-        }
+        },
     ) { innerPadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(20.dp)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
         ) {
 
             Text(
                 text = "Mi perfil",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
             )
 
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(20.dp),
             )
 
             if (usuario != null) {
 
-                Card(
-                    modifier = Modifier.fillMaxWidth()
+                // CABECERA DEL PERFIL
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .background(
+                                color = Color(0xFFE3F2FD),
+                                shape = CircleShape,
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Avatar Usuario",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(48.dp),
+                        )
+                    }
 
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = usuario.nombre,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Text(
+                        text = "Paciente SaludPlus",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.height(24.dp),
+                )
+
+                // INFORMACIÓN PERSONAL
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    ),
+                ) {
                     Column(
-                        modifier = Modifier.padding(20.dp)
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
 
-                        Text(
-                            text = usuario.nombre,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                        // Fila 1: Nombre
+                        FilaInfoPerfil(
+                            icono = Icons.Default.Person,
+                            titulo = "Nombre",
+                            valor = usuario.nombre,
                         )
 
-                        Spacer(
-                            modifier = Modifier.height(12.dp)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                        // Fila 2: Correo
+                        FilaInfoPerfil(
+                            icono = Icons.Default.Email,
+                            titulo = "Correo",
+                            valor = usuario.correo,
                         )
 
-                        Text(
-                            text = "Correo: ${usuario.correo}"
-                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
-                        Text(
-                            text = "Teléfono: ${usuario.telefono}"
+                        // Fila 3: Teléfono
+                        FilaInfoPerfil(
+                            icono = Icons.Default.Phone,
+                            titulo = "Teléfono",
+                            valor = usuario.telefono,
                         )
                     }
                 }
 
                 Spacer(
-                    modifier = Modifier.height(24.dp)
+                    modifier = Modifier.height(32.dp),
                 )
 
-                Button(
+                // BOTÓN CERRAR SESIÓN
+                OutlinedButton(
                     onClick = {
                         Repositorio.cerrarSesion()
                         onCerrarSesionClick()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
                 ) {
-                    Text("Cerrar sesión")
+                    Text(
+                        text = "Cerrar sesión",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
 
             } else {
 
-                Text(
-                    text = "No hay usuario con sesión iniciada."
-                )
+                // SIN USUARIO
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 40.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "No hay usuario con sesión iniciada.",
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun FilaInfoPerfil(
+    icono: ImageVector,
+    titulo: String,
+    valor: String,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = CircleShape,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icono,
+                contentDescription = titulo,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column {
+            Text(
+                text = titulo,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = valor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+            )
         }
     }
 }
