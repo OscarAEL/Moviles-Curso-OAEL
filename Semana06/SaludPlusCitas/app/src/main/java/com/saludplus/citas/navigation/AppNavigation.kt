@@ -149,7 +149,17 @@ fun AppNavigation() {
                 backStackEntry.arguments?.getInt("medicoId") ?: 0
 
             FechaHoraScreen(
-                medicoId = medicoId
+                medicoId = medicoId,
+                onContinuarClick = { fecha, hora ->
+
+                    navController.navigate(
+                        Rutas.confirmarCita(
+                            medicoId = medicoId,
+                            fecha = fecha,
+                            hora = hora
+                        )
+                    )
+                }
             )
         }
 
@@ -180,16 +190,57 @@ fun AppNavigation() {
             ConfirmarCitaScreen(
                 medicoId = medicoId,
                 fecha = fecha,
-                hora = hora
+                hora = hora,
+                onCitaConfirmada = { citaId ->
+
+                    navController.navigate(
+                        Rutas.citaExitosa(citaId)
+                    ) {
+                        popUpTo(Rutas.ESPECIALIDADES) {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
 
-        composable(Rutas.CITA_EXITOSA) {
-            CitaExitosaScreen()
+        composable(
+            route = Rutas.CITA_EXITOSA,
+            arguments = listOf(
+                navArgument("citaId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+
+            val citaId =
+                backStackEntry.arguments?.getInt("citaId") ?: 0
+
+            CitaExitosaScreen(
+                citaId = citaId,
+
+                onMisCitasClick = {
+                    navController.navigate(Rutas.MIS_CITAS)
+                },
+
+                onInicioClick = {
+                    navController.navigate(Rutas.HOME) {
+                        popUpTo(Rutas.HOME) {
+                            inclusive = false
+                        }
+                    }
+                }
+            )
         }
 
         composable(Rutas.MIS_CITAS) {
-            MisCitasScreen()
+            MisCitasScreen(
+                onCitaClick = { citaId ->
+                    navController.navigate(
+                        Rutas.detalleCita(citaId)
+                    )
+                }
+            )
         }
 
         composable(
@@ -210,7 +261,14 @@ fun AppNavigation() {
         }
 
         composable(Rutas.PERFIL) {
-            PerfilScreen()
+            PerfilScreen(
+                onCerrarSesionClick = {
+
+                    navController.navigate(Rutas.SPLASH) {
+                        popUpTo(0)
+                    }
+                }
+            )
         }
 
         composable(Rutas.RESULTADOS) {
