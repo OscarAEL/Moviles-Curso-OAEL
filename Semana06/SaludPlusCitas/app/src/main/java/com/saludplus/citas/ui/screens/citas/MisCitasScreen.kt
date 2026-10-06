@@ -1,5 +1,7 @@
 package com.saludplus.citas.ui.screens.citas
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,14 +21,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.BarraNavegacion
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MisCitasScreen(
     onCitaClick: (Int) -> Unit,
     onInicioClick: () -> Unit,
     onCitasClick: () -> Unit,
     onResultadosClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onPerfilClick: () -> Unit,
 ) {
 
     val usuario = Repositorio.usuarioActual
@@ -45,32 +51,32 @@ fun MisCitasScreen(
                 onInicioClick = onInicioClick,
                 onCitasClick = onCitasClick,
                 onResultadosClick = onResultadosClick,
-                onPerfilClick = onPerfilClick
+                onPerfilClick = onPerfilClick,
             )
-        }
+        },
     ) { innerPadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(20.dp)
+                .padding(20.dp),
         ) {
 
             Text(
                 text = "Mis citas",
                 fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(20.dp),
             )
 
             if (citas.isEmpty()) {
 
                 Text(
-                    text = "Aún no tienes citas agendadas."
+                    text = "Aún no tienes citas agendadas.",
                 )
 
             } else {
@@ -81,6 +87,7 @@ fun MisCitasScreen(
 
                         val medico =
                             Repositorio.obtenerMedico(cita.medicoId)
+                        val fechaFormateada = formatearFecha(cita.fecha)
 
                         Card(
                             modifier = Modifier
@@ -88,33 +95,33 @@ fun MisCitasScreen(
                                 .padding(vertical = 6.dp)
                                 .clickable {
                                     onCitaClick(cita.id)
-                                }
+                                },
                         ) {
 
                             Column(
-                                modifier = Modifier.padding(18.dp)
+                                modifier = Modifier.padding(18.dp),
                             ) {
 
                                 Text(
                                     text = medico?.nombre ?: "Médico",
                                     fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
                                 )
 
                                 Spacer(
-                                    modifier = Modifier.height(4.dp)
+                                    modifier = Modifier.height(4.dp),
                                 )
 
                                 Text(
-                                    text = medico?.especialidad ?: ""
+                                    text = medico?.especialidad ?: "",
                                 )
 
                                 Text(
-                                    text = "Fecha: ${cita.fecha}"
+                                    text = "Fecha: $fechaFormateada",
                                 )
 
                                 Text(
-                                    text = "Hora: ${cita.hora}"
+                                    text = "Hora: ${cita.hora}",
                                 )
                             }
                         }
@@ -122,5 +129,19 @@ fun MisCitasScreen(
                 }
             }
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun formatearFecha(fecha: String): String {
+    return try {
+        val localeEs = Locale.forLanguageTag("es-ES")
+        val localDate = LocalDate.parse(fecha)
+        val formatter = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM yyyy", localeEs)
+        localDate.format(formatter).replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(localeEs) else it.toString()
+        }
+    } catch (_: Exception) {
+        fecha
     }
 }
