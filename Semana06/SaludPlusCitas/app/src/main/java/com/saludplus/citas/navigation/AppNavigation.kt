@@ -77,7 +77,31 @@ fun AppNavigation() {
         }
 
         composable(Rutas.HOME) {
-            HomeScreen()
+            HomeScreen(
+                onAgendarCitaClick = {
+                    navController.navigate(Rutas.ESPECIALIDADES)
+                },
+                onMisCitasClick = {
+                    navController.navigate(Rutas.MIS_CITAS)
+                },
+                onEspecialidadClick = { especialidadId ->
+                    navController.navigate(
+                        Rutas.medicos(especialidadId)
+                    )
+                },
+                onInicioClick = {
+                    // Ya estamos en Inicio
+                },
+                onCitasClick = {
+                    navController.navigate(Rutas.MIS_CITAS)
+                },
+                onResultadosClick = {
+                    navController.navigate(Rutas.RESULTADOS)
+                },
+                onPerfilClick = {
+                    navController.navigate(Rutas.PERFIL)
+                }
+            )
         }
 
         composable(Rutas.ESPECIALIDADES) {
