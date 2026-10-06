@@ -33,15 +33,47 @@ fun AppNavigation() {
     ) {
 
         composable(Rutas.SPLASH) {
-            SplashScreen()
+            SplashScreen(
+                onRegistroClick = {
+                    navController.navigate(Rutas.REGISTRO)
+                },
+                onLoginClick = {
+                    navController.navigate(Rutas.LOGIN)
+                }
+            )
         }
 
         composable(Rutas.REGISTRO) {
-            RegistroScreen()
+            RegistroScreen(
+                onRegistroExitoso = {
+                    navController.navigate(Rutas.HOME) {
+                        popUpTo(Rutas.SPLASH) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onLoginClick = {
+                    navController.navigate(Rutas.LOGIN)
+                },
+                onTerminosClick = {
+                    navController.navigate(Rutas.TERMINOS)
+                }
+            )
         }
 
         composable(Rutas.LOGIN) {
-            LoginScreen()
+            LoginScreen(
+                onLoginExitoso = {
+                    navController.navigate(Rutas.HOME) {
+                        popUpTo(Rutas.SPLASH) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onRegistroClick = {
+                    navController.navigate(Rutas.REGISTRO)
+                }
+            )
         }
 
         composable(Rutas.HOME) {
