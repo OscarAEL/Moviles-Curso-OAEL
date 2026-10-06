@@ -105,7 +105,13 @@ fun AppNavigation() {
         }
 
         composable(Rutas.ESPECIALIDADES) {
-            EspecialidadesScreen()
+            EspecialidadesScreen(
+                onEspecialidadClick = { especialidadId ->
+                    navController.navigate(
+                        Rutas.medicos(especialidadId)
+                    )
+                }
+            )
         }
 
         composable(
@@ -121,7 +127,12 @@ fun AppNavigation() {
                 backStackEntry.arguments?.getInt("especialidadId") ?: 0
 
             MedicosScreen(
-                especialidadId = especialidadId
+                especialidadId = especialidadId,
+                onMedicoClick = { medicoId ->
+                    navController.navigate(
+                        Rutas.fechaHora(medicoId)
+                    )
+                }
             )
         }
 
