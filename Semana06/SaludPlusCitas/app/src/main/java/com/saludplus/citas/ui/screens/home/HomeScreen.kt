@@ -11,16 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
+import com.saludplus.citas.ui.components.BarraNavegacion
 
 @Composable
 fun HomeScreen(
@@ -46,65 +43,13 @@ fun HomeScreen(
 
     Scaffold(
         bottomBar = {
-
-            NavigationBar {
-
-                NavigationBarItem(
-                    selected = true,
-                    onClick = onInicioClick,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = "Inicio"
-                        )
-                    },
-                    label = {
-                        Text("Inicio")
-                    }
-                )
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = onCitasClick,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Citas"
-                        )
-                    },
-                    label = {
-                        Text("Citas")
-                    }
-                )
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = onResultadosClick,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Resultados"
-                        )
-                    },
-                    label = {
-                        Text("Resultados")
-                    }
-                )
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = onPerfilClick,
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Perfil"
-                        )
-                    },
-                    label = {
-                        Text("Perfil")
-                    }
-                )
-            }
+            BarraNavegacion(
+                seccionActual = "Inicio",
+                onInicioClick = onInicioClick,
+                onCitasClick = onCitasClick,
+                onResultadosClick = onResultadosClick,
+                onPerfilClick = onPerfilClick
+            )
         }
     ) { innerPadding ->
 

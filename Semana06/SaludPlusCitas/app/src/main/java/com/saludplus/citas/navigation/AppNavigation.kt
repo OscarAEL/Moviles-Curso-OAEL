@@ -239,6 +239,18 @@ fun AppNavigation() {
                     navController.navigate(
                         Rutas.detalleCita(citaId)
                     )
+                },
+                onInicioClick = {
+                    navController.navigate(Rutas.HOME)
+                },
+                onCitasClick = {
+                    // Ya estamos en Citas
+                },
+                onResultadosClick = {
+                    navController.navigate(Rutas.RESULTADOS)
+                },
+                onPerfilClick = {
+                    navController.navigate(Rutas.PERFIL)
                 }
             )
         }
@@ -263,16 +275,40 @@ fun AppNavigation() {
         composable(Rutas.PERFIL) {
             PerfilScreen(
                 onCerrarSesionClick = {
-
                     navController.navigate(Rutas.SPLASH) {
                         popUpTo(0)
                     }
+                },
+                onInicioClick = {
+                    navController.navigate(Rutas.HOME)
+                },
+                onCitasClick = {
+                    navController.navigate(Rutas.MIS_CITAS)
+                },
+                onResultadosClick = {
+                    navController.navigate(Rutas.RESULTADOS)
+                },
+                onPerfilClick = {
+                    // Ya estamos en Perfil
                 }
             )
         }
 
         composable(Rutas.RESULTADOS) {
-            ResultadosScreen()
+            ResultadosScreen(
+                onInicioClick = {
+                    navController.navigate(Rutas.HOME)
+                },
+                onCitasClick = {
+                    navController.navigate(Rutas.MIS_CITAS)
+                },
+                onResultadosClick = {
+                    // Ya estamos en Resultados
+                },
+                onPerfilClick = {
+                    navController.navigate(Rutas.PERFIL)
+                }
+            )
         }
 
         composable(Rutas.NOTIFICACIONES) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,10 +18,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
+import com.saludplus.citas.ui.components.BarraNavegacion
 
 @Composable
 fun MisCitasScreen(
-    onCitaClick: (Int) -> Unit
+    onCitaClick: (Int) -> Unit,
+    onInicioClick: () -> Unit,
+    onCitasClick: () -> Unit,
+    onResultadosClick: () -> Unit,
+    onPerfilClick: () -> Unit
 ) {
 
     val usuario = Repositorio.usuarioActual
@@ -32,71 +38,85 @@ fun MisCitasScreen(
             emptyList()
         }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-    ) {
+    Scaffold(
+        bottomBar = {
+            BarraNavegacion(
+                seccionActual = "Citas",
+                onInicioClick = onInicioClick,
+                onCitasClick = onCitasClick,
+                onResultadosClick = onResultadosClick,
+                onPerfilClick = onPerfilClick
+            )
+        }
+    ) { innerPadding ->
 
-        Text(
-            text = "Mis citas",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        if (citas.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(20.dp)
+        ) {
 
             Text(
-                text = "Aún no tienes citas agendadas."
+                text = "Mis citas",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
             )
 
-        } else {
+            Spacer(
+                modifier = Modifier.height(20.dp)
+            )
 
-            LazyColumn {
+            if (citas.isEmpty()) {
 
-                items(citas) { cita ->
+                Text(
+                    text = "Aún no tienes citas agendadas."
+                )
 
-                    val medico =
-                        Repositorio.obtenerMedico(cita.medicoId)
+            } else {
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                            .clickable {
-                                onCitaClick(cita.id)
-                            }
-                    ) {
+                LazyColumn {
 
-                        Column(
-                            modifier = Modifier.padding(18.dp)
+                    items(citas) { cita ->
+
+                        val medico =
+                            Repositorio.obtenerMedico(cita.medicoId)
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp)
+                                .clickable {
+                                    onCitaClick(cita.id)
+                                }
                         ) {
 
-                            Text(
-                                text = medico?.nombre ?: "Médico",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Column(
+                                modifier = Modifier.padding(18.dp)
+                            ) {
 
-                            Spacer(
-                                modifier = Modifier.height(4.dp)
-                            )
+                                Text(
+                                    text = medico?.nombre ?: "Médico",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
 
-                            Text(
-                                text = medico?.especialidad ?: ""
-                            )
+                                Spacer(
+                                    modifier = Modifier.height(4.dp)
+                                )
 
-                            Text(
-                                text = "Fecha: ${cita.fecha}"
-                            )
+                                Text(
+                                    text = medico?.especialidad ?: ""
+                                )
 
-                            Text(
-                                text = "Hora: ${cita.hora}"
-                            )
+                                Text(
+                                    text = "Fecha: ${cita.fecha}"
+                                )
+
+                                Text(
+                                    text = "Hora: ${cita.hora}"
+                                )
+                            }
                         }
                     }
                 }
