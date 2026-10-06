@@ -16,13 +16,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.model.Cita
 import com.saludplus.citas.data.repository.Repositorio
+import com.saludplus.citas.ui.components.EncabezadoConAtras
 
 @Composable
 fun ConfirmarCitaScreen(
     medicoId: Int,
     fecha: String,
     hora: String,
-    onCitaConfirmada: (Int) -> Unit
+    onCitaConfirmada: (Int) -> Unit,
+    onAtrasClick: () -> Unit
 ) {
 
     val medico = Repositorio.obtenerMedico(medicoId)
@@ -34,14 +36,9 @@ fun ConfirmarCitaScreen(
             .padding(20.dp)
     ) {
 
-        Text(
-            text = "Confirmar cita",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
+        EncabezadoConAtras(
+            titulo = "Confirmar cita",
+            onAtrasClick = onAtrasClick
         )
 
         Card(

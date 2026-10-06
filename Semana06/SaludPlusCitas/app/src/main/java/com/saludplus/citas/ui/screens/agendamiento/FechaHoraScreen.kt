@@ -27,18 +27,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
+import com.saludplus.citas.ui.components.EncabezadoConAtras
 
 @Composable
 fun FechaHoraScreen(
     medicoId: Int,
-    onContinuarClick: (String, String) -> Unit
+    onContinuarClick: (String, String) -> Unit,
+    onAtrasClick: () -> Unit
 ) {
 
     val medico = Repositorio.obtenerMedico(medicoId)
 
-    // En la Fase 1 los días son fijos.
     val dias = listOf(
         "2026-09-15",
         "2026-09-16",
@@ -71,14 +71,9 @@ fun FechaHoraScreen(
             .padding(20.dp)
     ) {
 
-        Text(
-            text = "Seleccionar fecha y hora",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
+        EncabezadoConAtras(
+            titulo = "Seleccionar fecha y hora",
+            onAtrasClick = onAtrasClick
         )
 
         Text(
@@ -95,7 +90,6 @@ fun FechaHoraScreen(
 
         Text(
             text = "Septiembre 2026",
-            fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
 
@@ -116,9 +110,6 @@ fun FechaHoraScreen(
                     modifier = Modifier
                         .clickable {
                             fechaSeleccionada = fecha
-
-                            // Al cambiar de día se limpia
-                            // la hora seleccionada.
                             horaSeleccionada = ""
                         },
                     colors = CardDefaults.cardColors(
@@ -150,7 +141,6 @@ fun FechaHoraScreen(
 
         Text(
             text = "Horarios disponibles",
-            fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
 

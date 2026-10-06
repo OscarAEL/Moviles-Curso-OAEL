@@ -22,11 +22,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
+import com.saludplus.citas.ui.components.EncabezadoConAtras
 
 @Composable
 fun MedicosScreen(
     especialidadId: Int,
-    onMedicoClick: (Int) -> Unit
+    onMedicoClick: (Int) -> Unit,
+    onAtrasClick: () -> Unit
 ) {
 
     var busqueda by remember {
@@ -48,14 +50,9 @@ fun MedicosScreen(
             .padding(20.dp)
     ) {
 
-        Text(
-            text = especialidad?.nombre ?: "Médicos",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(4.dp)
+        EncabezadoConAtras(
+            titulo = especialidad?.nombre ?: "Médicos",
+            onAtrasClick = onAtrasClick
         )
 
         Text(
@@ -117,17 +114,9 @@ fun MedicosScreen(
                                 modifier = Modifier.height(4.dp)
                             )
 
-                            Text(
-                                text = medico.especialidad
-                            )
-
-                            Text(
-                                text = medico.cmp
-                            )
-
-                            Text(
-                                text = "Calificación: ${medico.calificacion}"
-                            )
+                            Text(text = medico.especialidad)
+                            Text(text = medico.cmp)
+                            Text(text = "Calificación: ${medico.calificacion}")
                         }
                     }
                 }

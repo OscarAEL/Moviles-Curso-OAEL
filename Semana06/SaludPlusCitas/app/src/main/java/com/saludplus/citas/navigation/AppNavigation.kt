@@ -110,6 +110,9 @@ fun AppNavigation() {
                     navController.navigate(
                         Rutas.medicos(especialidadId)
                     )
+                },
+                onAtrasClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -132,6 +135,9 @@ fun AppNavigation() {
                     navController.navigate(
                         Rutas.fechaHora(medicoId)
                     )
+                },
+                onAtrasClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -151,7 +157,6 @@ fun AppNavigation() {
             FechaHoraScreen(
                 medicoId = medicoId,
                 onContinuarClick = { fecha, hora ->
-
                     navController.navigate(
                         Rutas.confirmarCita(
                             medicoId = medicoId,
@@ -159,6 +164,9 @@ fun AppNavigation() {
                             hora = hora
                         )
                     )
+                },
+                onAtrasClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -192,7 +200,6 @@ fun AppNavigation() {
                 fecha = fecha,
                 hora = hora,
                 onCitaConfirmada = { citaId ->
-
                     navController.navigate(
                         Rutas.citaExitosa(citaId)
                     ) {
@@ -200,6 +207,9 @@ fun AppNavigation() {
                             inclusive = true
                         }
                     }
+                },
+                onAtrasClick = {
+                    navController.popBackStack()
                 }
             )
         }
