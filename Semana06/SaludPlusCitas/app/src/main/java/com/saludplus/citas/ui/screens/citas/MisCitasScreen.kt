@@ -47,10 +47,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+// Pantalla para consultar el listado de citas agendadas por el usuario logueado.
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MisCitasScreen(
-    onCitaClick: (Int) -> Unit,
+    onCitaClick: (Int) -> Unit, // Callback para navegar al detalle enviando el ID de la cita seleccionada.
     onInicioClick: () -> Unit,
     onCitasClick: () -> Unit,
     onResultadosClick: () -> Unit,
@@ -59,6 +60,7 @@ fun MisCitasScreen(
 
     val usuario = Repositorio.usuarioActual
 
+    // Obtiene únicamente las citas asociadas al usuario con sesión activa
     val citas =
         if (usuario != null) {
             Repositorio.citasDelUsuario(usuario.id)
@@ -96,6 +98,7 @@ fun MisCitasScreen(
                 modifier = Modifier.height(16.dp),
             )
 
+            // Si el usuario no registra citas, muestra un estado informativo vacío
             if (citas.isEmpty()) {
 
                 // ESTADO VACÍO
@@ -147,12 +150,14 @@ fun MisCitasScreen(
 
             } else {
 
+                // LazyColumn para renderizar las citas agendadas por el usuario
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
 
                     items(citas) { cita ->
 
+                        // Obtiene los datos del médico asignado a esta cita
                         val medico = Repositorio.obtenerMedico(cita.medicoId)
                         val fechaFormateada = formatearFecha(cita.fecha)
 
@@ -160,6 +165,7 @@ fun MisCitasScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
+                                    // Navega al detalle de la cita usando citaId
                                     onCitaClick(cita.id)
                                 },
                             shape = RoundedCornerShape(14.dp),

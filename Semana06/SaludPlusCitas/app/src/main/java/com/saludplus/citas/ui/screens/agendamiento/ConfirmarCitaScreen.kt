@@ -55,22 +55,25 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+// Pantalla final del flujo de agendamiento para revisar detalles y registrar la cita.
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ConfirmarCitaScreen(
-    medicoId: Int,
-    fecha: String,
-    hora: String,
-    onCitaConfirmada: (Int) -> Unit,
+    medicoId: Int, // ID del médico seleccionado.
+    fecha: String,   // Fecha seleccionada en formato "YYYY-MM-DD".
+    hora: String,    // Hora seleccionada.
+    onCitaConfirmada: (Int) -> Unit, // Callback ejecutado tras guardar la cita con éxito.
     onAtrasClick: () -> Unit,
 ) {
 
     val medico = Repositorio.obtenerMedico(medicoId)
     val usuario = Repositorio.usuarioActual
 
+    // Estado reactivo para ingresar opcionalmente el motivo de consulta.
     var motivoConsulta by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
+    // Formatea la fecha recibida a formato largo en español (ej: "Lunes 12 de Octubre 2026").
     val fechaFormateada = remember(fecha) {
         try {
             val localeEs = Locale.forLanguageTag("es-ES")
@@ -207,6 +210,7 @@ fun ConfirmarCitaScreen(
 
         Spacer(modifier = Modifier.height(6.dp))
 
+        // Campo para ingresar el motivo de consulta; se limpia con trim() antes de guardar.
         OutlinedTextField(
             value = motivoConsulta,
             onValueChange = { motivoConsulta = it },
@@ -220,7 +224,7 @@ fun ConfirmarCitaScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 5. BOTÓN CONFIRMAR
+        // 5. BOTÓN CONFIRMAR: Construye el objeto Cita y lo guarda en el Repositorio.
         Button(
             onClick = {
                 if (usuario != null) {
@@ -231,11 +235,12 @@ fun ConfirmarCitaScreen(
                         medicoId = medicoId,
                         fecha = fecha,
                         hora = hora,
+                        motivo = motivoConsulta.trim(), // Se aplica trim() para no guardar espacios sobrantes.
                     )
 
                     val agendada = Repositorio.agendarCita(nuevaCita)
                     if (agendada) {
-                        onCitaConfirmada(nuevaCita.id)
+                        onCitaConfirmada(nuevaCita.id) // Navega al comprobante de éxito enviando el citaId
                     }
                 }
             },

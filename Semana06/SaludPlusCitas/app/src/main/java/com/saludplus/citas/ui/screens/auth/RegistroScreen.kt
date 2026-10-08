@@ -1,5 +1,6 @@
 package com.saludplus.citas.ui.screens.auth
 
+import android.util.Patterns
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,11 +47,13 @@ fun RegistroScreen(
     onTerminosClick: () -> Unit,
 ) {
 
+    // remember y mutableStateOf: Mantienen el estado reactivo de los campos del formulario.
     var nombre by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
+    // Almacena el mensaje de error a mostrar si falla alguna validación.
     var mensajeError by remember { mutableStateOf("") }
 
     val scrollState = rememberScrollState()
@@ -82,6 +85,7 @@ fun RegistroScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Campo de entrada para el Nombre Completo
         OutlinedTextField(
             value = nombre,
             onValueChange = {
@@ -105,11 +109,14 @@ fun RegistroScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Campo de entrada para el Teléfono (limita a dígitos y máximo 9 caracteres)
         OutlinedTextField(
             value = telefono,
-            onValueChange = {
-                telefono = it
-                mensajeError = ""
+            onValueChange = { newValue ->
+                if (newValue.all { it.isDigit() } && newValue.length <= 9) {
+                    telefono = newValue
+                    mensajeError = ""
+                }
             },
             label = {
                 Text("Teléfono")
@@ -129,6 +136,7 @@ fun RegistroScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Campo de entrada para el Correo Electrónico
         OutlinedTextField(
             value = correo,
             onValueChange = {
@@ -153,6 +161,7 @@ fun RegistroScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Campo de entrada para la Contraseña
         OutlinedTextField(
             value = contrasena,
             onValueChange = {
@@ -176,6 +185,7 @@ fun RegistroScreen(
             visualTransformation = PasswordVisualTransformation(),
         )
 
+        // Muestra el mensaje de error solo cuando no está vacío
         if (mensajeError.isNotEmpty()) {
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -191,40 +201,45 @@ fun RegistroScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Botón para procesar las validaciones y registrar el usuario
         Button(
             onClick = {
+                val nombreTrimmed = nombre.trim()
+                val correoTrimmed = correo.trim()
 
-                if (
-                    nombre.isBlank() ||
-                    telefono.isBlank() ||
-                    correo.isBlank() ||
-                    contrasena.isBlank()
-                ) {
-
-                    mensajeError = "Completa todos los campos"
-
+                // Validación del nombre (mínimo 2 letras y solo caracteres alfabéticos/espacios)
+                if (nombreTrimmed.length < 2 || !nombreTrimmed.matches(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s]+$"))) {
+                    mensajeError = "Ingresa un nombre válido"
+                // Validación del teléfono (debe tener exactamente 9 dígitos)
+                } else if (telefono.length != 9) {
+                    mensajeError = "El teléfono debe tener 9 dígitos"
+                // Validación del formato de correo electrónico
+                } else if (correoTrimmed.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(correoTrimmed).matches()) {
+                    mensajeError = "Ingresa un correo válido"
+                // Validación de longitud mínima de contraseña
                 } else if (contrasena.length < 6) {
-
-                    mensajeError = "La contraseña debe tener mínimo 6 caracteres"
-
+                    mensajeError = "La contraseña debe tener al menos 6 caracteres"
+                // Validación de complejidad de la contraseña (debe contener letras y números)
+                } else if (!contrasena.any { it.isLetter() } || !contrasena.any { it.isDigit() }) {
+                    mensajeError = "La contraseña debe contener letras y números"
                 } else {
-
                     val nuevoId =
                         (Repositorio.usuarios.maxOfOrNull { it.id } ?: 0) + 1
 
                     val nuevoUsuario = Usuario(
                         id = nuevoId,
-                        nombre = nombre,
+                        nombre = nombreTrimmed,
                         telefono = telefono,
-                        correo = correo,
+                        correo = correoTrimmed,
                         contrasena = contrasena,
                     )
 
+                    // Intenta registrar el nuevo usuario mediante el Repositorio
                     val registrado =
                         Repositorio.registrarUsuario(nuevoUsuario)
 
                     if (registrado) {
-                        onRegistroExitoso()
+                        onRegistroExitoso() // Navega al Home tras registro exitoso
                     } else {
                         mensajeError = "El correo ya está registrado"
                     }

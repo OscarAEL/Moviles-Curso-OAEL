@@ -47,12 +47,13 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+// Pantalla de confirmación de éxito tras registrar una cita médica.
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CitaExitosaScreen(
-    citaId: Int,
-    onMisCitasClick: () -> Unit,
-    onInicioClick: () -> Unit,
+    citaId: Int, // Recibe el ID de la cita recién agendada.
+    onMisCitasClick: () -> Unit, // Callback para ir al historial de citas limpiando la pantalla de confirmación.
+    onInicioClick: () -> Unit,   // Callback para volver a la pantalla de Inicio.
 ) {
 
     val cita = Repositorio.obtenerCita(citaId)
@@ -201,9 +202,9 @@ fun CitaExitosaScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // 3. BOTONES
+        // 3. BOTONES DE ACCIÓN POST-RESERVA
         Button(
-            onClick = onMisCitasClick,
+            onClick = onMisCitasClick, // Lleva a Mis Citas descartando el comprobante del back stack
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,7 +220,7 @@ fun CitaExitosaScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedButton(
-            onClick = onInicioClick,
+            onClick = onInicioClick, // Regresa a la pantalla principal
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier
                 .fillMaxWidth()

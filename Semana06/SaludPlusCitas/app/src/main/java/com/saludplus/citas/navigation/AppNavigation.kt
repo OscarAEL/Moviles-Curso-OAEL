@@ -1,6 +1,7 @@
 package com.saludplus.citas.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,16 +23,20 @@ import com.saludplus.citas.ui.screens.notificaciones.NotificacionesScreen
 import com.saludplus.citas.ui.screens.perfil.PerfilScreen
 import com.saludplus.citas.ui.screens.resultados.ResultadosScreen
 
+// Composable principal que administra el grafo de navegación de toda la aplicación.
 @Composable
 fun AppNavigation() {
 
+    // Controlador que gestiona la pila de navegación y el cambio entre pantallas.
     val navController = rememberNavController()
 
+    // Contenedor de rutas; inicia mostrando la pantalla Splash.
     NavHost(
         navController = navController,
         startDestination = Rutas.SPLASH
     ) {
 
+        // Pantalla de Bienvenida (Splash)
         composable(Rutas.SPLASH) {
             SplashScreen(
                 onRegistroClick = {
@@ -43,9 +48,11 @@ fun AppNavigation() {
             )
         }
 
+        // Pantalla de Registro de usuario
         composable(Rutas.REGISTRO) {
             RegistroScreen(
                 onRegistroExitoso = {
+                    // Limpia la pantalla Splash del back stack al iniciar sesión
                     navController.navigate(Rutas.HOME) {
                         popUpTo(Rutas.SPLASH) {
                             inclusive = true
@@ -61,9 +68,11 @@ fun AppNavigation() {
             )
         }
 
+        // Pantalla de Iniciar sesión
         composable(Rutas.LOGIN) {
             LoginScreen(
                 onLoginExitoso = {
+                    // Remueve Splash del historial al entrar al Home
                     navController.navigate(Rutas.HOME) {
                         popUpTo(Rutas.SPLASH) {
                             inclusive = true
@@ -76,6 +85,7 @@ fun AppNavigation() {
             )
         }
 
+        // Pantalla Principal (Home)
         composable(Rutas.HOME) {
             HomeScreen(
                 onAgendarCitaClick = {
@@ -104,6 +114,7 @@ fun AppNavigation() {
             )
         }
 
+        // Listado de Especialidades Médicas
         composable(Rutas.ESPECIALIDADES) {
             EspecialidadesScreen(
                 onEspecialidadClick = { especialidadId ->
@@ -117,6 +128,7 @@ fun AppNavigation() {
             )
         }
 
+        // Listado de Médicos filtrados por especialidadId
         composable(
             route = Rutas.MEDICOS,
             arguments = listOf(
@@ -132,9 +144,12 @@ fun AppNavigation() {
             MedicosScreen(
                 especialidadId = especialidadId,
                 onMedicoClick = { medicoId ->
-                    navController.navigate(
-                        Rutas.fechaHora(medicoId)
-                    )
+                    // Valida que la pantalla esté activa antes de navegar para evitar doble clic accidental
+                    if (backStackEntry.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        navController.navigate(
+                            Rutas.fechaHora(medicoId)
+                        )
+                    }
                 },
                 onAtrasClick = {
                     navController.popBackStack()
@@ -142,6 +157,7 @@ fun AppNavigation() {
             )
         }
 
+        // Selección de Fecha y Hora con un médico específico
         composable(
             route = Rutas.FECHA_HORA,
             arguments = listOf(
@@ -171,6 +187,7 @@ fun AppNavigation() {
             )
         }
 
+        // Confirmación final antes de agendar la cita
         composable(
             route = Rutas.CONFIRMAR_CITA,
             arguments = listOf(
@@ -200,6 +217,7 @@ fun AppNavigation() {
                 fecha = fecha,
                 hora = hora,
                 onCitaConfirmada = { citaId ->
+                    // Remueve las pantallas intermedias del flujo de reserva
                     navController.navigate(
                         Rutas.citaExitosa(citaId)
                     ) {
@@ -214,6 +232,7 @@ fun AppNavigation() {
             )
         }
 
+        // Comprobante de Cita Creada con Éxito
         composable(
             route = Rutas.CITA_EXITOSA,
             arguments = listOf(
@@ -230,7 +249,12 @@ fun AppNavigation() {
                 citaId = citaId,
 
                 onMisCitasClick = {
-                    navController.navigate(Rutas.MIS_CITAS)
+                    // Remueve la pantalla de confirmación del back stack al ir a Mis Citas
+                    navController.navigate(Rutas.MIS_CITAS) {
+                        popUpTo(Rutas.CITA_EXITOSA) {
+                            inclusive = true
+                        }
+                    }
                 },
 
                 onInicioClick = {
@@ -243,6 +267,7 @@ fun AppNavigation() {
             )
         }
 
+        // Historial de Citas del Usuario
         composable(Rutas.MIS_CITAS) {
             MisCitasScreen(
                 onCitaClick = { citaId ->
@@ -265,6 +290,7 @@ fun AppNavigation() {
             )
         }
 
+        // Detalle completo de una Cita específica
         composable(
             route = Rutas.DETALLE_CITA,
             arguments = listOf(
@@ -278,13 +304,18 @@ fun AppNavigation() {
                 backStackEntry.arguments?.getInt("citaId") ?: 0
 
             DetalleCitaScreen(
-                citaId = citaId
+                citaId = citaId,
+                onAtrasClick = {
+                    navController.popBackStack()
+                }
             )
         }
 
+        // Perfil del usuario activo
         composable(Rutas.PERFIL) {
             PerfilScreen(
                 onCerrarSesionClick = {
+                    // Limpia toda la pila de navegación al cerrar sesión
                     navController.navigate(Rutas.SPLASH) {
                         popUpTo(0)
                     }
@@ -304,6 +335,7 @@ fun AppNavigation() {
             )
         }
 
+        // Pantalla de Resultados
         composable(Rutas.RESULTADOS) {
             ResultadosScreen(
                 onInicioClick = {
@@ -321,6 +353,7 @@ fun AppNavigation() {
             )
         }
 
+        // Pantallas secundarias estáticas
         composable(Rutas.NOTIFICACIONES) {
             NotificacionesScreen()
         }

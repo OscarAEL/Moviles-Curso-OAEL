@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.BarraNavegacion
 
+// Pantalla principal (Home) para acceder a los servicios clave de la aplicación.
 @Composable
 fun HomeScreen(
     onAgendarCitaClick: () -> Unit,
@@ -55,9 +56,11 @@ fun HomeScreen(
     onPerfilClick: () -> Unit,
 ) {
 
+    // Obtiene los datos del usuario logueado y las especialidades destacadas desde el Repositorio
     val usuario = Repositorio.usuarioActual
     val especialidadesDestacadas = Repositorio.especialidadesDestacadas()
 
+    // Scaffold estructura la pantalla agregando la barra de navegación inferior
     Scaffold(
         bottomBar = {
             BarraNavegacion(
@@ -77,7 +80,7 @@ fun HomeScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
         ) {
 
-            // 1. ENCABEZADO
+            // 1. ENCABEZADO: Saludo personalizado con el nombre del usuario
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -118,7 +121,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 2. ACCESOS PRINCIPALES (4 TARJETAS 2x2)
+            // 2. ACCESOS PRINCIPALES (Grid de tarjetas 2x2 para navegación rápida)
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -175,7 +178,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 3. ESPECIALIDADES DESTACADAS
+            // 3. ESPECIALIDADES DESTACADAS (Carrusel horizontal con LazyRow)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -200,6 +203,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // LazyRow: Lista de desplazamiento horizontal optimizada
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -270,6 +274,7 @@ fun HomeScreen(
     }
 }
 
+// Componente helper para dibujar las tarjetas de accesos rápidos del Home
 @Composable
 private fun TarjetaAcceso(
     titulo: String,
@@ -323,6 +328,7 @@ private fun TarjetaAcceso(
     }
 }
 
+// Asigna colores e iconos dinámicos según el nombre de la especialidad
 private fun obtenerEstiloEspecialidadHome(nombre: String): Triple<ImageVector, Color, Color> {
     return when {
         nombre.contains("General", ignoreCase = true) -> Triple(

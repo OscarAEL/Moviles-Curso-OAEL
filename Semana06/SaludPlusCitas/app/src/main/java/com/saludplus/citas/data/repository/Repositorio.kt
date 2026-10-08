@@ -9,12 +9,14 @@ import com.saludplus.citas.data.model.Especialidad
 import com.saludplus.citas.data.model.Medico
 import com.saludplus.citas.data.model.Usuario
 
+// Patrón Singleton (object): actúa como repositorio centralizado en memoria para toda la app.
 object Repositorio {
 
     // -------------------------
     // USUARIOS
     // -------------------------
 
+    // Lista observable de usuarios registrados en la sesión actual.
     val usuarios = mutableStateListOf(
         Usuario(
             id = 1,
@@ -25,9 +27,11 @@ object Repositorio {
         )
     )
 
+    // Almacena el usuario con sesión activa en la aplicación.
     var usuarioActual by mutableStateOf<Usuario?>(null)
         private set
 
+    // Registra un nuevo usuario si el correo no ha sido registrado previamente.
     fun registrarUsuario(usuario: Usuario): Boolean {
         val correoExiste = usuarios.any { it.correo == usuario.correo }
 
@@ -40,6 +44,7 @@ object Repositorio {
         return true
     }
 
+    // Valida credenciales e inicia la sesión del usuario si coincide el correo y contraseña.
     fun iniciarSesion(correo: String, contrasena: String): Boolean {
         val usuario = usuarios.find {
             it.correo == correo && it.contrasena == contrasena
@@ -49,6 +54,7 @@ object Repositorio {
         return usuario != null
     }
 
+    // Cierra la sesión activa borrando el usuario actual.
     fun cerrarSesion() {
         usuarioActual = null
     }
@@ -58,6 +64,7 @@ object Repositorio {
     // ESPECIALIDADES
     // -------------------------
 
+    // Lista estática de especialidades médicas disponibles.
     val especialidades = listOf(
         Especialidad(
             id = 1,
@@ -96,16 +103,19 @@ object Repositorio {
         )
     )
 
+    // Filtra las especialidades por el texto ingresado en el buscador.
     fun buscarEspecialidades(texto: String): List<Especialidad> {
         return especialidades.filter {
             it.nombre.contains(texto, ignoreCase = true)
         }
     }
 
+    // Retorna las primeras especialidades para la sección destacada de Inicio.
     fun especialidadesDestacadas(): List<Especialidad> {
         return especialidades.take(3)
     }
 
+    // Busca una especialidad por su ID único.
     fun obtenerEspecialidad(id: Int): Especialidad? {
         return especialidades.find { it.id == id }
     }
@@ -115,6 +125,7 @@ object Repositorio {
     // MÉDICOS
     // -------------------------
 
+    // Lista de médicos del sistema asignados a cada especialidad.
     val medicos = listOf(
         Medico(
             id = 1,
@@ -174,12 +185,14 @@ object Repositorio {
         )
     )
 
+    // Filtra y ordena médicos por calificación para una especialidad dada.
     fun medicosPorEspecialidad(especialidadId: Int): List<Medico> {
         return medicos
             .filter { it.especialidadId == especialidadId }
             .sortedByDescending { it.calificacion }
     }
 
+    // Busca médicos dentro de una especialidad que coincidan con la búsqueda.
     fun buscarMedicos(
         especialidadId: Int,
         texto: String
@@ -192,6 +205,7 @@ object Repositorio {
             .sortedByDescending { it.calificacion }
     }
 
+    // Busca un médico específico por su ID.
     fun obtenerMedico(id: Int): Medico? {
         return medicos.find { it.id == id }
     }
@@ -201,8 +215,10 @@ object Repositorio {
     // CITAS
     // -------------------------
 
+    // Lista observable que almacena las citas agendadas durante la ejecución.
     val citas = mutableStateListOf<Cita>()
 
+    // Lista base de horarios disponibles en la clínica.
     private val horariosBase = listOf(
         "08:00",
         "08:30",
@@ -218,11 +234,13 @@ object Repositorio {
         "15:30"
     )
 
+    // Retorna los horarios que aún no han sido reservados para un médico y fecha.
     fun horariosDisponibles(
         medicoId: Int,
         fecha: String
     ): List<String> {
 
+        // Extrae las horas ya ocupadas para la fecha y médico elegidos.
         val horariosOcupados = citas
             .filter {
                 it.medicoId == medicoId &&
@@ -230,11 +248,13 @@ object Repositorio {
             }
             .map { it.hora }
 
+        // Filtra y excluye los horarios ocupados.
         return horariosBase.filter {
             it !in horariosOcupados
         }
     }
 
+    // Guarda una nueva cita si el horario ingresado se encuentra libre.
     fun agendarCita(cita: Cita): Boolean {
 
         val horarioOcupado = citas.any {
@@ -251,6 +271,7 @@ object Repositorio {
         return true
     }
 
+    // Retorna las citas asociadas a un usuario ordenadas por fecha y hora.
     fun citasDelUsuario(usuarioId: Int): List<Cita> {
         return citas
             .filter { it.usuarioId == usuarioId }
@@ -260,10 +281,12 @@ object Repositorio {
             )
     }
 
+    // Obtiene el detalle de una cita específica por su ID.
     fun obtenerCita(id: Int): Cita? {
         return citas.find { it.id == id }
     }
 
+    // Cancela y remueve una cita de la lista.
     fun cancelarCita(id: Int): Boolean {
         return citas.removeIf { it.id == id }
     }

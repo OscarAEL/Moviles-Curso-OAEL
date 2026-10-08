@@ -40,15 +40,17 @@ import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.BarraNavegacion
 
+// Pantalla de perfil de usuario para consultar datos personales y cerrar sesión.
 @Composable
 fun PerfilScreen(
-    onCerrarSesionClick: () -> Unit,
+    onCerrarSesionClick: () -> Unit, // Callback para llevar fuera de la sesión tras cerrar el acceso.
     onInicioClick: () -> Unit,
     onCitasClick: () -> Unit,
     onResultadosClick: () -> Unit,
     onPerfilClick: () -> Unit,
 ) {
 
+    // Obtiene los datos del usuario logueado en la sesión activa
     val usuario = Repositorio.usuarioActual
     val scrollState = rememberScrollState()
 
@@ -85,7 +87,7 @@ fun PerfilScreen(
 
             if (usuario != null) {
 
-                // CABECERA DEL PERFIL
+                // CABECERA DEL PERFIL: Muestra avatar e información principal del paciente
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -128,7 +130,7 @@ fun PerfilScreen(
                     modifier = Modifier.height(24.dp),
                 )
 
-                // INFORMACIÓN PERSONAL
+                // INFORMACIÓN PERSONAL: Muestra nombre, correo y teléfono registrados
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -172,11 +174,11 @@ fun PerfilScreen(
                     modifier = Modifier.height(32.dp),
                 )
 
-                // BOTÓN CERRAR SESIÓN
+                // BOTÓN CERRAR SESIÓN: Limpia el estado del usuario en el Repositorio y ejecuta la navegación
                 OutlinedButton(
                     onClick = {
-                        Repositorio.cerrarSesion()
-                        onCerrarSesionClick()
+                        Repositorio.cerrarSesion() // Borra el usuarioActual
+                        onCerrarSesionClick()      // Navega fuera limpiando el historial
                     },
                     shape = RoundedCornerShape(14.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
@@ -194,7 +196,7 @@ fun PerfilScreen(
 
             } else {
 
-                // SIN USUARIO
+                // SIN USUARIO: Estado si no se encuentra sesión activa
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

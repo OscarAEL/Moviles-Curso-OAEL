@@ -55,21 +55,27 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
+// Pantalla para la selección dinámica de fecha (días hábiles) y horarios libres para un médico.
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FechaHoraScreen(
-    medicoId: Int,
-    onContinuarClick: (String, String) -> Unit,
+    medicoId: Int, // Recibe el ID del médico seleccionado.
+    onContinuarClick: (String, String) -> Unit, // Envía la fecha y hora elegidas a la pantalla de confirmación.
     onAtrasClick: () -> Unit,
 ) {
 
+    // Obtiene la entidad del médico desde el Repositorio
     val medico = Repositorio.obtenerMedico(medicoId)
 
+    // LocalDate.now(): Obtiene la fecha actual del sistema
     val hoy = remember { LocalDate.now() }
+
+    // semanaOffset: Contador reactivo para navegar entre semanas futuras (0 = semana actual).
     var semanaOffset by remember { mutableIntStateOf(0) }
 
     val localeEs = remember { Locale.forLanguageTag("es-ES") }
 
+    // Calcula el lunes de la semana base; si hoy es fin de semana, avanza al lunes siguiente.
     val lunesBase = remember(hoy) {
         if ((hoy.dayOfWeek == DayOfWeek.SATURDAY) || (hoy.dayOfWeek == DayOfWeek.SUNDAY)) {
             hoy.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
@@ -78,6 +84,7 @@ fun FechaHoraScreen(
         }
     }
 
+    // Calcula la lista de los próximos 5 días hábiles a mostrar según semanaOffset.
     val dias = remember(semanaOffset, hoy, lunesBase) {
         val inicio = if (semanaOffset == 0) {
             if ((hoy.dayOfWeek == DayOfWeek.SATURDAY) || (hoy.dayOfWeek == DayOfWeek.SUNDAY)) {
@@ -91,6 +98,7 @@ fun FechaHoraScreen(
         obtenerProximosDiasHabiles(inicio)
     }
 
+    // Formatea dinámicamente el mes y año en español según los días renderizados.
     val mesAno = remember(dias, localeEs) {
         if (dias.isNotEmpty()) {
             val primerDia = dias.first()
@@ -103,6 +111,7 @@ fun FechaHoraScreen(
         }
     }
 
+    // Estados reactivos que almacenan la fecha y la hora seleccionadas por el usuario.
     var fechaSeleccionada by remember {
         mutableStateOf("")
     }
@@ -111,6 +120,7 @@ fun FechaHoraScreen(
         mutableStateOf("")
     }
 
+    // Consulta los horarios libres en el Repositorio para el médico y fecha seleccionados.
     val horariosDisponibles =
         if (fechaSeleccionada.isNotEmpty()) {
             Repositorio.horariosDisponibles(
@@ -177,12 +187,13 @@ fun FechaHoraScreen(
             modifier = Modifier.height(18.dp),
         )
 
-        // 3. NAVEGACIÓN DEL MES
+        // 3. NAVEGACIÓN DEL MES (Controles para cambiar de semana)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Deshabilitado cuando semanaOffset == 0 para evitar navegar a fechas pasadas.
             IconButton(
                 onClick = {
                     if (semanaOffset > 0) {
@@ -206,7 +217,7 @@ fun FechaHoraScreen(
 
             IconButton(
                 onClick = {
-                    semanaOffset++
+                    semanaOffset++ // Avanza a la siguiente semana
                 },
             ) {
                 Icon(
@@ -220,7 +231,7 @@ fun FechaHoraScreen(
             modifier = Modifier.height(10.dp),
         )
 
-        // 4. DÍAS DISPONIBLES
+        // 4. DÍAS DISPONIBLES (Carrusel horizontal con LazyRow)
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -239,7 +250,7 @@ fun FechaHoraScreen(
                     modifier = Modifier
                         .clickable {
                             fechaSeleccionada = fechaString
-                            horaSeleccionada = ""
+                            horaSeleccionada = "" // Limpia la hora previa al cambiar de día.
                         },
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
@@ -285,7 +296,7 @@ fun FechaHoraScreen(
             modifier = Modifier.height(20.dp),
         )
 
-        // 5. HORARIOS DISPONIBLES
+        // 5. HORARIOS DISPONIBLES (Cuadrícula de 3 columnas con LazyVerticalGrid)
         Text(
             text = "Horarios disponibles",
             fontWeight = FontWeight.Bold,
@@ -312,6 +323,7 @@ fun FechaHoraScreen(
 
         } else {
 
+            // LazyVerticalGrid: Renderiza los botones de horario en una cuadrícula ordenada.
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 modifier = Modifier.weight(1f),
@@ -327,7 +339,7 @@ fun FechaHoraScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                horaSeleccionada = hora
+                                horaSeleccionada = hora // Almacena la hora elegida.
                             },
                         shape = RoundedCornerShape(10.dp),
                         colors = CardDefaults.cardColors(
@@ -367,7 +379,7 @@ fun FechaHoraScreen(
             modifier = Modifier.height(16.dp),
         )
 
-        // 6. BOTÓN CONTINUAR
+        // 6. BOTÓN CONTINUAR (Se habilita solo cuando se ha seleccionado fecha y hora)
         Button(
             onClick = {
                 onContinuarClick(
@@ -390,6 +402,7 @@ fun FechaHoraScreen(
     }
 }
 
+// Genera una lista de N días hábiles consecutivos excluyendo Sábados y Domingos.
 @RequiresApi(Build.VERSION_CODES.O)
 private fun obtenerProximosDiasHabiles(inicio: LocalDate, cantidad: Int = 5): List<LocalDate> {
     val dias = mutableListOf<LocalDate>()

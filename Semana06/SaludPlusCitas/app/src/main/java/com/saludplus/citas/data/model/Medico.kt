@@ -1,5 +1,6 @@
 package com.saludplus.citas.data.model
 
+// Modelo de datos que representa a un médico especialista disponible en la clínica.
 data class Medico(
     val id: Int,
     val nombre: String,

@@ -30,9 +30,11 @@ fun LoginScreen(
     onRegistroClick: () -> Unit
 ) {
 
+    // Estados locales para los campos de entrada de credenciales.
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
+    // Mensaje dinámico de error si la validación o credenciales fallan.
     var mensajeError by remember { mutableStateOf("") }
 
     Column(
@@ -56,6 +58,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Campo de entrada de correo electrónico
         OutlinedTextField(
             value = correo,
             onValueChange = {
@@ -71,6 +74,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Campo de entrada de contraseña con transformación de ocultamiento visual
         OutlinedTextField(
             value = contrasena,
             onValueChange = {
@@ -96,6 +100,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Botón para procesar la autenticación de usuario
         Button(
             onClick = {
 
@@ -108,12 +113,14 @@ fun LoginScreen(
 
                 } else {
 
+                    // Valida las credenciales ingresadas mediante el Repositorio
                     val loginCorrecto =
                         Repositorio.iniciarSesion(
                             correo = correo,
                             contrasena = contrasena
                         )
 
+                    // Si coincide con un usuario registrado, navega a la pantalla principal
                     if (loginCorrecto) {
                         onLoginExitoso()
                     } else {
@@ -128,6 +135,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Enlace alternativo para usuarios sin cuenta hacia la pantalla de registro
         TextButton(
             onClick = onRegistroClick
         ) {

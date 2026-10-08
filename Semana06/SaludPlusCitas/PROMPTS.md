@@ -186,3 +186,159 @@ Se agregó una función privada formatearFecha(fecha: String) usando LocalDate.p
 
 ### Correcciones realizadas
 Se verificó manualmente que la fecha aparezca correctamente en ambas pantallas y que la navegación y las reservas continúen funcionando.
+
+
+## Prompt 4 - Mejorar validaciones del registro
+
+### Prompt enviado
+Mejorar únicamente las validaciones de RegistroScreen.kt sin cambiar el diseño, navegación, repositorio, modelos ni otras pantallas.
+
+Validaciones solicitadas:
+- Nombre: trim(), mínimo 2 caracteres, solo letras y espacios, aceptar tildes y ñ.
+- Teléfono: solo dígitos, máximo 9 caracteres al escribir y exactamente 9 para registrarse.
+- Correo: trim(), formato válido usando android.util.Patterns.EMAIL_ADDRESS y mantener validación de correo duplicado.
+- Contraseña: mínimo 6 caracteres, al menos una letra y un número.
+- No permitir el registro mientras exista algún dato inválido.
+- Mantener el flujo de registro exitoso actual.
+
+### Respuesta resumida
+Gemini agregó validaciones más completas en RegistroScreen.kt.
+
+- El nombre ahora acepta únicamente letras y espacios, incluyendo tildes y ñ.
+- El teléfono se limita a máximo 9 dígitos y debe tener exactamente 9 para registrarse.
+- El correo se valida con Patterns.EMAIL_ADDRESS.
+- La contraseña requiere mínimo 6 caracteres, al menos una letra y un número.
+- Se mantuvo la validación de correo duplicado.
+- No se modificó la navegación ni el repositorio.
+
+### Correcciones y verificación
+Se probaron casos válidos e inválidos manualmente.
+
+Ejemplos rechazados:
+- Nombre: A, 123, Oscar123.
+- Teléfono con menos de 9 dígitos.
+- Correo con formato incorrecto.
+- Contraseña solo con letras o solo números.
+
+El registro con datos correctos continuó funcionando normalmente.
+
+
+---
+
+## Prompt 5 - Corregir navegación desde CitaExitosa hacia MisCitas
+
+### Prompt enviado
+Corregir únicamente el flujo de navegación:
+
+CitaExitosaScreen
+→ Ver mis citas
+→ MisCitasScreen
+→ Atrás
+→ HomeScreen
+
+El problema era que al presionar Atrás desde MisCitasScreen se regresaba nuevamente a CitaExitosaScreen.
+
+Se solicitó utilizar popUpTo para eliminar CitaExitosaScreen del back stack, manteniendo intacta la opción "Volver al inicio".
+
+### Respuesta resumida
+Gemini modificó AppNavigation.kt.
+
+En onMisCitasClick se utilizó:
+
+popUpTo(Rutas.CITA_EXITOSA) {
+inclusive = true
+}
+
+De esta manera CitaExitosaScreen se elimina del historial al navegar a MisCitasScreen.
+
+### Correcciones y verificación
+Se probaron los dos casos:
+
+1. Cita exitosa → Ver mis citas → Atrás → Inicio.
+2. Cita exitosa → Volver al inicio → Inicio.
+
+Ambos flujos funcionaron correctamente.
+
+---
+
+## Prompt 6 - Corregir salto accidental de Especialidades a FechaHora
+
+### Prompt enviado
+Investigar un comportamiento intermitente en el flujo:
+
+Especialidades
+→ Médicos
+→ Fecha y hora
+
+A veces, al seleccionar una especialidad, la aplicación saltaba directamente a FechaHoraScreen sin permitir seleccionar manualmente al médico.
+
+Se solicitó revisar:
+- onEspecialidadClick;
+- onMedicoClick;
+- AppNavigation.kt;
+- estados de navegación;
+- posibles dobles toques o navegación automática.
+
+### Respuesta resumida
+Gemini identificó que un toque rápido o doble toque podía coincidir con la transición hacia MedicosScreen y provocar inmediatamente el clic sobre una tarjeta de médico.
+
+Se agregó una validación con:
+
+Lifecycle.State.RESUMED
+
+en la navegación de MedicosScreen antes de ejecutar onMedicoClick.
+
+### Correcciones y verificación
+Inicialmente la protección también se agregó en EspecialidadesScreen.
+
+Esto evitó el salto accidental, pero produjo un efecto secundario: al tocar muy rápido una especialidad, a veces el primer toque no era reconocido.
+
+Se realizó un ajuste posterior para mantener la protección solamente en MedicosScreen.
+
+
+---
+
+## Prompt 7 - Agregar comentarios de estudio al código
+
+### Prompt enviado
+Agregar comentarios de estudio en español a los archivos principales de SaludPlusCitas.
+
+Los comentarios debían ser:
+- breves;
+- claros;
+- sencillos;
+- útiles para una sustentación oral;
+- sin comentar cada línea;
+- sin modificar ninguna parte funcional del proyecto.
+
+Se solicitó priorizar explicaciones sobre:
+- Repositorio y colecciones en memoria;
+- rutas y navegación;
+- NavController, NavHost y popUpTo;
+- remember y mutableStateOf;
+- validaciones de registro;
+- LazyRow, LazyColumn y LazyVerticalGrid;
+- filtros y búsquedas;
+- calendario dinámico con LocalDate;
+- selección de fecha y hora;
+- creación y consulta de citas;
+- sesión del usuario.
+
+### Respuesta resumida
+Gemini agregó comentarios breves en los modelos, Repositorio, navegación, componentes y pantallas principales.
+
+Se dejaron explicadas especialmente:
+- la función de object Repositorio;
+- las rutas con parámetros;
+- el flujo Especialidades → Médicos → FechaHora;
+- el uso de popUpTo;
+- las validaciones de Registro;
+- el calendario dinámico;
+- los horarios disponibles;
+- la creación y visualización de citas;
+- el funcionamiento de las listas Lazy.
+
+### Correcciones y verificación
+Gemini confirmó que únicamente agregó comentarios y que no modificó lógica, navegación, diseño, variables ni funciones.
+
+Se revisó el proyecto para comprobar que las funcionalidades existentes continuaran funcionando correctamente.

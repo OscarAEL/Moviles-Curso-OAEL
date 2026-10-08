@@ -44,17 +44,20 @@ import com.saludplus.citas.R
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.EncabezadoConAtras
 
+// Pantalla que muestra el listado de médicos de la especialidad seleccionada.
 @Composable
 fun MedicosScreen(
-    especialidadId: Int,
-    onMedicoClick: (Int) -> Unit,
+    especialidadId: Int, // Recibe el ID de la especialidad seleccionada en la pantalla anterior.
+    onMedicoClick: (Int) -> Unit, // Callback para navegar enviando el ID del médico elegido.
     onAtrasClick: () -> Unit,
 ) {
 
+    // Estado reactivo para filtrar médicos por nombre.
     var busqueda by remember {
         mutableStateOf("")
     }
 
+    // Consulta la especialidad y filtra la lista de médicos usando el Repositorio
     val especialidad =
         Repositorio.obtenerEspecialidad(especialidadId)
 
@@ -85,6 +88,7 @@ fun MedicosScreen(
             modifier = Modifier.height(12.dp),
         )
 
+        // Buscador de médicos dentro de la especialidad activa
         OutlinedTextField(
             value = busqueda,
             onValueChange = {
@@ -118,6 +122,7 @@ fun MedicosScreen(
 
         } else {
 
+            // LazyColumn para renderizar los médicos filtrados y ordenados por calificación
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
@@ -128,6 +133,7 @@ fun MedicosScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
+                                // Navega a la selección de fecha y hora enviando el ID de este médico
                                 onMedicoClick(medico.id)
                             },
                         shape = RoundedCornerShape(14.dp),
@@ -234,6 +240,7 @@ fun MedicosScreen(
     }
 }
 
+// Retorna el recurso drawable correspondiente a la foto del médico.
 private fun obtenerImagenMedico(nombre: String?): Int {
     return when (nombre) {
         "Dra. Ana Torres" -> R.drawable.doctora_1

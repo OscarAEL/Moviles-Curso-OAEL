@@ -15,10 +15,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Componente reutilizable para el encabezado superior con botón para retroceder.
 @Composable
 fun EncabezadoConAtras(
-    titulo: String,
-    onAtrasClick: () -> Unit
+    titulo: String, // Título de la pantalla activa.
+    onAtrasClick: () -> Unit // Callback ejecutado al presionar la flecha Atrás (navController.popBackStack()).
 ) {
     Row(
         modifier = Modifier
@@ -27,6 +28,7 @@ fun EncabezadoConAtras(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
+        // Botón con icono de flecha hacia atrás
         IconButton(
             onClick = onAtrasClick
         ) {
@@ -36,6 +38,7 @@ fun EncabezadoConAtras(
             )
         }
 
+        // Título principal del encabezado
         Text(
             text = titulo,
             fontSize = 24.sp,

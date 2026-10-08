@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+// Componente genérico para pantallas temporales o marcadores de posición.
 @Composable
 fun PantallaEnConstruccion(
     titulo: String,

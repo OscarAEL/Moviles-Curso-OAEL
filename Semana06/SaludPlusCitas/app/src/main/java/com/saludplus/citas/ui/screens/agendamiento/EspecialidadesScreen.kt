@@ -48,16 +48,19 @@ import androidx.compose.ui.unit.sp
 import com.saludplus.citas.data.repository.Repositorio
 import com.saludplus.citas.ui.components.EncabezadoConAtras
 
+// Pantalla para explorar y filtrar las especialidades médicas.
 @Composable
 fun EspecialidadesScreen(
-    onEspecialidadClick: (Int) -> Unit,
+    onEspecialidadClick: (Int) -> Unit, // Callback para enviar el ID de la especialidad elegida al NavController.
     onAtrasClick: () -> Unit,
 ) {
 
+    // Estado reactivo que almacena el texto ingresado en la barra de búsqueda.
     var busqueda by remember {
         mutableStateOf("")
     }
 
+    // Filtra dinámicamente las especialidades del Repositorio según el texto de búsqueda.
     val especialidadesFiltradas =
         Repositorio.buscarEspecialidades(busqueda)
 
@@ -72,10 +75,11 @@ fun EspecialidadesScreen(
             onAtrasClick = onAtrasClick,
         )
 
+        // Campo de entrada para filtrar especialidades en tiempo real.
         OutlinedTextField(
             value = busqueda,
             onValueChange = {
-                busqueda = it
+                busqueda = it // Actualiza el estado reactivo, re-ejecutando el filtro.
             },
             placeholder = {
                 Text("Buscar especialidad...")
@@ -96,6 +100,7 @@ fun EspecialidadesScreen(
             modifier = Modifier.height(16.dp),
         )
 
+        // LazyColumn: Lista de desplazamiento vertical eficiente
         LazyColumn {
 
             items(especialidadesFiltradas) { especialidad ->
@@ -107,6 +112,7 @@ fun EspecialidadesScreen(
                         .fillMaxWidth()
                         .padding(vertical = 5.dp)
                         .clickable {
+                            // Navega a la lista de médicos enviando el ID de esta especialidad
                             onEspecialidadClick(especialidad.id)
                         },
                     shape = RoundedCornerShape(14.dp),
@@ -177,6 +183,7 @@ fun EspecialidadesScreen(
     }
 }
 
+// Retorna el estilo visual (icono y colores) adecuado según el nombre de la especialidad.
 private fun obtenerEstiloEspecialidad(nombre: String): Triple<ImageVector, Color, Color> {
     return when {
         nombre.contains("General", ignoreCase = true) -> Triple(
