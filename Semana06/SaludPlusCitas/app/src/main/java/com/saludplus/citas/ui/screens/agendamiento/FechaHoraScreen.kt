@@ -1,7 +1,5 @@
 package com.saludplus.citas.ui.screens.agendamiento
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +54,6 @@ import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 // Pantalla para la selección dinámica de fecha (días hábiles) y horarios libres para un médico.
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FechaHoraScreen(
     medicoId: Int, // Recibe el ID del médico seleccionado.
@@ -403,7 +400,6 @@ fun FechaHoraScreen(
 }
 
 // Genera una lista de N días hábiles consecutivos excluyendo Sábados y Domingos.
-@RequiresApi(Build.VERSION_CODES.O)
 private fun obtenerProximosDiasHabiles(inicio: LocalDate, cantidad: Int = 5): List<LocalDate> {
     val dias = mutableListOf<LocalDate>()
     var actual = inicio

@@ -1,7 +1,5 @@
 package com.saludplus.citas.ui.screens.citas
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,7 +46,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // Pantalla para consultar la información detallada de una cita específica.
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DetalleCitaScreen(
     citaId: Int, // Recibe el ID de la cita a consultar.
@@ -222,7 +219,6 @@ private fun FilaDetalleCita(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun formatearFecha(fecha: String): String {
     return try {
         val localeEs = Locale.forLanguageTag("es-ES")

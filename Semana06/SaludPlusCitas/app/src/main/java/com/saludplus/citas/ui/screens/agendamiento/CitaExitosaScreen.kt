@@ -1,7 +1,5 @@
 package com.saludplus.citas.ui.screens.agendamiento
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,7 +46,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // Pantalla de confirmación de éxito tras registrar una cita médica.
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CitaExitosaScreen(
     citaId: Int, // Recibe el ID de la cita recién agendada.
@@ -237,7 +234,6 @@ fun CitaExitosaScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun formatearFecha(fecha: String): String {
     return try {
         val localeEs = Locale.forLanguageTag("es-ES")

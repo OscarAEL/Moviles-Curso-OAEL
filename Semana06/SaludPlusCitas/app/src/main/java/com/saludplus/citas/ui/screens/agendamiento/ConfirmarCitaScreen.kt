@@ -1,7 +1,5 @@
 package com.saludplus.citas.ui.screens.agendamiento
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +54,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // Pantalla final del flujo de agendamiento para revisar detalles y registrar la cita.
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ConfirmarCitaScreen(
     medicoId: Int, // ID del médico seleccionado.

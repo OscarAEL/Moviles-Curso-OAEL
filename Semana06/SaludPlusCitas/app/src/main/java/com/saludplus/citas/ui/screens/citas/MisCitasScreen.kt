@@ -1,7 +1,5 @@
 package com.saludplus.citas.ui.screens.citas
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,7 +46,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // Pantalla para consultar el listado de citas agendadas por el usuario logueado.
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MisCitasScreen(
     onCitaClick: (Int) -> Unit, // Callback para navegar al detalle enviando el ID de la cita seleccionada.
@@ -248,7 +245,6 @@ fun MisCitasScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun formatearFecha(fecha: String): String {
     return try {
         val localeEs = Locale.forLanguageTag("es-ES")
