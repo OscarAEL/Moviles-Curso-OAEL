@@ -17,6 +17,11 @@ import java.io.IOException
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "ajustes")
 
+data class SesionGuardada(
+    val perfil: String,
+    val usuarioId: Int
+)
+
 class PreferenciasStore(context: Context) {
 
     private val applicationContext = context.applicationContext
@@ -37,6 +42,13 @@ class PreferenciasStore(context: Context) {
                 throw exception
             }
         }
+
+    val sesionGuardada: Flow<SesionGuardada> = safeData.map { preferences ->
+        SesionGuardada(
+            perfil = preferences[PERFIL_ACTIVO] ?: "",
+            usuarioId = preferences[USUARIO_ID] ?: 0
+        )
+    }
 
     val perfilActivo: Flow<String> = safeData.map { preferences ->
         preferences[PERFIL_ACTIVO] ?: ""

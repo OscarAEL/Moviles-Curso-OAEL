@@ -28,6 +28,10 @@ class LavaRepositoryRoom(
         return usuarioDao.login(correo, clave)
     }
 
+    override suspend fun obtenerUsuario(id: Int): Usuario? {
+        return usuarioDao.obtener(id)
+    }
+
     override fun observarClientes(): Flow<List<ClienteResumen>> {
         return usuarioDao.observarClientes()
     }
