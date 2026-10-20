@@ -12,15 +12,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.tecsup.lavacampus.LavaApp
+import com.tecsup.lavacampus.model.Rol
 import com.tecsup.lavacampus.ui.administrador.PanelProvisionalScreen
 import com.tecsup.lavacampus.ui.administrador.ServiciosScreen
-import com.tecsup.lavacampus.ui.estudiante.InicioProvisionalScreen
+import com.tecsup.lavacampus.ui.components.ProvisionalPantalla
+import com.tecsup.lavacampus.ui.estudiante.InicioScreen
 import com.tecsup.lavacampus.ui.estudiante.LoginScreen
+import com.tecsup.lavacampus.ui.estudiante.PerfilProvisionalScreen
 import com.tecsup.lavacampus.ui.estudiante.SplashScreen
+import com.tecsup.lavacampus.viewmodel.InicioViewModel
 import com.tecsup.lavacampus.viewmodel.ServiciosViewModel
 import com.tecsup.lavacampus.viewmodel.SesionViewModel
 
@@ -30,6 +36,13 @@ object Destinos {
     const val INICIO = "inicio"
     const val PANEL = "panel"
     const val SERVICIOS = "servicios"
+    const val NUEVO_PEDIDO = "nuevo_pedido"
+    const val MIS_PEDIDOS = "mis_pedidos"
+    const val TARIFAS = "tarifas"
+    const val DETALLE_PEDIDO = "detalle_pedido/{id}"
+    const val PERFIL = "perfil"
+
+    fun detallePedido(id: Int) = "detalle_pedido/$id"
 }
 
 @Composable
@@ -54,7 +67,7 @@ fun AppNavGraph(
             val usuario = usuarioActual
             if (usuario == null) {
                 val rutaActual = navController.currentDestination?.route
-                if (rutaActual == Destinos.INICIO || rutaActual == Destinos.PANEL || rutaActual == Destinos.SERVICIOS) {
+                if (rutaActual != Destinos.SPLASH && rutaActual != Destinos.LOGIN) {
                     navController.navigate(Destinos.LOGIN) {
                         popUpTo(0) { inclusive = true }
                     }
@@ -62,7 +75,7 @@ fun AppNavGraph(
             } else {
                 val destinoValido = if (usuario.rol == "ADMIN") Destinos.PANEL else Destinos.INICIO
                 val rutaActual = navController.currentDestination?.route
-                if (rutaActual != destinoValido && rutaActual != Destinos.SERVICIOS) {
+                if (rutaActual == Destinos.SPLASH || rutaActual == Destinos.LOGIN) {
                     navController.navigate(destinoValido) {
                         popUpTo(0) { inclusive = true }
                     }
@@ -104,11 +117,37 @@ fun AppNavGraph(
             composable(Destinos.INICIO) {
                 val usuario = usuarioActual
                 if (usuario != null) {
-                    InicioProvisionalScreen(
-                        usuario = usuario,
-                        cargando = cargando,
-                        onCerrarSesion = {
-                            sesionViewModel.cerrarSesion()
+                    val inicioViewModel: InicioViewModel = viewModel(
+                        key = "inicio_${usuario.id}",
+                        factory = InicioViewModel.Factory(app.repository, usuario)
+                    )
+
+                    InicioScreen(
+                        viewModel = inicioViewModel,
+                        onNuevoPedidoClick = {
+                            navController.navigate(Destinos.NUEVO_PEDIDO) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onMisPedidosClick = {
+                            navController.navigate(Destinos.MIS_PEDIDOS) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onTarifasClick = {
+                            navController.navigate(Destinos.TARIFAS) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onPerfilClick = {
+                            navController.navigate(Destinos.PERFIL) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onPedidoClick = { id ->
+                            navController.navigate(Destinos.detallePedido(id)) {
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
@@ -137,6 +176,52 @@ fun AppNavGraph(
                         navController.popBackStack()
                     }
                 )
+            }
+
+            // Destinos provisionales del flujo del estudiante
+            composable(Destinos.NUEVO_PEDIDO) {
+                ProvisionalPantalla(
+                    titulo = "Nuevo pedido",
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(Destinos.MIS_PEDIDOS) {
+                ProvisionalPantalla(
+                    titulo = "Mis pedidos",
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(Destinos.TARIFAS) {
+                ProvisionalPantalla(
+                    titulo = "Tarifas",
+                    onBackClick = { navController.popBackStack() },
+                    rol = Rol.CLIENTE
+                )
+            }
+
+            composable(
+                route = Destinos.DETALLE_PEDIDO,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("id") ?: 0
+                ProvisionalPantalla(
+                    titulo = "Detalle del pedido #$id",
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(Destinos.PERFIL) {
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    PerfilProvisionalScreen(
+                        usuario = usuario,
+                        cargando = cargando,
+                        onBackClick = { navController.popBackStack() },
+                        onCerrarSesion = { sesionViewModel.cerrarSesion() }
+                    )
+                }
             }
         }
     }

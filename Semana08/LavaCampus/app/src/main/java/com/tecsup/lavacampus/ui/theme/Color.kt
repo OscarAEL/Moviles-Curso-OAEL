@@ -27,3 +27,10 @@ val AdminPrimaryDark = Color(0xFFA78BFA)
 val AdminContainerDark = Color(0xFF4C1D95)
 val AdminBackgroundDark = Color(0xFF181825)
 val AdminOnPrimaryDark = Color(0xFF2E1065)
+
+// Colores de Estado de Pedido
+val EstadoRecibido = Color(0xFFD97706)
+val EstadoEnProceso = Color(0xFF2563EB)
+val EstadoListo = Color(0xFF16A34A)
+val EstadoEntregado = Color(0xFF475569)
+val EstadoCancelado = Color(0xFFDC2626)
