@@ -1,6 +1,7 @@
 package com.tecsup.lavacampus
 
 import android.app.Application
+import android.util.Log
 import com.tecsup.lavacampus.data.local.DatosIniciales
 import com.tecsup.lavacampus.data.local.LavaDatabase
 import com.tecsup.lavacampus.data.repository.LavaRepository
@@ -21,7 +22,11 @@ class LavaApp : Application() {
         repository = LavaRepositoryRoom(database.servicioDao())
 
         CoroutineScope(Dispatchers.IO).launch {
-            DatosIniciales.sembrar(database)
+            try {
+                DatosIniciales.sembrar(database)
+            } catch (e: Exception) {
+                Log.e("LavaApp", "Error durante la siembra de datos iniciales", e)
+            }
         }
     }
 }

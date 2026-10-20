@@ -20,6 +20,9 @@ interface ServicioDao {
     @Query("SELECT * FROM servicios WHERE id = :id LIMIT 1")
     suspend fun obtener(id: Int): Servicio?
 
+    @Query("SELECT * FROM servicios")
+    suspend fun obtenerTodosLista(): List<Servicio>
+
     @Query("SELECT COUNT(*) FROM servicios")
     suspend fun contar(): Int
 
