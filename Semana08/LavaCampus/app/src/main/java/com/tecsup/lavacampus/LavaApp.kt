@@ -19,7 +19,7 @@ class LavaApp : Application() {
     override fun onCreate() {
         super.onCreate()
         database = LavaDatabase.getInstance(this)
-        repository = LavaRepositoryRoom(database.servicioDao())
+        repository = LavaRepositoryRoom(database)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
