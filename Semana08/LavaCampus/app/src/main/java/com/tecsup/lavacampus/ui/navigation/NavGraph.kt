@@ -24,9 +24,11 @@ import com.tecsup.lavacampus.ui.administrador.ServiciosScreen
 import com.tecsup.lavacampus.ui.components.ProvisionalPantalla
 import com.tecsup.lavacampus.ui.estudiante.InicioScreen
 import com.tecsup.lavacampus.ui.estudiante.LoginScreen
+import com.tecsup.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.PerfilProvisionalScreen
 import com.tecsup.lavacampus.ui.estudiante.SplashScreen
 import com.tecsup.lavacampus.viewmodel.InicioViewModel
+import com.tecsup.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.tecsup.lavacampus.viewmodel.ServiciosViewModel
 import com.tecsup.lavacampus.viewmodel.SesionViewModel
 
@@ -178,12 +180,25 @@ fun AppNavGraph(
                 )
             }
 
-            // Destinos provisionales del flujo del estudiante
+            // Destinos del flujo del estudiante
             composable(Destinos.NUEVO_PEDIDO) {
-                ProvisionalPantalla(
-                    titulo = "Nuevo pedido",
-                    onBackClick = { navController.popBackStack() }
-                )
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    val nuevoPedidoViewModel: NuevoPedidoViewModel = viewModel(
+                        key = "nuevo_pedido_${usuario.id}",
+                        factory = NuevoPedidoViewModel.Factory(app.repository, app.preferenciasStore, usuario)
+                    )
+
+                    NuevoPedidoScreen(
+                        viewModel = nuevoPedidoViewModel,
+                        onBackClick = { navController.popBackStack() },
+                        onPedidoCreadoExito = {
+                            navController.navigate(Destinos.MIS_PEDIDOS) {
+                                popUpTo(Destinos.NUEVO_PEDIDO) { inclusive = true }
+                            }
+                        }
+                    )
+                }
             }
 
             composable(Destinos.MIS_PEDIDOS) {
