@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecsup.lavacampus.model.EstadoPedido
+import com.tecsup.lavacampus.util.FechaUtils
 
 enum class StepperOrientacion {
     HORIZONTAL,
@@ -37,7 +40,8 @@ enum class StepperOrientacion {
 fun StepperEstado(
     estadoStr: String,
     modifier: Modifier = Modifier,
-    orientacion: StepperOrientacion = StepperOrientacion.HORIZONTAL
+    orientacion: StepperOrientacion = StepperOrientacion.HORIZONTAL,
+    fechaRegistro: String? = null
 ) {
     val etapas = listOf("Recibido", "En proceso", "Listo", "Entregado")
     val indiceActual = when (estadoStr) {
@@ -95,7 +99,6 @@ fun StepperEstado(
                     etapas.forEachIndexed { index, _ ->
                         val esCancelado = (estadoStr == EstadoPedido.CANCELADO.name)
                         val etapaAlcanzada = !esCancelado && (index <= indiceActual)
-                        val esActual = !esCancelado && (index == indiceActual)
 
                         Box(
                             modifier = Modifier.size(24.dp),
@@ -165,6 +168,124 @@ fun StepperEstado(
                         },
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+        }
+    } else {
+        // Vertical Orientation Compact Layout
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            etapas.forEachIndexed { index, titulo ->
+                val esCancelado = (estadoStr == EstadoPedido.CANCELADO.name)
+                val etapaAlcanzada = !esCancelado && (index <= indiceActual)
+                val esActual = !esCancelado && (index == indiceActual)
+                val esUltimo = index == etapas.lastIndex
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(28.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(28.dp)
+                            .height(28.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (!esUltimo) {
+                            val lineAlcanzada = !esCancelado && (index < indiceActual)
+                            val lineColor = if (lineAlcanzada) colorCompletado else colorInactivo
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                val cx = size.width / 2f
+                                val cy = size.height / 2f
+                                drawLine(
+                                    color = lineColor,
+                                    start = Offset(cx, cy + 12.dp.toPx()),
+                                    end = Offset(cx, cy + 28.dp.toPx() + 12.dp.toPx()),
+                                    strokeWidth = 3.dp.toPx()
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier.size(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (esCancelado && index == 0) {
+                                Canvas(modifier = Modifier.fillMaxSize()) {
+                                    drawCircle(
+                                        color = Color(0xFFDC2626),
+                                        radius = size.minDimension / 2f
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Cancelado",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            } else if (etapaAlcanzada) {
+                                Canvas(modifier = Modifier.fillMaxSize()) {
+                                    drawCircle(
+                                        color = colorCompletado,
+                                        radius = size.minDimension / 2f
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Alcanzado",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            } else {
+                                Canvas(modifier = Modifier.fillMaxSize()) {
+                                    drawCircle(
+                                        color = Color.White,
+                                        radius = size.minDimension / 2f
+                                    )
+                                    drawCircle(
+                                        color = colorInactivo,
+                                        radius = size.minDimension / 2f,
+                                        style = Stroke(width = 2.dp.toPx())
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (esCancelado && index == 0) "Cancelado" else titulo,
+                            fontSize = 14.sp,
+                            fontWeight = if (esActual) FontWeight.Bold else FontWeight.Normal,
+                            color = if (esActual || etapaAlcanzada) Color(0xFF1E1B4B) else colorTextoInactivo
+                        )
+
+                        val estadoTextoDerecha = when {
+                            esCancelado && index == 0 -> "Cancelado"
+                            esCancelado -> "No completado"
+                            index == 0 && !fechaRegistro.isNullOrEmpty() -> FechaUtils.formatearFechaCorta(fechaRegistro)
+                            index < indiceActual -> "Completado"
+                            index == indiceActual -> "Etapa actual"
+                            else -> "Pendiente"
+                        }
+
+                        Text(
+                            text = estadoTextoDerecha,
+                            fontSize = 12.sp,
+                            fontWeight = if (esActual) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (esActual) MaterialTheme.colorScheme.primary else colorTextoInactivo
+                        )
+                    }
                 }
             }
         }

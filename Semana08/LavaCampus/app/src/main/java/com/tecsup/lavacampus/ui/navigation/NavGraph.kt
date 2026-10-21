@@ -22,11 +22,13 @@ import com.tecsup.lavacampus.model.Rol
 import com.tecsup.lavacampus.ui.administrador.PanelProvisionalScreen
 import com.tecsup.lavacampus.ui.administrador.ServiciosScreen
 import com.tecsup.lavacampus.ui.components.ProvisionalPantalla
+import com.tecsup.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.InicioScreen
 import com.tecsup.lavacampus.ui.estudiante.LoginScreen
 import com.tecsup.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.PerfilProvisionalScreen
 import com.tecsup.lavacampus.ui.estudiante.SplashScreen
+import com.tecsup.lavacampus.viewmodel.DetallePedidoViewModel
 import com.tecsup.lavacampus.viewmodel.InicioViewModel
 import com.tecsup.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.tecsup.lavacampus.viewmodel.ServiciosViewModel
@@ -221,10 +223,18 @@ fun AppNavGraph(
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getInt("id") ?: 0
-                ProvisionalPantalla(
-                    titulo = "Detalle del pedido #$id",
-                    onBackClick = { navController.popBackStack() }
-                )
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    val detalleViewModel: DetallePedidoViewModel = viewModel(
+                        key = "detalle_${id}_${usuario.id}",
+                        factory = DetallePedidoViewModel.Factory(app.repository, id, usuario.id)
+                    )
+
+                    DetallePedidoScreen(
+                        viewModel = detalleViewModel,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
             }
 
             composable(Destinos.PERFIL) {
