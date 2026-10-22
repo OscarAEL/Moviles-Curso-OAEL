@@ -56,6 +56,7 @@ import com.tecsup.lavacampus.ui.components.StepperEstado
 import com.tecsup.lavacampus.ui.components.StepperOrientacion
 import com.tecsup.lavacampus.util.FechaUtils
 import com.tecsup.lavacampus.viewmodel.DetallePedidoViewModel
+import com.tecsup.lavacampus.ui.components.DesgloseDescuento
 import java.util.Locale
 
 @Composable
@@ -303,6 +304,7 @@ fun DetallePedidoScreen(
                             HorizontalDivider(color = Color(0xFFF1F0F5), thickness = 1.dp)
                             Spacer(modifier = Modifier.height(8.dp))
 
+                            DesgloseDescuento(pedido.subtotal, pedido.descuento)
                             val totalStr = String.format(Locale.US, "%.2f", pedido.total)
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

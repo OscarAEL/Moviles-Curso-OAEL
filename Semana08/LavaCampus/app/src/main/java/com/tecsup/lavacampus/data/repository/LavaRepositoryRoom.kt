@@ -11,6 +11,8 @@ import com.tecsup.lavacampus.model.ClienteResumen
 import com.tecsup.lavacampus.model.EstadoPedido
 import com.tecsup.lavacampus.model.IngresoServicio
 import com.tecsup.lavacampus.model.LineaPedido
+import com.tecsup.lavacampus.model.LineaCalculo
+import com.tecsup.lavacampus.model.CalculoPedido
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -81,29 +83,41 @@ class LavaRepositoryRoom(
                 throw IllegalArgumentException("El pedido debe contener al menos una línea")
             }
 
-            var totalCalculado = 0.0
+            require(lineas.map { it.servicioId }.distinct().size == lineas.size) { "Servicios duplicados" }
+            require(pedidoDao.contarActivos(usuarioId) < 3) { "Ya tienes 3 pedidos activos" }
+            val lineasCalculo = mutableListOf<LineaCalculo>()
             val detallesAInsertar = mutableListOf<Triple<Int, Double, Pair<Double, Double>>>()
 
             for (linea in lineas) {
                 val servicio = servicioDao.obtener(linea.servicioId)
                     ?: throw IllegalStateException("Servicio no encontrado con ID ${linea.servicioId}")
 
+                require(servicio.activo) { "El servicio ${servicio.nombre} ya no está disponible" }
+                val cantidad = linea.cantidad
+                require(cantidad.isFinite() && if (servicio.unidad == "KG") {
+                    cantidad in 1.0..10.0 && cantidad * 2 == (cantidad * 2).toLong().toDouble()
+                } else cantidad in 1.0..30.0 && cantidad == cantidad.toLong().toDouble()) { "Cantidad no válida" }
+                require(servicio.precio.isFinite() && servicio.precio > 0) { "Precio no válido" }
+
                 val precioUnitario = servicio.precio
-                val subtotal = linea.cantidad * precioUnitario
-                totalCalculado += subtotal
+                val subtotal = CalculoPedido.importe(linea.cantidad, precioUnitario)
+                lineasCalculo.add(LineaCalculo(servicio.unidad, linea.cantidad, precioUnitario))
 
                 detallesAInsertar.add(
                     Triple(servicio.id, linea.cantidad, precioUnitario to subtotal)
                 )
             }
 
+            val totales = CalculoPedido.calcular(lineasCalculo)
             val fechaRegistroStr = LocalDate.now().toString()
             val pedidoNuevo = Pedido(
                 usuarioId = usuarioId,
                 fechaRegistro = fechaRegistroStr,
                 fechaEntrega = fechaEntrega,
                 estado = EstadoPedido.RECIBIDO.name,
-                total = totalCalculado,
+                total = totales.total,
+                subtotal = totales.subtotal,
+                descuento = totales.descuento,
                 casillero = null,
                 pagado = false,
                 nota = nota
@@ -111,13 +125,14 @@ class LavaRepositoryRoom(
 
             val pedidoId = pedidoDao.insertar(pedidoNuevo)
 
-            val listaDetalles = detallesAInsertar.map { (servicioId, cantidad, precios) ->
+            val listaDetalles = detallesAInsertar.mapIndexed { indice, (servicioId, cantidad, precios) ->
                 DetallePedido(
                     pedidoId = pedidoId.toInt(),
                     servicioId = servicioId,
                     cantidad = cantidad,
                     precioUnitario = precios.first,
-                    subtotal = precios.second
+                    subtotal = precios.second,
+                    descuento = totales.descuentosPorLinea[indice]
                 )
             }
 

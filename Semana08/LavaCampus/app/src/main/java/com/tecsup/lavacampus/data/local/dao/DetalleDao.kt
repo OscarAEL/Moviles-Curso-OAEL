@@ -19,7 +19,7 @@ interface DetalleDao {
     @Query("""
         SELECT 
             s.nombre AS nombre,
-            COALESCE(SUM(dp.subtotal), 0.0) AS total
+            COALESCE(SUM(dp.subtotal - dp.descuento), 0.0) AS total
         FROM detalles_pedido dp
         INNER JOIN servicios s ON dp.servicioId = s.id
         INNER JOIN pedidos p ON dp.pedidoId = p.id

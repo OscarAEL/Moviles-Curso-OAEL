@@ -8,6 +8,9 @@ import com.tecsup.lavacampus.data.local.entity.Usuario
 import com.tecsup.lavacampus.data.prefs.PreferenciasStore
 import com.tecsup.lavacampus.data.repository.LavaRepository
 import com.tecsup.lavacampus.model.LineaPedido
+import com.tecsup.lavacampus.model.LineaCalculo
+import com.tecsup.lavacampus.model.CalculoPedido
+import com.tecsup.lavacampus.model.TotalesPedido
 import com.tecsup.lavacampus.util.FechaUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -88,7 +91,7 @@ class NuevoPedidoViewModel(
                 LineaResumenItem(
                     servicio = servicio,
                     cantidad = cant,
-                    subtotal = cant * servicio.precio
+                    subtotal = CalculoPedido.importe(cant, servicio.precio)
                 )
             } else null
         }
@@ -98,8 +101,12 @@ class NuevoPedidoViewModel(
         initialValue = emptyList()
     )
 
-    val totalCalculado: StateFlow<Double> = lineasResumen.map { lineas ->
-        lineas.sumOf { it.subtotal }
+    val totales = lineasResumen.map { lineas ->
+        CalculoPedido.calcular(lineas.map { LineaCalculo(it.servicio.unidad, it.cantidad, it.servicio.precio) })
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TotalesPedido())
+
+    val totalCalculado: StateFlow<Double> = totales.map {
+        it.total
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),

@@ -65,6 +65,7 @@ import com.tecsup.lavacampus.ui.components.LavaScaffold
 import com.tecsup.lavacampus.ui.components.StepperEstado
 import com.tecsup.lavacampus.ui.components.StepperOrientacion
 import com.tecsup.lavacampus.viewmodel.GestionPedidoViewModel
+import com.tecsup.lavacampus.ui.components.DesgloseDescuento
 import java.util.Locale
 
 @Composable
@@ -364,6 +365,11 @@ fun GestionPedidoScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Historical Order Items Detail
+                    if (pedido.descuento > 0.0) {
+                        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+                            Column(Modifier.padding(16.dp)) { DesgloseDescuento(pedido.subtotal, pedido.descuento) }
+                        }
+                    }
                     TarjetaDetalleLineas(detalles = detalles)
 
                     Spacer(modifier = Modifier.height(24.dp))

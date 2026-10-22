@@ -17,7 +17,7 @@ import com.tecsup.lavacampus.data.local.entity.Usuario
 
 @Database(
     entities = [Servicio::class, Usuario::class, Pedido::class, DetallePedido::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class LavaDatabase : RoomDatabase() {
@@ -29,6 +29,15 @@ abstract class LavaDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: LavaDatabase? = null
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE pedidos ADD COLUMN subtotal REAL NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE pedidos ADD COLUMN descuento REAL NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE detalles_pedido ADD COLUMN descuento REAL NOT NULL DEFAULT 0")
+                db.execSQL("UPDATE pedidos SET subtotal = total")
+            }
+        }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -83,7 +92,7 @@ abstract class LavaDatabase : RoomDatabase() {
                     LavaDatabase::class.java,
                     "lavacampus.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance

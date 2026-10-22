@@ -163,6 +163,7 @@ object DatosIniciales {
                         fechaEntrega = fechaEntStr,
                         estado = estado,
                         total = totalPedido,
+                        subtotal = totalPedido,
                         casillero = casillero,
                         pagado = pagado,
                         nota = nota

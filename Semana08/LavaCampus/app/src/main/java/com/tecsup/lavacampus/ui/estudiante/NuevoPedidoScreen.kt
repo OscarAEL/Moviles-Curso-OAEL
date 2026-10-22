@@ -51,6 +51,7 @@ import com.tecsup.lavacampus.ui.components.SelectorCantidad
 import com.tecsup.lavacampus.util.FechaUtils
 import com.tecsup.lavacampus.viewmodel.LineaResumenItem
 import com.tecsup.lavacampus.viewmodel.NuevoPedidoViewModel
+import com.tecsup.lavacampus.ui.components.DesgloseDescuento
 import java.util.Locale
 
 @Composable
@@ -64,6 +65,7 @@ fun NuevoPedidoScreen(
     val nota by viewModel.nota.collectAsState()
     val lineasResumen by viewModel.lineasResumen.collectAsState()
     val totalCalculado by viewModel.totalCalculado.collectAsState()
+    val totales by viewModel.totales.collectAsState()
     val fechaEstimadaIso by viewModel.fechaEstimadaIso.collectAsState()
     val recibirPedidos by viewModel.recibirPedidos.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
@@ -192,7 +194,7 @@ fun NuevoPedidoScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Summary Box
-                    TarjetaResumen(lineas = lineasResumen, total = totalCalculado)
+                    TarjetaResumen(lineas = lineasResumen, total = totalCalculado, subtotal = totales.subtotal, descuento = totales.descuento)
 
                     // Estimated Delivery Date Text
                     fechaEstimadaIso?.let { isoDate ->
@@ -345,7 +347,9 @@ private fun TarjetaServicioSeleccionable(
 @Composable
 private fun TarjetaResumen(
     lineas: List<LineaResumenItem>,
-    total: Double
+    total: Double,
+    subtotal: Double = total,
+    descuento: Double = 0.0
 ) {
     Surface(
         modifier = Modifier
@@ -413,6 +417,7 @@ private fun TarjetaResumen(
                     HorizontalDivider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.25f), thickness = 1.dp)
                     Spacer(modifier = Modifier.height(4.dp))
 
+                    DesgloseDescuento(subtotal, descuento)
                     val totalStr = String.format(Locale.US, "%.2f", total)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
