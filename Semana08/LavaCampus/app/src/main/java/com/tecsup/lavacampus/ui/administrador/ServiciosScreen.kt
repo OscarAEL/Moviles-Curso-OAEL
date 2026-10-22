@@ -19,21 +19,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.LocalOffer
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -54,15 +46,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecsup.lavacampus.data.local.entity.Servicio
 import com.tecsup.lavacampus.model.Rol
+import com.tecsup.lavacampus.ui.components.BarraNavegacionAdmin
 import com.tecsup.lavacampus.ui.components.IconoServicio
 import com.tecsup.lavacampus.ui.components.LavaScaffold
+import com.tecsup.lavacampus.ui.components.TabAdmin
 import com.tecsup.lavacampus.viewmodel.ServiciosViewModel
 import java.util.Locale
 
 @Composable
 fun ServiciosScreen(
     viewModel: ServiciosViewModel,
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onPanelClick: () -> Unit = {},
+    onPedidosClick: () -> Unit = {},
+    onClientesClick: () -> Unit = {},
+    onAjustesClick: () -> Unit = {}
 ) {
     val servicios by viewModel.servicios.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -120,7 +118,14 @@ fun ServiciosScreen(
             }
         },
         bottomBar = {
-            BarraNavegacionAdmin()
+            BarraNavegacionAdmin(
+                tabSeleccionada = TabAdmin.SERVICIOS,
+                onPanelClick = onPanelClick,
+                onPedidosClick = onPedidosClick,
+                onServiciosClick = { },
+                onClientesClick = onClientesClick,
+                onAjustesClick = onAjustesClick
+            )
         }
     ) { innerPadding ->
         Box(
@@ -222,7 +227,6 @@ private fun TarjetaServicioItem(
 
                 val precioFormateado = String.format(Locale.US, "%.2f", servicio.precio)
                 val unidadTexto = servicio.unidad.lowercase()
-                // Usamos espacio no-separable (\u00A0) para que '24 h' o '48 h' permanezcan siempre indivisibles
                 val textoDetalle = "S/\u00A0$precioFormateado por $unidadTexto · ${servicio.horasEntrega}\u00A0h"
 
                 Text(
@@ -266,56 +270,3 @@ private fun TarjetaServicioItem(
         }
     }
 }
-
-@Composable
-private fun BarraNavegacionAdmin() {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
-    ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Outlined.BarChart, contentDescription = "Panel") },
-            label = { Text("Panel", fontSize = 11.sp) },
-            colors = itemColors()
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.AutoMirrored.Outlined.ListAlt, contentDescription = "Pedidos") },
-            label = { Text("Pedidos", fontSize = 11.sp) },
-            colors = itemColors()
-        )
-        NavigationBarItem(
-            selected = true,
-            onClick = { },
-            icon = { Icon(Icons.Outlined.LocalOffer, contentDescription = "Servicios") },
-            label = { Text("Servicios", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
-            colors = itemColors()
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Outlined.People, contentDescription = "Clientes") },
-            label = { Text("Clientes", fontSize = 11.sp) },
-            colors = itemColors()
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Outlined.Settings, contentDescription = "Ajustes") },
-            label = { Text("Ajustes", fontSize = 11.sp) },
-            colors = itemColors()
-        )
-    }
-}
-
-@Composable
-private fun itemColors() = NavigationBarItemDefaults.colors(
-    selectedIconColor = MaterialTheme.colorScheme.primary,
-    selectedTextColor = MaterialTheme.colorScheme.primary,
-    unselectedIconColor = Color(0xFF9CA3AF),
-    unselectedTextColor = Color(0xFF9CA3AF),
-    indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-)

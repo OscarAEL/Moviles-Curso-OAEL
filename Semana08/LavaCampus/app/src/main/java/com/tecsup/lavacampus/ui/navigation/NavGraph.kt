@@ -18,8 +18,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.lavacampus.LavaApp
-import com.tecsup.lavacampus.ui.administrador.PanelProvisionalScreen
+import com.tecsup.lavacampus.model.Rol
+import com.tecsup.lavacampus.ui.administrador.AjustesProvisionalScreen
+import com.tecsup.lavacampus.ui.administrador.PanelScreen
 import com.tecsup.lavacampus.ui.administrador.ServiciosScreen
+import com.tecsup.lavacampus.ui.components.BarraNavegacionAdmin
+import com.tecsup.lavacampus.ui.components.ProvisionalPantalla
+import com.tecsup.lavacampus.ui.components.TabAdmin
 import com.tecsup.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.InicioScreen
 import com.tecsup.lavacampus.ui.estudiante.LoginScreen
@@ -32,6 +37,7 @@ import com.tecsup.lavacampus.viewmodel.DetallePedidoViewModel
 import com.tecsup.lavacampus.viewmodel.InicioViewModel
 import com.tecsup.lavacampus.viewmodel.MisPedidosViewModel
 import com.tecsup.lavacampus.viewmodel.NuevoPedidoViewModel
+import com.tecsup.lavacampus.viewmodel.PanelViewModel
 import com.tecsup.lavacampus.viewmodel.ServiciosViewModel
 import com.tecsup.lavacampus.viewmodel.SesionViewModel
 import com.tecsup.lavacampus.viewmodel.TarifasViewModel
@@ -42,6 +48,9 @@ object Destinos {
     const val INICIO = "inicio"
     const val PANEL = "panel"
     const val SERVICIOS = "servicios"
+    const val PEDIDOS_ADMIN = "pedidos_admin?filtro={filtro}"
+    const val CLIENTES_ADMIN = "clientes_admin"
+    const val AJUSTES_ADMIN = "ajustes_admin"
     const val NUEVO_PEDIDO = "nuevo_pedido"
     const val MIS_PEDIDOS = "mis_pedidos"
     const val TARIFAS = "tarifas"
@@ -49,6 +58,8 @@ object Destinos {
     const val PERFIL = "perfil"
 
     fun detallePedido(id: Int) = "detalle_pedido/$id"
+    fun pedidosAdmin(filtro: String? = null) =
+        if (!filtro.isNullOrEmpty()) "pedidos_admin?filtro=$filtro" else "pedidos_admin"
 }
 
 @Composable
@@ -159,17 +170,45 @@ fun AppNavGraph(
                 }
             }
 
+            // Flujo del Administrador
             composable(Destinos.PANEL) {
                 val usuario = usuarioActual
                 if (usuario != null) {
-                    PanelProvisionalScreen(
-                        usuario = usuario,
-                        cargando = cargando,
-                        onVerServicios = {
-                            navController.navigate(Destinos.SERVICIOS)
+                    val panelViewModel: PanelViewModel = viewModel(
+                        key = "panel_${usuario.id}",
+                        factory = PanelViewModel.Factory(app.repository)
+                    )
+
+                    PanelScreen(
+                        viewModel = panelViewModel,
+                        onVerPedidosListo = {
+                            navController.navigate(Destinos.pedidosAdmin("LISTO")) {
+                                launchSingleTop = true
+                            }
                         },
-                        onCerrarSesion = {
-                            sesionViewModel.cerrarSesion()
+                        onPedidosClick = {
+                            navController.navigate(Destinos.pedidosAdmin()) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onServiciosClick = {
+                            navController.navigate(Destinos.SERVICIOS) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onClientesClick = {
+                            navController.navigate(Destinos.CLIENTES_ADMIN) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onAjustesClick = {
+                            navController.navigate(Destinos.AJUSTES_ADMIN) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
@@ -180,8 +219,155 @@ fun AppNavGraph(
                     viewModel = serviciosViewModel,
                     onBackClick = {
                         navController.popBackStack()
+                    },
+                    onPanelClick = {
+                        navController.navigate(Destinos.PANEL) {
+                            popUpTo(Destinos.PANEL) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onPedidosClick = {
+                        navController.navigate(Destinos.pedidosAdmin()) {
+                            popUpTo(Destinos.PANEL) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
+                    onClientesClick = {
+                        navController.navigate(Destinos.CLIENTES_ADMIN) {
+                            popUpTo(Destinos.PANEL) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
+                    onAjustesClick = {
+                        navController.navigate(Destinos.AJUSTES_ADMIN) {
+                            popUpTo(Destinos.PANEL) { inclusive = false }
+                            launchSingleTop = true
+                        }
                     }
                 )
+            }
+
+            composable(
+                route = Destinos.PEDIDOS_ADMIN,
+                arguments = listOf(
+                    navArgument("filtro") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { backStackEntry ->
+                val filtro = backStackEntry.arguments?.getString("filtro")
+                ProvisionalPantalla(
+                    titulo = if (!filtro.isNullOrEmpty()) "Pedidos ($filtro)" else "Pedidos",
+                    onBackClick = { navController.popBackStack() },
+                    rol = Rol.ADMIN,
+                    bottomBar = {
+                        BarraNavegacionAdmin(
+                            tabSeleccionada = TabAdmin.PEDIDOS,
+                            onPanelClick = {
+                                navController.navigate(Destinos.PANEL) {
+                                    popUpTo(Destinos.PANEL) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onPedidosClick = { },
+                            onServiciosClick = {
+                                navController.navigate(Destinos.SERVICIOS) {
+                                    popUpTo(Destinos.PANEL) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onClientesClick = {
+                                navController.navigate(Destinos.CLIENTES_ADMIN) {
+                                    popUpTo(Destinos.PANEL) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onAjustesClick = {
+                                navController.navigate(Destinos.AJUSTES_ADMIN) {
+                                    popUpTo(Destinos.PANEL) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+
+            composable(Destinos.CLIENTES_ADMIN) {
+                ProvisionalPantalla(
+                    titulo = "Clientes",
+                    onBackClick = { navController.popBackStack() },
+                    rol = Rol.ADMIN,
+                    bottomBar = {
+                        BarraNavegacionAdmin(
+                            tabSeleccionada = TabAdmin.CLIENTES,
+                            onPanelClick = {
+                                navController.navigate(Destinos.PANEL) {
+                                    popUpTo(Destinos.PANEL) { inclusive = true }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onPedidosClick = {
+                                navController.navigate(Destinos.pedidosAdmin()) {
+                                    popUpTo(Destinos.PANEL) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onServiciosClick = {
+                                navController.navigate(Destinos.SERVICIOS) {
+                                    popUpTo(Destinos.PANEL) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onClientesClick = { },
+                            onAjustesClick = {
+                                navController.navigate(Destinos.AJUSTES_ADMIN) {
+                                    popUpTo(Destinos.PANEL) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+
+            composable(Destinos.AJUSTES_ADMIN) {
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    AjustesProvisionalScreen(
+                        usuario = usuario,
+                        cargando = cargando,
+                        onPanelClick = {
+                            navController.navigate(Destinos.PANEL) {
+                                popUpTo(Destinos.PANEL) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onPedidosClick = {
+                            navController.navigate(Destinos.pedidosAdmin()) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onServiciosClick = {
+                            navController.navigate(Destinos.SERVICIOS) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onClientesClick = {
+                            navController.navigate(Destinos.CLIENTES_ADMIN) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onCerrarSesion = {
+                            sesionViewModel.cerrarSesion()
+                        }
+                    )
+                }
             }
 
             // Destinos del flujo del estudiante

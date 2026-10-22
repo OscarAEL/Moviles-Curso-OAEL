@@ -26,7 +26,8 @@ import com.tecsup.lavacampus.model.Rol
 fun ProvisionalPantalla(
     titulo: String,
     onBackClick: () -> Unit,
-    rol: Rol = Rol.CLIENTE
+    rol: Rol = Rol.CLIENTE,
+    bottomBar: @Composable () -> Unit = {}
 ) {
     LavaScaffold(
         rol = rol,
@@ -56,7 +57,8 @@ fun ProvisionalPantalla(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-        }
+        },
+        bottomBar = bottomBar
     ) { innerPadding ->
         Column(
             modifier = Modifier
