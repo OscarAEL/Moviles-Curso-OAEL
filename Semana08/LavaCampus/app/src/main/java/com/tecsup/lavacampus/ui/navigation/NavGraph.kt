@@ -20,6 +20,8 @@ import androidx.navigation.navArgument
 import com.tecsup.lavacampus.LavaApp
 import com.tecsup.lavacampus.model.Rol
 import com.tecsup.lavacampus.ui.administrador.AjustesProvisionalScreen
+import com.tecsup.lavacampus.ui.administrador.BandejaScreen
+import com.tecsup.lavacampus.ui.administrador.GestionPedidoScreen
 import com.tecsup.lavacampus.ui.administrador.PanelScreen
 import com.tecsup.lavacampus.ui.administrador.ServiciosScreen
 import com.tecsup.lavacampus.ui.components.BarraNavegacionAdmin
@@ -33,7 +35,9 @@ import com.tecsup.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.PerfilProvisionalScreen
 import com.tecsup.lavacampus.ui.estudiante.SplashScreen
 import com.tecsup.lavacampus.ui.estudiante.TarifasScreen
+import com.tecsup.lavacampus.viewmodel.BandejaViewModel
 import com.tecsup.lavacampus.viewmodel.DetallePedidoViewModel
+import com.tecsup.lavacampus.viewmodel.GestionPedidoViewModel
 import com.tecsup.lavacampus.viewmodel.InicioViewModel
 import com.tecsup.lavacampus.viewmodel.MisPedidosViewModel
 import com.tecsup.lavacampus.viewmodel.NuevoPedidoViewModel
@@ -49,6 +53,7 @@ object Destinos {
     const val PANEL = "panel"
     const val SERVICIOS = "servicios"
     const val PEDIDOS_ADMIN = "pedidos_admin?filtro={filtro}"
+    const val GESTION_PEDIDO_ADMIN = "gestion_pedido_admin/{id}"
     const val CLIENTES_ADMIN = "clientes_admin"
     const val AJUSTES_ADMIN = "ajustes_admin"
     const val NUEVO_PEDIDO = "nuevo_pedido"
@@ -60,6 +65,7 @@ object Destinos {
     fun detallePedido(id: Int) = "detalle_pedido/$id"
     fun pedidosAdmin(filtro: String? = null) =
         if (!filtro.isNullOrEmpty()) "pedidos_admin?filtro=$filtro" else "pedidos_admin"
+    fun gestionPedidoAdmin(id: Int) = "gestion_pedido_admin/$id"
 }
 
 @Composable
@@ -258,41 +264,67 @@ fun AppNavGraph(
                 )
             ) { backStackEntry ->
                 val filtro = backStackEntry.arguments?.getString("filtro")
-                ProvisionalPantalla(
-                    titulo = if (!filtro.isNullOrEmpty()) "Pedidos ($filtro)" else "Pedidos",
-                    onBackClick = { navController.popBackStack() },
-                    rol = Rol.ADMIN,
-                    bottomBar = {
-                        BarraNavegacionAdmin(
-                            tabSeleccionada = TabAdmin.PEDIDOS,
-                            onPanelClick = {
-                                navController.navigate(Destinos.PANEL) {
-                                    popUpTo(Destinos.PANEL) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                            },
-                            onPedidosClick = { },
-                            onServiciosClick = {
-                                navController.navigate(Destinos.SERVICIOS) {
-                                    popUpTo(Destinos.PANEL) { inclusive = false }
-                                    launchSingleTop = true
-                                }
-                            },
-                            onClientesClick = {
-                                navController.navigate(Destinos.CLIENTES_ADMIN) {
-                                    popUpTo(Destinos.PANEL) { inclusive = false }
-                                    launchSingleTop = true
-                                }
-                            },
-                            onAjustesClick = {
-                                navController.navigate(Destinos.AJUSTES_ADMIN) {
-                                    popUpTo(Destinos.PANEL) { inclusive = false }
-                                    launchSingleTop = true
-                                }
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    val bandejaViewModel: BandejaViewModel = viewModel(
+                        key = "bandeja_${usuario.id}_${filtro ?: "todos"}",
+                        factory = BandejaViewModel.Factory(app.repository, filtro)
+                    )
+
+                    BandejaScreen(
+                        viewModel = bandejaViewModel,
+                        filtroInicialStr = filtro,
+                        onBackClick = { navController.popBackStack() },
+                        onGestionarPedido = { id ->
+                            navController.navigate(Destinos.gestionPedidoAdmin(id)) {
+                                launchSingleTop = true
                             }
-                        )
-                    }
-                )
+                        },
+                        onPanelClick = {
+                            navController.navigate(Destinos.PANEL) {
+                                popUpTo(Destinos.PANEL) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onServiciosClick = {
+                            navController.navigate(Destinos.SERVICIOS) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onClientesClick = {
+                            navController.navigate(Destinos.CLIENTES_ADMIN) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onAjustesClick = {
+                            navController.navigate(Destinos.AJUSTES_ADMIN) {
+                                popUpTo(Destinos.PANEL) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
+            }
+
+            composable(
+                route = Destinos.GESTION_PEDIDO_ADMIN,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("id") ?: 0
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    val gestionViewModel: GestionPedidoViewModel = viewModel(
+                        key = "gestion_${id}_${usuario.id}",
+                        factory = GestionPedidoViewModel.Factory(app.repository, id)
+                    )
+
+                    GestionPedidoScreen(
+                        viewModel = gestionViewModel,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
             }
 
             composable(Destinos.CLIENTES_ADMIN) {

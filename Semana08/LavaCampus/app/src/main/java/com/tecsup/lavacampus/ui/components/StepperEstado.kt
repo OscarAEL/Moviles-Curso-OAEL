@@ -41,7 +41,8 @@ fun StepperEstado(
     estadoStr: String,
     modifier: Modifier = Modifier,
     orientacion: StepperOrientacion = StepperOrientacion.HORIZONTAL,
-    fechaRegistro: String? = null
+    fechaRegistro: String? = null,
+    colorCompletado: Color = Color.Unspecified
 ) {
     val etapas = listOf("Recibido", "En proceso", "Listo", "Entregado")
     val indiceActual = when (estadoStr) {
@@ -52,7 +53,7 @@ fun StepperEstado(
         else -> -1
     }
 
-    val colorCompletado = Color(0xFF0891B2)
+    val colorProgreso = if (colorCompletado != Color.Unspecified) colorCompletado else MaterialTheme.colorScheme.primary
     val colorInactivo = Color(0xFFD1D5DB)
     val colorTextoInactivo = Color(0xFF6B7280)
 
@@ -79,7 +80,7 @@ fun StepperEstado(
                         val x2 = (i + 1) * stepWidth
                         val esCancelado = (estadoStr == EstadoPedido.CANCELADO.name)
                         val lineAlcanzada = !esCancelado && (i < indiceActual)
-                        val lineColor = if (lineAlcanzada) colorCompletado else colorInactivo
+                        val lineColor = if (lineAlcanzada) colorProgreso else colorInactivo
 
                         drawLine(
                             color = lineColor,
@@ -120,7 +121,7 @@ fun StepperEstado(
                             } else if (etapaAlcanzada) {
                                 Canvas(modifier = Modifier.fillMaxSize()) {
                                     drawCircle(
-                                        color = colorCompletado,
+                                        color = colorProgreso,
                                         radius = size.minDimension / 2f
                                     )
                                 }
@@ -172,7 +173,7 @@ fun StepperEstado(
             }
         }
     } else {
-        // Vertical Orientation Compact Layout
+        // Vertical Orientation Layout
         Column(
             modifier = modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -197,7 +198,7 @@ fun StepperEstado(
                     ) {
                         if (!esUltimo) {
                             val lineAlcanzada = !esCancelado && (index < indiceActual)
-                            val lineColor = if (lineAlcanzada) colorCompletado else colorInactivo
+                            val lineColor = if (lineAlcanzada) colorProgreso else colorInactivo
                             Canvas(modifier = Modifier.fillMaxSize()) {
                                 val cx = size.width / 2f
                                 val cy = size.height / 2f
@@ -230,7 +231,7 @@ fun StepperEstado(
                             } else if (etapaAlcanzada) {
                                 Canvas(modifier = Modifier.fillMaxSize()) {
                                     drawCircle(
-                                        color = colorCompletado,
+                                        color = colorProgreso,
                                         radius = size.minDimension / 2f
                                     )
                                 }
@@ -283,7 +284,7 @@ fun StepperEstado(
                             text = estadoTextoDerecha,
                             fontSize = 12.sp,
                             fontWeight = if (esActual) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (esActual) MaterialTheme.colorScheme.primary else colorTextoInactivo
+                            color = if (esActual) colorProgreso else colorTextoInactivo
                         )
                     }
                 }

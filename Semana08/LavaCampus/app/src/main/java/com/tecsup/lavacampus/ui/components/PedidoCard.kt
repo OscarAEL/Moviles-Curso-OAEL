@@ -25,10 +25,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tecsup.lavacampus.data.local.relation.DetalleConServicio
 import com.tecsup.lavacampus.data.local.relation.PedidoConDetalle
 import com.tecsup.lavacampus.model.EstadoPedido
 import com.tecsup.lavacampus.util.FechaUtils
 import java.util.Locale
+
+fun formatearResumenDetalles(detalles: List<DetalleConServicio>): String {
+    if (detalles.isEmpty()) return "Sin detalles"
+    if (detalles.size >= 3) return "${detalles.size} servicios"
+
+    fun formatearUnidad(d: DetalleConServicio): String {
+        val cant = d.detalle.cantidad
+        val unidad = d.servicio.unidad.uppercase()
+        return when (unidad) {
+            "KG" -> "$cant kg"
+            "PRENDA" -> "${cant.toInt()} ${if (cant == 1.0) "prenda" else "prendas"}"
+            "UNIDAD" -> "${cant.toInt()} ${if (cant == 1.0) "unidad" else "unidades"}"
+            else -> "${cant.toInt()} ${unidad.lowercase()}"
+        }
+    }
+
+    return if (detalles.size == 1) {
+        formatearUnidad(detalles.first())
+    } else {
+        "${formatearUnidad(detalles[0])} + ${formatearUnidad(detalles[1])}"
+    }
+}
 
 @Composable
 fun PedidoCard(
@@ -40,33 +63,7 @@ fun PedidoCard(
 ) {
     val pedido = pedidoConDetalle.pedido
     val detalles = pedidoConDetalle.detalles
-
-    val resumenServicios = when {
-        detalles.isEmpty() -> "Sin detalles"
-        detalles.size == 1 -> {
-            val d = detalles.first()
-            val s = d.servicio
-            val c = d.detalle.cantidad
-            val u = s.unidad
-            if (u == "KG") {
-                "$c kg"
-            } else {
-                "${c.toInt()} ${if (c == 1.0) u.lowercase() else if (u == "UNIDAD") "unidades" else "prendas"}"
-            }
-        }
-        detalles.size == 2 -> {
-            val d1 = detalles[0]
-            val s1 = d1.servicio
-            val c1 = if (s1.unidad == "KG") "${d1.detalle.cantidad} kg" else "${d1.detalle.cantidad.toInt()} ${if (d1.detalle.cantidad == 1.0) s1.unidad.lowercase() else if (s1.unidad == "UNIDAD") "unidades" else "prendas"}"
-
-            val d2 = detalles[1]
-            val s2 = d2.servicio
-            val c2 = if (s2.unidad == "KG") "${d2.detalle.cantidad} kg" else "${d2.detalle.cantidad.toInt()} ${if (d2.detalle.cantidad == 1.0) s2.unidad.lowercase() else if (s2.unidad == "UNIDAD") "unidades" else "prendas"}"
-
-            "$c1 + $c2"
-        }
-        else -> "${detalles.size} servicios"
-    }
+    val resumenServicios = formatearResumenDetalles(detalles)
 
     val fechaFormateada = FechaUtils.formatearFechaCorta(pedido.fechaRegistro)
     val precioFormateado = String.format(Locale.US, "%.2f", pedido.total)
