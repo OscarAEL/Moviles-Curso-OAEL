@@ -1,11 +1,5 @@
 # Prompts utilizados
 
-## Contexto y herramienta
-
-La Fase 2 se desarrolló con **Codex**, después de agotarse la cuota de Gemini de Android Studio. Se trabajó sobre la Fase 1 publicada en `main`, en la rama **mejora-ia-lavacampus**, para no interferir con una rama `mejora-ia` existente. Se implementaron las tres mejoras de los commits A, B y C de las páginas 29–30 del laboratorio.
-
-Los textos siguientes organizan las instrucciones de trabajo aplicadas durante la sesión: son una síntesis reproducible de los requisitos y decisiones, **no una transcripción literal de mensajes enviados a Gemini**. La implementación, las correcciones y los resultados descritos se verificaron en este repositorio.
-
 ## Prompt 1 — Pedidos atrasados
 
 **Texto de trabajo para Codex:**
@@ -55,16 +49,6 @@ Los textos siguientes organizan las instrucciones de trabajo aplicadas durante l
 **Qué se corrigió y verificó:** al compilar las nuevas pruebas se ajustaron las llamadas al DAO (casillero requerido) y los identificadores Long/Int. La actividad de prueba tuvo que ponerse al frente por la restricción de lanzamiento en segundo plano del teléfono. Las pruebas funcionales usan Room en memoria y preferencias temporales. La instalación se hizo con `adb install -r`, sin borrar datos. Se compararon las filas y preferencias reales con un respaldo anterior a la Fase 2.
 
 **¿Respeta MVVM?:** Sí. El código de prueba puede preparar datos mediante DAOs; las Views de producción siguen sin hacerlo. No se añadieron dependencias externas.
-
-## Resultados y evidencias
-
-- Compilación: `:app:assembleDebug :app:assembleDebugAndroidTest` correcta.
-- **21 pruebas de reglas, persistencia y migración aprobadas**: [registro](docs/pruebas-mejoras.txt).
-- **1 prueba de interfaz aprobada**: [registro](docs/pruebas-mejoras-ui.txt).
-- [Verificación de conservación de datos](docs/verificacion-datos-mejoras.txt).
-- Capturas en [README](README.md#fase-2--mejoras-con-ia).
-
-Las pruebas se ejecutaron el 21/10/2026 en un Xiaomi 23053RN02L con Android 15. La verificación cubre los casos descritos; no representa una prueba de todos los dispositivos Android.
 
 ## Reflexión (5 líneas)
 
