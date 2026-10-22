@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PedidoDao {
+    @Query("SELECT id FROM pedidos WHERE fechaEntrega < :hoy AND estado NOT IN ('ENTREGADO', 'CANCELADO') ORDER BY id")
+    fun observarAtrasados(hoy: String): Flow<List<Int>>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertar(p: Pedido): Long
 

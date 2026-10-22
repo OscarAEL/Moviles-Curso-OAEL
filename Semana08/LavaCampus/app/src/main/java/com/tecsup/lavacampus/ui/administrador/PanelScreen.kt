@@ -68,6 +68,7 @@ fun PanelScreen(
     val pedidosHoy by viewModel.pedidosHoy.collectAsState()
     val enProceso by viewModel.enProceso.collectAsState()
     val porRecoger by viewModel.porRecoger.collectAsState()
+    val atrasados by viewModel.atrasados.collectAsState()
     val ingresosSemana by viewModel.ingresosSemana.collectAsState()
     val pedidosPagadosSemana by viewModel.pedidosPagadosSemana.collectAsState()
     val porEstado by viewModel.porEstado.collectAsState()
@@ -184,6 +185,16 @@ fun PanelScreen(
                             colorTexto = Color(0xFF16A34A),
                             modifier = Modifier.weight(1f)
                         )
+                    }
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (atrasados > 0) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface,
+                            contentColor = if (atrasados > 0) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Text("Pedidos atrasados: $atrasados", modifier = Modifier.padding(14.dp), fontWeight = FontWeight.Bold)
                     }
 
                     // Violet Weekly Income Banner Card

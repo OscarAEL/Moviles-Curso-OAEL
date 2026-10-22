@@ -16,6 +16,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import java.util.Locale
+import com.tecsup.lavacampus.util.FechaUtils
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 enum class FiltroBandeja(val etiqueta: String, val estadoName: String?) {
     TODOS("Todos", null),
@@ -24,6 +28,7 @@ enum class FiltroBandeja(val etiqueta: String, val estadoName: String?) {
     LISTO("Listo", EstadoPedido.LISTO.name)
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class BandejaViewModel(
     private val repository: LavaRepository,
     filtroInicialStr: String? = null
@@ -40,6 +45,14 @@ class BandejaViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    val pedidosAtrasados = FechaUtils.observarHoy()
+        .flatMapLatest { repository.observarPedidosAtrasados(it) }
+        .map { it.toSet() }
+        .catch { e ->
+            if (e is CancellationException) throw e
+            _error.value = "No se pudieron consultar los pedidos atrasados"
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     val pedidos: StateFlow<List<PedidoConDetalle>> = combine(
         repository.observarPedidos().onEach { _cargando.value = false },

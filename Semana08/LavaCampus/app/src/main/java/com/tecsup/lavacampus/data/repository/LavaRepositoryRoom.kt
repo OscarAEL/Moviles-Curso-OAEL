@@ -68,6 +68,8 @@ class LavaRepositoryRoom(
     }
 
     // Pedidos
+    override fun observarPedidosAtrasados(hoy: String): Flow<List<Int>> = pedidoDao.observarAtrasados(hoy)
+
     override suspend fun crearPedido(
         usuarioId: Int,
         lineas: List<LineaPedido>,

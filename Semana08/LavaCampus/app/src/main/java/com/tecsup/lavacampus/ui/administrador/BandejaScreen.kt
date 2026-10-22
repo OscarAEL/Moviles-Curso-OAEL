@@ -73,6 +73,7 @@ fun BandejaScreen(
     val busqueda by viewModel.busqueda.collectAsState()
     val filtroSeleccionado by viewModel.filtroSeleccionado.collectAsState()
     val pedidos by viewModel.pedidos.collectAsState()
+    val atrasados by viewModel.pedidosAtrasados.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
     val error by viewModel.error.collectAsState()
 
@@ -215,6 +216,7 @@ fun BandejaScreen(
                             key = { it.pedido.id }
                         ) { item ->
                             TarjetaPedidoAdmin(
+                                atrasado = item.pedido.id in atrasados,
                                 pedidoConDetalle = item,
                                 onClick = { onGestionarPedido(item.pedido.id) },
                                 onAccionClick = { onGestionarPedido(item.pedido.id) }
@@ -231,6 +233,7 @@ fun BandejaScreen(
 
 @Composable
 private fun TarjetaPedidoAdmin(
+    atrasado: Boolean,
     pedidoConDetalle: PedidoConDetalle,
     onClick: () -> Unit,
     onAccionClick: () -> Unit
@@ -266,7 +269,7 @@ private fun TarjetaPedidoAdmin(
             .clip(RoundedCornerShape(20.dp))
             .border(
                 width = 1.dp,
-                color = Color(0xFFF1F0F5),
+                color = if (atrasado) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable { onClick() },
@@ -315,6 +318,14 @@ private fun TarjetaPedidoAdmin(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
+                    if (atrasado) {
+                        Text(
+                            "Atrasado · entrega ${FechaUtils.formatearFechaCorta(pedido.fechaEntrega)}",
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     if (fechaFormateada.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(

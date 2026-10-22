@@ -4,8 +4,19 @@ import java.time.LocalDate
 import java.time.DayOfWeek
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 object FechaUtils {
+    fun observarHoy(): Flow<String> = flow {
+        while (true) {
+            emit(LocalDate.now().toString())
+            delay(60_000)
+        }
+    }.distinctUntilChanged()
+
     fun calcularFechaEntrega(fechaRegistro: LocalDate, horas: Int): String {
         var entrega = fechaRegistro.plusDays((horas / 24).coerceAtLeast(1).toLong())
         if (entrega.dayOfWeek == DayOfWeek.SUNDAY) entrega = entrega.plusDays(1)

@@ -19,7 +19,11 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import com.tecsup.lavacampus.util.FechaUtils
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PanelViewModel(
     repository: LavaRepository
 ) : ViewModel() {
@@ -29,6 +33,14 @@ class PanelViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    val atrasados = FechaUtils.observarHoy()
+        .flatMapLatest { repository.observarPedidosAtrasados(it) }
+        .map { it.size }
+        .catch { e ->
+            if (e is CancellationException) throw e
+            _error.value = "No se pudieron contar los pedidos atrasados"
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val fechaHoyStr: String = LocalDate.now().toString()
     val fechaInicioSemanaStr: String = LocalDate.now()
