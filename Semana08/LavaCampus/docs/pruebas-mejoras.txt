@@ -1,0 +1,11 @@
+
+com.tecsup.lavacampus.MejoraAtrasadosTest:..
+com.tecsup.lavacampus.MejoraDescuentoTest:..
+com.tecsup.lavacampus.MigracionVolumenTest:.
+com.tecsup.lavacampus.MejoraRepetirTest:....
+com.tecsup.lavacampus.AceptacionLaboratorioTest:.........
+com.tecsup.lavacampus.AdministracionPersistenciaTest:...
+
+Time: 3.83
+
+OK (21 tests)

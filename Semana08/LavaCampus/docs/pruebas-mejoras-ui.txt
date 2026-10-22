@@ -1,0 +1,5 @@
+com.tecsup.lavacampus.MejorasVisualTest:.
+
+Time: 8.578
+
+OK (1 test)

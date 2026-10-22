@@ -1,0 +1,7 @@
+usuarios: 4 filas originales conservadas sin cambios
+servicios: 4 filas originales conservadas sin cambios
+pedidos: 10 filas originales conservadas sin cambios
+detalles_pedido: 14 filas originales conservadas sin cambios
+Room: versión 2 → 3, subtotal histórico = total, descuento histórico = 0
+DataStore: preferencias idénticas al respaldo previo
+Instalación: adb install -r; sin desinstalación ni borrado de datos

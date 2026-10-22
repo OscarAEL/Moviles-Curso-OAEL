@@ -35,7 +35,7 @@ Proyecto del laboratorio de **Semana 08 de Programación en Móviles - TECSUP**,
 | Preferences DataStore 1.1.1 | Sesión, tema, avisos y recepción de pedidos. |
 | JUnit / AndroidX Test / Compose UI Test | Pruebas de aceptación, persistencia e interfaz. |
 
-**Compatibilidad:** se utiliza Room **2.8.5** en lugar de 2.6.1 por compatibilidad con Kotlin y KSP. La base está en la **versión 2**, con migración desde la versión 1 que conserva los servicios existentes.
+**Compatibilidad:** se utiliza Room **2.8.5** en lugar de 2.6.1 por compatibilidad con Kotlin y KSP. La base está en la **versión 3**, con migraciones **1 → 2 → 3** que conservan los servicios y pedidos existentes. La versión 3 agrega subtotal y descuento sin recalcular los pedidos históricos.
 
 ## Estructura de paquetes
 
@@ -47,7 +47,7 @@ app/src/main/java/com/tecsup/lavacampus/
 ├── MainActivity.kt                    # Entrada a Compose y barras del sistema
 ├── data/
 │   ├── local/
-│   │   ├── LavaDatabase.kt            # Room y migración 1 -> 2
+│   │   ├── LavaDatabase.kt            # Room y migraciones 1 -> 2 -> 3
 │   │   ├── DatosIniciales.kt          # Servicios, usuarios y pedidos de demostración
 │   │   ├── entity/                    # Usuario, Servicio, Pedido, DetallePedido
 │   │   ├── dao/                       # UsuarioDao, ServicioDao, PedidoDao, DetalleDao
@@ -171,3 +171,49 @@ Seis capturas de las pantallas reales de la app en un dispositivo Android, con d
 | 12 | Cerrar y abrir | Conserva pedidos, perfil y modo oscuro. | OK |
 
 Se comprueban también fechas deterministas: **miércoles 21/10/2026 + 48 h = viernes 23/10/2026** y **viernes 23/10/2026 + 48 h = lunes 26/10/2026**.
+
+## Fase 2 — Mejoras con IA
+
+Rama: **`mejora-ia-lavacampus`**, basada en `main`. Se usó **Codex** tras agotarse la cuota de Gemini. Se implementaron las tres mejoras de los commits mínimos del laboratorio; la trazabilidad está en [PROMPTS.md](PROMPTS.md).
+
+| Mejora | Uso y criterio |
+| --- | --- |
+| Pedidos atrasados | La bandeja resalta en rojo los pedidos con entrega anterior a hoy; excluye Entregado y Cancelado. El panel muestra el contador y se actualiza al cambiar el estado o el día. |
+| Descuento por volumen | Más de 5 kg de lavado aplica 10 % al importe de las líneas KG. El resumen muestra subtotal, descuento y total; se guardan en Room. Exactamente 5 kg y los servicios por prenda/unidad no se descuentan. |
+| Repetir un pedido | Historial → **Pedir de nuevo** abre Nuevo pedido con las mismas cantidades y tarifas actuales, nota y fecha recalculada. Se puede editar antes de confirmar. Los servicios inactivos se omiten con aviso. El original no cambia. |
+
+Ejemplo de descuento: 6 kg a S/ 8.00 = subtotal S/ 48.00, descuento S/ 4.80 y **total S/ 43.20**. Al repetirlo si el precio actual sube a S/ 10.00/kg, el resumen muestra S/ 60.00 − S/ 6.00 = **S/ 54.00**. Se conservan el límite de tres pedidos activos, los rangos de cantidad y la opción Recibir pedidos.
+
+### Evidencia de las mejoras
+
+Capturas reales obtenidas con datos de prueba aislados y tema oscuro:
+
+| Marca de atraso | Repetir desde historial | Resumen con tarifa actual y descuento |
+| :---: | :---: | :---: |
+| <img src="docs/capturas/ia-atrasados.png" alt="Bandeja con advertencia de pedido atrasado" width="240"> | <img src="docs/capturas/ia-historial.png" alt="Historial con acción Pedir de nuevo" width="240"> | <img src="docs/capturas/ia-descuento-repeticion.png" alt="Resumen de 6 kg con subtotal 60, descuento 6 y total 54 soles" width="240"> |
+
+### Validación de Fase 2
+
+**22 casos automatizados aprobados** en Xiaomi 23053RN02L / Android 15: 21 de reglas, persistencia y migración, y 1 de interfaz. Los registros completos están en [pruebas-mejoras.txt](docs/pruebas-mejoras.txt) y [pruebas-mejoras-ui.txt](docs/pruebas-mejoras-ui.txt).
+
+- `MejoraAtrasadosTest`: fechas anteriores/hoy/futuras, exclusión de estados finales y actualización de bandeja/panel.
+- `MejoraDescuentoTest`: umbral estricto, pedido mixto, persistencia, precios históricos e ingresos netos.
+- `MigracionVolumenTest`: migración 2 → 3 conservando filas y totales antiguos.
+- `MejoraRepetirTest`: precios y fecha actuales, edición y confirmación, servicios inactivos, propietario y límite de activos.
+- `MejorasVisualTest`: atraso visible, botón del historial y resumen con descuento legible en modo oscuro.
+- Regresión: `AceptacionLaboratorioTest` y `AdministracionPersistenciaTest`.
+
+Compilación desde PowerShell:
+
+```powershell
+.\gradlew.bat :app:assembleDebug :app:assembleDebugAndroidTest
+```
+
+Las pruebas de reglas usan Room en memoria y DataStore temporal. Para ejecutarlas en un dispositivo ya utilizado se instalaron ambas APK con `adb install -r` y se invocó el runner de instrumentación; así se conserva la aplicación y sus datos. La [comparación con el respaldo previo](docs/verificacion-datos-mejoras.txt) confirmó 4 usuarios, 4 servicios, 10 pedidos y 14 detalles sin cambios y preferencias idénticas tras la migración.
+
+### Commits del laboratorio
+
+1. `ia: agrega pedidos atrasados en la bandeja`
+2. `ia: agrega descuento por volumen`
+3. `ia: agrega repetir un pedido`
+4. `docs: agrega PROMPTS.md`
