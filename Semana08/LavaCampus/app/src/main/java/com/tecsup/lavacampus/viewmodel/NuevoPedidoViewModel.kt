@@ -8,6 +8,7 @@ import com.tecsup.lavacampus.data.local.entity.Usuario
 import com.tecsup.lavacampus.data.prefs.PreferenciasStore
 import com.tecsup.lavacampus.data.repository.LavaRepository
 import com.tecsup.lavacampus.model.LineaPedido
+import com.tecsup.lavacampus.util.FechaUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,9 +21,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 data class LineaResumenItem(
     val servicio: Servicio,
@@ -112,7 +111,7 @@ class NuevoPedidoViewModel(
             null
         } else {
             val horasMax = lineas.maxOf { it.servicio.horasEntrega }
-            calcularFechaEntregaIso(LocalDate.now(), horasMax)
+            FechaUtils.calcularFechaEntrega(LocalDate.now(), horasMax)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -189,7 +188,7 @@ class NuevoPedidoViewModel(
                 }
 
                 val horasMax = seleccionValida.maxOf { it.first.horasEntrega }
-                val fechaIso = calcularFechaEntregaIso(LocalDate.now(), horasMax)
+                val fechaIso = FechaUtils.calcularFechaEntrega(LocalDate.now(), horasMax)
 
                 val lineas = seleccionValida.map { (servicio, cantidad) ->
                     LineaPedido(servicioId = servicio.id, cantidad = cantidad)
@@ -242,15 +241,6 @@ class NuevoPedidoViewModel(
         }
 
         return if (listaValida.isNotEmpty()) listaValida else null
-    }
-
-    private fun calcularFechaEntregaIso(fechaReg: LocalDate, horas: Int): String {
-        val dias = (horas / 24).coerceAtLeast(1).toLong()
-        var entrega = fechaReg.plusDays(dias)
-        if (entrega.dayOfWeek == DayOfWeek.SUNDAY) {
-            entrega = entrega.plusDays(1)
-        }
-        return entrega.format(DateTimeFormatter.ISO_LOCAL_DATE)
     }
 
     class Factory(

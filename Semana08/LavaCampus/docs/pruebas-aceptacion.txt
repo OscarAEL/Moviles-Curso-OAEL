@@ -1,0 +1,8 @@
+
+com.tecsup.lavacampus.AceptacionLaboratorioTest:.........
+com.tecsup.lavacampus.AdministracionPersistenciaTest:...
+com.tecsup.lavacampus.CapturasReadmeTest:.
+
+Time: 166.172
+
+OK (13 tests)
