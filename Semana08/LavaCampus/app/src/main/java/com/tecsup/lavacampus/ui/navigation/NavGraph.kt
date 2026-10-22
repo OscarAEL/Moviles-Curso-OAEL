@@ -18,21 +18,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.lavacampus.LavaApp
-import com.tecsup.lavacampus.model.Rol
 import com.tecsup.lavacampus.ui.administrador.PanelProvisionalScreen
 import com.tecsup.lavacampus.ui.administrador.ServiciosScreen
-import com.tecsup.lavacampus.ui.components.ProvisionalPantalla
 import com.tecsup.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.InicioScreen
 import com.tecsup.lavacampus.ui.estudiante.LoginScreen
+import com.tecsup.lavacampus.ui.estudiante.MisPedidosScreen
 import com.tecsup.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.tecsup.lavacampus.ui.estudiante.PerfilProvisionalScreen
 import com.tecsup.lavacampus.ui.estudiante.SplashScreen
+import com.tecsup.lavacampus.ui.estudiante.TarifasScreen
 import com.tecsup.lavacampus.viewmodel.DetallePedidoViewModel
 import com.tecsup.lavacampus.viewmodel.InicioViewModel
+import com.tecsup.lavacampus.viewmodel.MisPedidosViewModel
 import com.tecsup.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.tecsup.lavacampus.viewmodel.ServiciosViewModel
 import com.tecsup.lavacampus.viewmodel.SesionViewModel
+import com.tecsup.lavacampus.viewmodel.TarifasViewModel
 
 object Destinos {
     const val SPLASH = "splash"
@@ -204,18 +206,79 @@ fun AppNavGraph(
             }
 
             composable(Destinos.MIS_PEDIDOS) {
-                ProvisionalPantalla(
-                    titulo = "Mis pedidos",
-                    onBackClick = { navController.popBackStack() }
-                )
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    val misPedidosViewModel: MisPedidosViewModel = viewModel(
+                        key = "mis_pedidos_${usuario.id}",
+                        factory = MisPedidosViewModel.Factory(app.repository, usuario.id)
+                    )
+
+                    MisPedidosScreen(
+                        viewModel = misPedidosViewModel,
+                        onBackClick = { navController.popBackStack() },
+                        onNuevoPedidoClick = {
+                            navController.navigate(Destinos.NUEVO_PEDIDO) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onInicioClick = {
+                            navController.navigate(Destinos.INICIO) {
+                                popUpTo(Destinos.INICIO) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onTarifasClick = {
+                            navController.navigate(Destinos.TARIFAS) {
+                                popUpTo(Destinos.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onPerfilClick = {
+                            navController.navigate(Destinos.PERFIL) {
+                                popUpTo(Destinos.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onPedidoClick = { id ->
+                            navController.navigate(Destinos.detallePedido(id)) {
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
             }
 
             composable(Destinos.TARIFAS) {
-                ProvisionalPantalla(
-                    titulo = "Tarifas",
-                    onBackClick = { navController.popBackStack() },
-                    rol = Rol.CLIENTE
-                )
+                val usuario = usuarioActual
+                if (usuario != null) {
+                    val tarifasViewModel: TarifasViewModel = viewModel(
+                        key = "tarifas_${usuario.id}",
+                        factory = TarifasViewModel.Factory(app.repository)
+                    )
+
+                    TarifasScreen(
+                        viewModel = tarifasViewModel,
+                        onBackClick = { navController.popBackStack() },
+                        onInicioClick = {
+                            navController.navigate(Destinos.INICIO) {
+                                popUpTo(Destinos.INICIO) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                        onPedidosClick = {
+                            navController.navigate(Destinos.MIS_PEDIDOS) {
+                                popUpTo(Destinos.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        onPerfilClick = {
+                            navController.navigate(Destinos.PERFIL) {
+                                popUpTo(Destinos.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
             }
 
             composable(

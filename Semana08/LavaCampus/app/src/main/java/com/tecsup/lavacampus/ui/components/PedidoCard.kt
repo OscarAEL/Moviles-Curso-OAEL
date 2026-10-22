@@ -3,6 +3,7 @@ package com.tecsup.lavacampus.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +34,9 @@ import java.util.Locale
 fun PedidoCard(
     pedidoConDetalle: PedidoConDetalle,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    mostrarAccionCancelar: Boolean = false,
+    onCancelarClick: (() -> Unit)? = null
 ) {
     val pedido = pedidoConDetalle.pedido
     val detalles = pedidoConDetalle.detalles
@@ -69,13 +72,17 @@ fun PedidoCard(
     val precioFormateado = String.format(Locale.US, "%.2f", pedido.total)
     val numeroPedido = String.format(Locale.US, "%03d", pedido.id)
 
+    val esListoConCasillero = pedido.estado == EstadoPedido.LISTO.name && !pedido.casillero.isNullOrEmpty()
+    val colorBorde = if (esListoConCasillero) Color(0xFF10B981) else Color(0xFFF1F0F5)
+    val anchoBorde = if (esListoConCasillero) 1.5.dp else 1.dp
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .border(
-                width = 1.dp,
-                color = Color(0xFFF1F0F5),
+                width = anchoBorde,
+                color = colorBorde,
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable { onClick() },
@@ -88,18 +95,21 @@ fun PedidoCard(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Service Icon Badge - Siempre lavadora como símbolo general del pedido
+            // Icon Badge
             Box(
                 modifier = Modifier
                     .size(52.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+                    .background(
+                        if (esListoConCasillero) Color(0xFFD1FAE5)
+                        else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 IconoServicio(
                     icono = "wash",
                     modifier = Modifier.size(28.dp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (esListoConCasillero) Color(0xFF059669) else MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -109,12 +119,25 @@ fun PedidoCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = "Pedido #$numeroPedido",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Pedido #$numeroPedido",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1E1B4B)
+                    )
+
+                    Text(
+                        text = "S/ $precioFormateado",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -124,34 +147,49 @@ fun PedidoCard(
                     color = Color(0xFF6B7280)
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     EstadoPedidoChip(estadoStr = pedido.estado)
 
-                    if (pedido.estado == EstadoPedido.LISTO.name && !pedido.casillero.isNullOrEmpty()) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                    if (esListoConCasillero) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFF10B981)
+                        ) {
+                            Text(
+                                text = "Casillero ${pedido.casillero}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                    } else if (mostrarAccionCancelar && onCancelarClick != null) {
                         Text(
-                            text = "Casillero ${pedido.casillero}",
-                            fontSize = 11.sp,
+                            text = "Cancelar",
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
+                            color = Color(0xFFEF4444),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .clickable { onCancelarClick() }
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    } else if (pedido.estado == EstadoPedido.EN_PROCESO.name && pedido.fechaEntrega.isNotEmpty()) {
+                        Text(
+                            text = "Entrega ${FechaUtils.formatearFechaCorta(pedido.fechaEntrega)}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Price Total
-            Text(
-                text = "S/ $precioFormateado",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
         }
     }
 }

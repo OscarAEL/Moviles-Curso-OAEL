@@ -21,18 +21,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalOffer
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -53,10 +48,12 @@ import androidx.compose.ui.unit.sp
 import com.tecsup.lavacampus.data.local.relation.PedidoConDetalle
 import com.tecsup.lavacampus.model.EstadoPedido
 import com.tecsup.lavacampus.model.Rol
+import com.tecsup.lavacampus.ui.components.BarraNavegacionEstudiante
 import com.tecsup.lavacampus.ui.components.BotonPrincipal
 import com.tecsup.lavacampus.ui.components.LavaScaffold
 import com.tecsup.lavacampus.ui.components.PedidoCard
 import com.tecsup.lavacampus.ui.components.StepperEstado
+import com.tecsup.lavacampus.ui.components.TabEstudiante
 import com.tecsup.lavacampus.util.FechaUtils
 import com.tecsup.lavacampus.viewmodel.InicioViewModel
 import java.util.Locale
@@ -124,6 +121,7 @@ fun InicioScreen(
         },
         bottomBar = {
             BarraNavegacionEstudiante(
+                tabSeleccionada = TabEstudiante.INICIO,
                 onInicioClick = { },
                 onPedidosClick = onMisPedidosClick,
                 onTarifasClick = onTarifasClick,
@@ -425,54 +423,3 @@ private fun AccesoRapidoCard(
         }
     }
 }
-
-@Composable
-private fun BarraNavegacionEstudiante(
-    onInicioClick: () -> Unit,
-    onPedidosClick: () -> Unit,
-    onTarifasClick: () -> Unit,
-    onPerfilClick: () -> Unit
-) {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
-    ) {
-        NavigationBarItem(
-            selected = true,
-            onClick = onInicioClick,
-            icon = { Icon(Icons.Outlined.Home, contentDescription = "Inicio") },
-            label = { Text("Inicio", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
-            colors = itemColorsEstudiante()
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onPedidosClick,
-            icon = { Icon(Icons.AutoMirrored.Outlined.ListAlt, contentDescription = "Pedidos") },
-            label = { Text("Pedidos", fontSize = 11.sp) },
-            colors = itemColorsEstudiante()
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onTarifasClick,
-            icon = { Icon(Icons.Outlined.LocalOffer, contentDescription = "Tarifas") },
-            label = { Text("Tarifas", fontSize = 11.sp) },
-            colors = itemColorsEstudiante()
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onPerfilClick,
-            icon = { Icon(Icons.Outlined.Person, contentDescription = "Perfil") },
-            label = { Text("Perfil", fontSize = 11.sp) },
-            colors = itemColorsEstudiante()
-        )
-    }
-}
-
-@Composable
-private fun itemColorsEstudiante() = NavigationBarItemDefaults.colors(
-    selectedIconColor = MaterialTheme.colorScheme.primary,
-    selectedTextColor = MaterialTheme.colorScheme.primary,
-    unselectedIconColor = Color(0xFF9CA3AF),
-    unselectedTextColor = Color(0xFF9CA3AF),
-    indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-)
