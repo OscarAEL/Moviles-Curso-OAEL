@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -35,7 +36,8 @@ data class LineaResumenItem(
 class NuevoPedidoViewModel(
     private val repository: LavaRepository,
     preferenciasStore: PreferenciasStore,
-    val usuario: Usuario
+    val usuario: Usuario,
+    private val repetirPedidoId: Int? = null
 ) : ViewModel() {
 
     private val _cargando = MutableStateFlow(true)
@@ -55,6 +57,38 @@ class NuevoPedidoViewModel(
 
     private val _cantidades = MutableStateFlow<Map<Int, Double>>(emptyMap())
     val cantidades: StateFlow<Map<Int, Double>> = _cantidades.asStateFlow()
+
+    private val _cargandoRepeticion = MutableStateFlow(repetirPedidoId != null)
+    val cargandoRepeticion = _cargandoRepeticion.asStateFlow()
+    private val _avisoRepeticion = MutableStateFlow<String?>(null)
+    val avisoRepeticion = _avisoRepeticion.asStateFlow()
+
+    init {
+        if (repetirPedidoId != null) viewModelScope.launch {
+            try {
+                val original = repository.observarPedido(repetirPedidoId).first()
+                require(original != null && original.pedido.usuarioId == usuario.id) { "No se puede repetir este pedido" }
+                require(original.pedido.estado in setOf("ENTREGADO", "CANCELADO")) { "Solo se repiten pedidos del historial" }
+                val activos = repository.observarServiciosActivos().first().associateBy { it.id }
+                val seleccion = original.detalles.mapNotNull { linea ->
+                    val servicio = activos[linea.detalle.servicioId] ?: return@mapNotNull null
+                    val cantidad = linea.detalle.cantidad
+                    val valida = cantidad.isFinite() && if (servicio.unidad == "KG") {
+                        cantidad in 1.0..10.0 && cantidad * 2 == (cantidad * 2).toLong().toDouble()
+                    } else cantidad in 1.0..30.0 && cantidad == cantidad.toLong().toDouble()
+                    if (valida) servicio.id to cantidad else null
+                }.toMap()
+                _cantidades.value = seleccion
+                _nota.value = original.pedido.nota.orEmpty()
+                val omitidos = original.detalles.size - seleccion.size
+                _avisoRepeticion.value = "Pedido #${repetirPedidoId.toString().padStart(3, '0')} cargado con precios actuales. Revisa y confirma el nuevo pedido." +
+                    if (omitidos > 0) " Se omitieron $omitidos servicios no disponibles o con cantidades incompatibles." else ""
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _error.value = e.message ?: "No se pudo cargar el pedido"
+            } finally { _cargandoRepeticion.value = false }
+        }
+    }
 
     val recibirPedidos: StateFlow<Boolean?> = preferenciasStore.recibirPedidos
         .map<Boolean, Boolean?> { it }
@@ -127,7 +161,7 @@ class NuevoPedidoViewModel(
     )
 
     fun cambiarCantidad(servicioId: Int, delta: Double) {
-        if (_guardando.value || _pedidoCreadoExito.value) return
+        if (_cargandoRepeticion.value || _guardando.value || _pedidoCreadoExito.value) return
 
         val servicio = serviciosActivos.value.find { it.id == servicioId } ?: return
 
@@ -160,12 +194,12 @@ class NuevoPedidoViewModel(
     }
 
     fun actualizarNota(texto: String) {
-        if (_guardando.value || _pedidoCreadoExito.value) return
+        if (_cargandoRepeticion.value || _guardando.value || _pedidoCreadoExito.value) return
         _nota.value = texto
     }
 
     fun confirmar() {
-        if (_guardando.value || _pedidoCreadoExito.value) return
+        if (_cargandoRepeticion.value || _guardando.value || _pedidoCreadoExito.value) return
 
         val estaRecibiendo = recibirPedidos.value
         if (estaRecibiendo != true) {
@@ -253,12 +287,13 @@ class NuevoPedidoViewModel(
     class Factory(
         private val repository: LavaRepository,
         private val preferenciasStore: PreferenciasStore,
-        private val usuario: Usuario
+        private val usuario: Usuario,
+        private val repetirPedidoId: Int? = null
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(NuevoPedidoViewModel::class.java)) {
-                return NuevoPedidoViewModel(repository, preferenciasStore, usuario) as T
+                return NuevoPedidoViewModel(repository, preferenciasStore, usuario, repetirPedidoId) as T
             }
             throw IllegalArgumentException("ViewModel class no reconocida")
         }

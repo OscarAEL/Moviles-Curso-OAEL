@@ -158,9 +158,9 @@ fun BandejaScreen(
                 ) {
                     items(FiltroBandeja.entries.toTypedArray()) { filtro ->
                         val estaSeleccionado = filtro == filtroSeleccionado
-                        val bg = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color.White
-                        val textColor = if (estaSeleccionado) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                        val borderColor = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB)
+                        val bg = if (estaSeleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest
+                        val textColor = if (estaSeleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                        val borderColor = if (estaSeleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
 
                         Surface(
                             shape = RoundedCornerShape(20.dp),

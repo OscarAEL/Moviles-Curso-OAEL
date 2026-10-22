@@ -69,6 +69,8 @@ fun NuevoPedidoScreen(
     val fechaEstimadaIso by viewModel.fechaEstimadaIso.collectAsState()
     val recibirPedidos by viewModel.recibirPedidos.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
+    val cargandoRepeticion by viewModel.cargandoRepeticion.collectAsState()
+    val avisoRepeticion by viewModel.avisoRepeticion.collectAsState()
     val guardando by viewModel.guardando.collectAsState()
     val error by viewModel.error.collectAsState()
     val pedidoCreadoExito by viewModel.pedidoCreadoExito.collectAsState()
@@ -126,7 +128,7 @@ fun NuevoPedidoScreen(
                 .padding(innerPadding)
                 .imePadding()
         ) {
-            if (cargando) {
+            if (cargando || cargandoRepeticion) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -150,6 +152,15 @@ fun NuevoPedidoScreen(
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    avisoRepeticion?.let { aviso ->
+                        Surface(color = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            shape = RoundedCornerShape(16.dp)) {
+                            Text(aviso, modifier = Modifier.padding(16.dp), fontSize = 13.sp)
+                        }
+                        Spacer(Modifier.height(16.dp))
+                    }
 
                     // Active Services List Cards
                     Column(

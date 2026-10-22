@@ -66,7 +66,8 @@ fun MisPedidosScreen(
     onTarifasClick: () -> Unit,
     onPerfilClick: () -> Unit,
     onPedidoClick: (Int) -> Unit,
-    pestanaInicial: Int = 0
+    pestanaInicial: Int = 0,
+    onRepetirPedido: (Int) -> Unit = {}
 ) {
     val activos by viewModel.activos.collectAsState()
     val historial by viewModel.historial.collectAsState()
@@ -228,7 +229,8 @@ fun MisPedidosScreen(
                                 pedidoConDetalle = item,
                                 onClick = { onPedidoClick(item.pedido.id) },
                                 mostrarAccionCancelar = viewModel.puedeCancelar(item),
-                                onCancelarClick = { pedidoACancelar = item }
+                                onCancelarClick = { pedidoACancelar = item },
+                                onRepetirClick = if (pestanaSeleccionada == 1) ({ onRepetirPedido(item.pedido.id) }) else null
                             )
                         }
 

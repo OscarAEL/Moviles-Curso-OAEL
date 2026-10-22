@@ -67,7 +67,8 @@ object Destinos {
     const val GESTION_PEDIDO_ADMIN = "gestion_pedido_admin/{id}"
     const val CLIENTES_ADMIN = "clientes_admin"
     const val AJUSTES_ADMIN = "ajustes_admin"
-    const val NUEVO_PEDIDO = "nuevo_pedido"
+    const val NUEVO_PEDIDO = "nuevo_pedido?repetir={repetir}"
+    fun nuevoPedido(repetir: Int? = null) = if (repetir == null) "nuevo_pedido" else "nuevo_pedido?repetir=$repetir"
     const val MIS_PEDIDOS = "mis_pedidos"
     const val TARIFAS = "tarifas"
     const val DETALLE_PEDIDO = "detalle_pedido/{id}"
@@ -163,7 +164,7 @@ fun AppNavGraph(
                             InicioScreen(
                                 viewModel = inicioViewModel,
                                 onNuevoPedidoClick = {
-                                    navController.navigate(Destinos.NUEVO_PEDIDO) {
+                                    navController.navigate(Destinos.nuevoPedido()) {
                                         launchSingleTop = true
                                     }
                                 },
@@ -382,12 +383,13 @@ fun AppNavGraph(
                     }
 
                     // Destinos del flujo del estudiante
-                    composable(Destinos.NUEVO_PEDIDO) {
+                    composable(Destinos.NUEVO_PEDIDO, arguments = listOf(navArgument("repetir") { type = NavType.IntType; defaultValue = 0 })) { entry ->
+                        val repetirId = entry.arguments?.getInt("repetir")?.takeIf { it > 0 }
                         val usuario = usuarioActual
                         if (usuario != null) {
                             val nuevoPedidoViewModel: NuevoPedidoViewModel = viewModel(
-                                key = "nuevo_pedido_${usuario.id}",
-                                factory = NuevoPedidoViewModel.Factory(app.repository, app.preferenciasStore, usuario)
+                                key = "nuevo_pedido_${usuario.id}_${repetirId ?: 0}",
+                                factory = NuevoPedidoViewModel.Factory(app.repository, app.preferenciasStore, usuario, repetirId)
                             )
 
                             NuevoPedidoScreen(
@@ -412,9 +414,10 @@ fun AppNavGraph(
 
                             MisPedidosScreen(
                                 viewModel = misPedidosViewModel,
+                                onRepetirPedido = { id -> navController.navigate(Destinos.nuevoPedido(id)) { launchSingleTop = true } },
                                 onBackClick = { navController.popBackStack() },
                                 onNuevoPedidoClick = {
-                                    navController.navigate(Destinos.NUEVO_PEDIDO) {
+                                    navController.navigate(Destinos.nuevoPedido()) {
                                         launchSingleTop = true
                                     }
                                 },

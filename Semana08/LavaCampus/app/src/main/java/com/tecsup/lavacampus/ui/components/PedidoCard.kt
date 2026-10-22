@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -59,7 +60,8 @@ fun PedidoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     mostrarAccionCancelar: Boolean = false,
-    onCancelarClick: (() -> Unit)? = null
+    onCancelarClick: (() -> Unit)? = null,
+    onRepetirClick: (() -> Unit)? = null
 ) {
     val pedido = pedidoConDetalle.pedido
     val detalles = pedidoConDetalle.detalles
@@ -177,6 +179,8 @@ fun PedidoCard(
                                 .clickable { onCancelarClick() }
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         )
+                    } else if (onRepetirClick != null && pedido.estado in setOf("ENTREGADO", "CANCELADO")) {
+                        TextButton(onClick = onRepetirClick) { Text("Pedir de nuevo", fontSize = 12.sp) }
                     } else if (pedido.estado == EstadoPedido.EN_PROCESO.name && pedido.fechaEntrega.isNotEmpty()) {
                         Text(
                             text = "Entrega ${FechaUtils.formatearFechaCorta(pedido.fechaEntrega)}",
