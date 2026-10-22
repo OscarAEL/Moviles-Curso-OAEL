@@ -22,19 +22,20 @@ data class SesionGuardada(
     val usuarioId: Int
 )
 
-class PreferenciasStore(context: Context) {
-
-    private val applicationContext = context.applicationContext
+class PreferenciasStore(private val dataStore: DataStore<Preferences>) {
+    constructor(context: Context) : this(context.applicationContext.dataStore)
 
     companion object {
         private val PERFIL_ACTIVO = stringPreferencesKey("perfil_activo")
         private val USUARIO_ID = intPreferencesKey("usuario_id")
+        private val ULTIMO_CLIENTE = intPreferencesKey("ultimo_cliente_id")
+        private val ULTIMO_ADMIN = intPreferencesKey("ultimo_admin_id")
         private val MODO_OSCURO = booleanPreferencesKey("modo_oscuro")
         private val NOTIFICACIONES = booleanPreferencesKey("notificaciones")
         private val RECIBIR_PEDIDOS = booleanPreferencesKey("recibir_pedidos")
     }
 
-    private val safeData: Flow<Preferences> = applicationContext.dataStore.data
+    private val safeData: Flow<Preferences> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -71,32 +72,37 @@ class PreferenciasStore(context: Context) {
     }
 
     suspend fun guardarSesion(rol: Rol, usuarioId: Int) {
-        applicationContext.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[PERFIL_ACTIVO] = rol.name
             preferences[USUARIO_ID] = usuarioId
+            preferences[if (rol == Rol.ADMIN) ULTIMO_ADMIN else ULTIMO_CLIENTE] = usuarioId
         }
     }
 
+    fun ultimoUsuario(rol: Rol): Flow<Int> = safeData.map {
+        it[if (rol == Rol.ADMIN) ULTIMO_ADMIN else ULTIMO_CLIENTE] ?: 0
+    }
+
     suspend fun guardarModoOscuro(b: Boolean) {
-        applicationContext.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[MODO_OSCURO] = b
         }
     }
 
     suspend fun guardarNotificaciones(b: Boolean) {
-        applicationContext.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[NOTIFICACIONES] = b
         }
     }
 
     suspend fun guardarRecibirPedidos(b: Boolean) {
-        applicationContext.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[RECIBIR_PEDIDOS] = b
         }
     }
 
     suspend fun cerrarSesion() {
-        applicationContext.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences.remove(PERFIL_ACTIVO)
             preferences.remove(USUARIO_ID)
         }

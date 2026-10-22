@@ -42,7 +42,7 @@ fun GraficoBarras(
         Text(
             text = "No hay datos de ingresos por servicio",
             fontSize = 13.sp,
-            color = Color(0xFF6B7280),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
         )
@@ -84,7 +84,7 @@ fun GraficoBarras(
                     text = valorFormateado,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -118,7 +118,7 @@ fun GraficoBarras(
                 Text(
                     text = etiquetaBreve,
                     fontSize = 11.5.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center

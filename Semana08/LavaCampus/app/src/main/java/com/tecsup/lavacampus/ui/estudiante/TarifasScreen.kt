@@ -137,7 +137,7 @@ fun TarifasScreen(
                         Text(
                             text = "No hay servicios disponibles en este momento",
                             fontSize = 14.sp,
-                            color = Color(0xFF6B7280),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
                     } else {
@@ -178,7 +178,7 @@ private fun TarjetaTarifaServicio(servicio: Servicio) {
                 color = Color(0xFFF1F0F5),
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -209,7 +209,7 @@ private fun TarjetaTarifaServicio(servicio: Servicio) {
                     text = servicio.nombre,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -226,7 +226,7 @@ private fun TarjetaTarifaServicio(servicio: Servicio) {
                 Text(
                     text = "Entrega en ${servicio.horasEntrega} h",
                     fontSize = 12.5.sp,
-                    color = Color(0xFF6B7280)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -261,19 +261,19 @@ private fun TarjetaHorarioAtencion() {
                 text = "Horario de atención",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E1B4B)
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = "Lunes a sábado · 8:00 a 18:00",
                 fontSize = 13.sp,
-                color = Color(0xFF4B5563)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = "Recojo en casilleros del pabellón A",
                 fontSize = 13.sp,
-                color = Color(0xFF6B7280)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

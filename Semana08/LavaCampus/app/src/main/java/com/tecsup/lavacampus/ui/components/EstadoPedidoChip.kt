@@ -19,20 +19,22 @@ import com.tecsup.lavacampus.ui.theme.EstadoEnProceso
 import com.tecsup.lavacampus.ui.theme.EstadoEntregado
 import com.tecsup.lavacampus.ui.theme.EstadoListo
 import com.tecsup.lavacampus.ui.theme.EstadoRecibido
+import com.tecsup.lavacampus.ui.theme.LocalModoOscuro
 
 @Composable
 fun EstadoPedidoChip(
     estadoStr: String,
     modifier: Modifier = Modifier
 ) {
-    val (texto, color) = when (estadoStr) {
-        EstadoPedido.RECIBIDO.name -> "Recibido" to EstadoRecibido
-        EstadoPedido.EN_PROCESO.name -> "En proceso" to EstadoEnProceso
-        EstadoPedido.LISTO.name -> "Listo" to EstadoListo
-        EstadoPedido.ENTREGADO.name -> "Entregado" to EstadoEntregado
-        EstadoPedido.CANCELADO.name -> "Cancelado" to EstadoCancelado
-        else -> estadoStr to Color.Gray
+    val (texto, claro, oscuro) = when (estadoStr) {
+        EstadoPedido.RECIBIDO.name -> Triple("Recibido", Color(0xFF92400E), Color(0xFFFCD34D))
+        EstadoPedido.EN_PROCESO.name -> Triple("En proceso", Color(0xFF1D4ED8), Color(0xFF93C5FD))
+        EstadoPedido.LISTO.name -> Triple("Listo", Color(0xFF166534), Color(0xFF86EFAC))
+        EstadoPedido.ENTREGADO.name -> Triple("Entregado", Color(0xFF334155), Color(0xFFCBD5E1))
+        EstadoPedido.CANCELADO.name -> Triple("Cancelado", Color(0xFFB91C1C), Color(0xFFFCA5A5))
+        else -> Triple(estadoStr, Color(0xFF374151), Color(0xFFE5E7EB))
     }
+    val color = if (LocalModoOscuro.current) oscuro else claro
 
     Box(
         modifier = modifier

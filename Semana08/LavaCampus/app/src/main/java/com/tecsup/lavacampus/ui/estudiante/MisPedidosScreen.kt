@@ -213,7 +213,7 @@ fun MisPedidosScreen(
                         Text(
                             text = if (pestanaSeleccionada == 0) "No tienes pedidos activos" else "No tienes pedidos en el historial",
                             fontSize = 15.sp,
-                            color = Color(0xFF6B7280)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
@@ -252,7 +252,7 @@ fun MisPedidosScreen(
             FloatingActionButton(
                 onClick = onNuevoPedidoClick,
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -279,7 +279,7 @@ private fun PestanasPedidos(
             .fillMaxWidth()
             .height(48.dp),
         shape = RoundedCornerShape(24.dp),
-        color = Color(0xFFF3F4F6)
+        color = MaterialTheme.colorScheme.surfaceContainerHighest
     ) {
         Row(
             modifier = Modifier
@@ -304,7 +304,7 @@ private fun PestanasPedidos(
                     text = "Activos",
                     fontSize = 14.sp,
                     fontWeight = if (pestanaSeleccionada == 0) FontWeight.Bold else FontWeight.Medium,
-                    color = if (pestanaSeleccionada == 0) Color.White else Color(0xFF6B7280)
+                    color = if (pestanaSeleccionada == 0) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -325,7 +325,7 @@ private fun PestanasPedidos(
                     text = "Historial",
                     fontSize = 14.sp,
                     fontWeight = if (pestanaSeleccionada == 1) FontWeight.Bold else FontWeight.Medium,
-                    color = if (pestanaSeleccionada == 1) Color.White else Color(0xFF6B7280)
+                    color = if (pestanaSeleccionada == 1) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -341,7 +341,8 @@ private fun TarjetaAvisoCasillero(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFECFEFF)
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     ) {
         Column(
@@ -351,13 +352,13 @@ private fun TarjetaAvisoCasillero(
                 text = "Aviso",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Tu pedido #$numPedido está listo: recógelo en el casillero indicado.",
                 fontSize = 13.sp,
-                color = Color(0xFF374151)
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }

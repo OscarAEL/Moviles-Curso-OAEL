@@ -210,7 +210,7 @@ fun GestionPedidoScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 2.dp
                     ) {
                         Box(modifier = Modifier.padding(18.dp)) {
@@ -230,7 +230,7 @@ fun GestionPedidoScreen(
                         text = "Casillero para el recojo",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -253,7 +253,7 @@ fun GestionPedidoScreen(
                             Text(
                                 text = "Sin casillero asignado",
                                 fontSize = 13.sp,
-                                color = Color(0xFF6B7280)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     } else {
@@ -281,14 +281,14 @@ fun GestionPedidoScreen(
 
                                 val bg = when {
                                     estaElegido -> MaterialTheme.colorScheme.primary
-                                    estaOcupado -> Color(0xFFF3F4F6)
-                                    else -> Color.White
+                                    estaOcupado -> MaterialTheme.colorScheme.surfaceContainerHighest
+                                    else -> MaterialTheme.colorScheme.surface
                                 }
 
                                 val txtColor = when {
-                                    estaElegido -> Color.White
+                                    estaElegido -> MaterialTheme.colorScheme.onPrimary
                                     estaOcupado -> Color(0xFF9CA3AF)
-                                    else -> Color(0xFF374151)
+                                    else -> MaterialTheme.colorScheme.onSurface
                                 }
 
                                 val borderColor = when {
@@ -326,7 +326,7 @@ fun GestionPedidoScreen(
                         Text(
                             text = "Los casilleros en gris ya están ocupados",
                             fontSize = 12.sp,
-                            color = Color(0xFF6B7280)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -445,7 +445,7 @@ private fun TarjetaInfoEstudiante(
                 color = Color(0xFFF1F0F5),
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -483,14 +483,14 @@ private fun TarjetaInfoEstudiante(
                     text = usuario.nombre,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 if (usuario.codigo.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = usuario.codigo,
                         fontSize = 13.sp,
-                        color = Color(0xFF6B7280)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -540,7 +540,7 @@ private fun TarjetaMontoYCobro(
                 color = Color(0xFFF1F0F5),
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -557,13 +557,13 @@ private fun TarjetaMontoYCobro(
                     text = "Total S/ $totalStr",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtituloPago,
                     fontSize = 12.sp,
-                    color = Color(0xFF6B7280)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -576,7 +576,7 @@ private fun TarjetaMontoYCobro(
                     text = "Cobrado",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (pagado) MaterialTheme.colorScheme.primary else Color(0xFF6B7280)
+                    color = if (pagado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Switch(
@@ -606,7 +606,7 @@ private fun TarjetaDetalleLineas(
                 color = Color(0xFFF1F0F5),
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Column(
@@ -616,7 +616,7 @@ private fun TarjetaDetalleLineas(
                 text = "Detalle del pedido",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E1B4B)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -641,13 +641,13 @@ private fun TarjetaDetalleLineas(
                                 text = s.nombre,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E1B4B)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "$cantStr · S/ $precioUnitStr c/u",
                                 fontSize = 12.sp,
-                                color = Color(0xFF6B7280)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 

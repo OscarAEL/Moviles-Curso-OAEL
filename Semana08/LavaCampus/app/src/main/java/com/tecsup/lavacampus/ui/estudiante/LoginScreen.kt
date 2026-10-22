@@ -259,7 +259,7 @@ private fun SelectorRol(
                     text = "Estudiante",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (rolSeleccionado == Rol.CLIENTE) MaterialTheme.colorScheme.onPrimary else Color(0xFF6B7280)
+                    color = if (rolSeleccionado == Rol.CLIENTE) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -276,7 +276,7 @@ private fun SelectorRol(
                     text = "Administrador",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (rolSeleccionado == Rol.ADMIN) MaterialTheme.colorScheme.onPrimary else Color(0xFF6B7280)
+                    color = if (rolSeleccionado == Rol.ADMIN) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

@@ -55,7 +55,7 @@ fun StepperEstado(
 
     val colorProgreso = if (colorCompletado != Color.Unspecified) colorCompletado else MaterialTheme.colorScheme.primary
     val colorInactivo = Color(0xFFD1D5DB)
-    val colorTextoInactivo = Color(0xFF6B7280)
+    val colorTextoInactivo = MaterialTheme.colorScheme.onSurfaceVariant
 
     if (orientacion == StepperOrientacion.HORIZONTAL) {
         Column(
@@ -161,7 +161,7 @@ fun StepperEstado(
                         text = if (estadoStr == EstadoPedido.CANCELADO.name && index == 0) "Cancelado" else titulo,
                         fontSize = 10.sp,
                         fontWeight = if (esActual) FontWeight.Bold else FontWeight.Medium,
-                        color = if (esActual) Color(0xFF1E1B4B) else colorTextoInactivo,
+                        color = if (esActual) MaterialTheme.colorScheme.onSurface else colorTextoInactivo,
                         textAlign = when (index) {
                             0 -> TextAlign.Start
                             etapas.lastIndex -> TextAlign.End
@@ -268,7 +268,7 @@ fun StepperEstado(
                             text = if (esCancelado && index == 0) "Cancelado" else titulo,
                             fontSize = 14.sp,
                             fontWeight = if (esActual) FontWeight.Bold else FontWeight.Normal,
-                            color = if (esActual || etapaAlcanzada) Color(0xFF1E1B4B) else colorTextoInactivo
+                            color = if (esActual || etapaAlcanzada) MaterialTheme.colorScheme.onSurface else colorTextoInactivo
                         )
 
                         val estadoTextoDerecha = when {

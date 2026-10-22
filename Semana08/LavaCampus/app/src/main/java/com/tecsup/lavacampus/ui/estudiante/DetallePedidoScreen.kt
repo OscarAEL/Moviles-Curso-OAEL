@@ -178,7 +178,7 @@ fun DetallePedidoScreen(
                                 color = Color(0xFFF1F0F5),
                                 shape = RoundedCornerShape(20.dp)
                             ),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 2.dp
                     ) {
                         Row(
@@ -206,13 +206,13 @@ fun DetallePedidoScreen(
                                     text = "Registrado el ${FechaUtils.formatearFechaCorta(pedido.fechaRegistro)}",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1E1B4B)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = "Entrega estimada: ${FechaUtils.formatearFechaCorta(pedido.fechaEntrega)}",
                                     fontSize = 12.5.sp,
-                                    color = Color(0xFF6B7280)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 EstadoPedidoChip(estadoStr = pedido.estado)
@@ -227,7 +227,7 @@ fun DetallePedidoScreen(
                         text = "Seguimiento",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -235,7 +235,7 @@ fun DetallePedidoScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Box(modifier = Modifier.padding(20.dp)) {
@@ -254,7 +254,7 @@ fun DetallePedidoScreen(
                         text = "Detalle",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -262,7 +262,7 @@ fun DetallePedidoScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
@@ -286,7 +286,7 @@ fun DetallePedidoScreen(
                                         Text(
                                             text = "${s.nombre} · $cantStr × S/ $precioUnitStr",
                                             fontSize = 13.5.sp,
-                                            color = Color(0xFF4B5563)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
 
@@ -294,7 +294,7 @@ fun DetallePedidoScreen(
                                         text = "S/ $subtotalStr",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF1E1B4B)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -313,7 +313,7 @@ fun DetallePedidoScreen(
                                     text = "Total",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1E1B4B)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = "S/ $totalStr",
@@ -331,12 +331,12 @@ fun DetallePedidoScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF3F4F6))
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                         ) {
                             Text(
                                 text = "Nota: ${pedido.nota}",
                                 fontSize = 13.sp,
-                                color = Color(0xFF4B5563),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(14.dp)
                             )
                         }

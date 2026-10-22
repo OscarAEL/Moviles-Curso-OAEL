@@ -56,6 +56,8 @@ import java.util.Locale
 @Composable
 fun ServiciosScreen(
     viewModel: ServiciosViewModel,
+    onNuevoServicio: () -> Unit,
+    onEditarServicio: (Int) -> Unit,
     onBackClick: () -> Unit = {},
     onPanelClick: () -> Unit = {},
     onPedidosClick: () -> Unit = {},
@@ -63,6 +65,7 @@ fun ServiciosScreen(
     onAjustesClick: () -> Unit = {}
 ) {
     val servicios by viewModel.servicios.collectAsState()
+    val cargando by viewModel.cargando.collectAsState()
     val error by viewModel.error.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -105,7 +108,7 @@ fun ServiciosScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* Deshabilitado en esta fase */ },
+                onClick = onNuevoServicio,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(18.dp)
@@ -134,7 +137,7 @@ fun ServiciosScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            if (servicios.isEmpty()) {
+            if (cargando) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -148,6 +151,8 @@ fun ServiciosScreen(
                         )
                     }
                 }
+            } else if (servicios.isEmpty()) {
+                Text("Todavía no hay servicios. Usa + para crear uno.", modifier = Modifier.align(Alignment.Center))
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -161,7 +166,8 @@ fun ServiciosScreen(
                     ) { servicio ->
                         TarjetaServicioItem(
                             servicio = servicio,
-                            onToggle = { viewModel.alternar(servicio) }
+                            onToggle = { viewModel.alternar(servicio) },
+                            onEditar = { onEditarServicio(servicio.id) }
                         )
                     }
 
@@ -175,7 +181,8 @@ fun ServiciosScreen(
 @Composable
 private fun TarjetaServicioItem(
     servicio: Servicio,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
+    onEditar: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -186,7 +193,7 @@ private fun TarjetaServicioItem(
                 color = Color(0xFFF1F0F5),
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -220,7 +227,7 @@ private fun TarjetaServicioItem(
                     text = servicio.nombre,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -232,7 +239,7 @@ private fun TarjetaServicioItem(
                 Text(
                     text = textoDetalle,
                     fontSize = 12.5.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 16.sp
                 )
             }
@@ -256,8 +263,7 @@ private fun TarjetaServicioItem(
 
             // Edit button (Disabled in this phase)
             IconButton(
-                onClick = { /* Deshabilitado en esta fase */ },
-                enabled = false,
+                onClick = onEditar,
                 modifier = Modifier.size(36.dp)
             ) {
                 Icon(

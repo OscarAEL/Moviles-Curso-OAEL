@@ -30,7 +30,7 @@ fun BarraNavegacionEstudiante(
     onPerfilClick: () -> Unit
 ) {
     NavigationBar(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 8.dp
     ) {
         NavigationBarItem(

@@ -74,8 +74,8 @@ fun LavaTextField(
                 }
             } else null,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 disabledContainerColor = Color(0xFFF3F4F6),
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color(0xFFE5E7EB)

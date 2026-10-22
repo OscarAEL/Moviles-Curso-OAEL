@@ -158,7 +158,7 @@ fun BandejaScreen(
                     items(FiltroBandeja.entries.toTypedArray()) { filtro ->
                         val estaSeleccionado = filtro == filtroSeleccionado
                         val bg = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color.White
-                        val textColor = if (estaSeleccionado) Color.White else Color(0xFF4B5563)
+                        val textColor = if (estaSeleccionado) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                         val borderColor = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB)
 
                         Surface(
@@ -202,7 +202,7 @@ fun BandejaScreen(
                         Text(
                             text = "No se encontraron pedidos",
                             fontSize = 15.sp,
-                            color = Color(0xFF6B7280)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
@@ -270,7 +270,7 @@ private fun TarjetaPedidoAdmin(
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable { onClick() },
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Column(
@@ -304,7 +304,7 @@ private fun TarjetaPedidoAdmin(
                         text = "Pedido #$numPedidoStr",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -312,7 +312,7 @@ private fun TarjetaPedidoAdmin(
                     Text(
                         text = "$primerNombreEstudiante · $resumenServicios",
                         fontSize = 12.5.sp,
-                        color = Color(0xFF6B7280)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     if (fechaFormateada.isNotEmpty()) {

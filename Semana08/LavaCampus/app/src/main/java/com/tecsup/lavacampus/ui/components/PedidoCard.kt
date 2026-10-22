@@ -83,7 +83,7 @@ fun PedidoCard(
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable { onClick() },
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -125,7 +125,7 @@ fun PedidoCard(
                         text = "Pedido #$numeroPedido",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -141,7 +141,7 @@ fun PedidoCard(
                 Text(
                     text = "$resumenServicios · $fechaFormateada",
                     fontSize = 12.5.sp,
-                    color = Color(0xFF6B7280)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))

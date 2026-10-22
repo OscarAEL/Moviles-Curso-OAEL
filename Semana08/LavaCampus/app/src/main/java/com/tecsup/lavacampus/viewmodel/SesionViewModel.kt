@@ -132,6 +132,32 @@ class SesionViewModel(
         _error.value = null
     }
 
+    /** Cambio de cuenta para el modo de práctica del laboratorio. */
+    fun cambiarPerfil() {
+        if (_cargando.value || _restaurandoSesion.value) return
+        val actual = _usuarioActual.value ?: return
+        val rol = if (actual.rol == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+        _cargando.value = true
+        _error.value = null
+        viewModelScope.launch {
+            try {
+                // Guarda también las sesiones restauradas anteriores a esta versión.
+                preferenciasStore.guardarSesion(Rol.valueOf(actual.rol), actual.id)
+                val anterior = preferenciasStore.ultimoUsuario(rol).first()
+                val destino = repository.obtenerUsuario(anterior)?.takeIf { it.rol == rol.name }
+                    ?: repository.obtenerUsuarioPorRol(rol.name)
+                    ?: error("No existe una cuenta para este perfil")
+                preferenciasStore.guardarSesion(rol, destino.id)
+                _usuarioActual.value = destino
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _error.value = e.message ?: "No se pudo cambiar de perfil"
+            } finally {
+                _cargando.value = false
+            }
+        }
+    }
+
     class Factory(
         private val app: LavaApp
     ) : ViewModelProvider.Factory {

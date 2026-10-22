@@ -144,7 +144,7 @@ fun NuevoPedidoScreen(
                         text = "¿Qué necesitas?",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -201,7 +201,7 @@ fun NuevoPedidoScreen(
                             text = "Entrega estimada: ${FechaUtils.formatearFechaCorta(isoDate)}",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF6B7280),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                     }
@@ -274,7 +274,7 @@ private fun TarjetaServicioSeleccionable(
                 color = colorBorde,
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Column(
@@ -309,7 +309,7 @@ private fun TarjetaServicioSeleccionable(
                         text = servicio.nombre,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(2.dp))
@@ -317,7 +317,7 @@ private fun TarjetaServicioSeleccionable(
                     Text(
                         text = "S/ $precioFormateado por $unidadTexto · ${servicio.horasEntrega} h",
                         fontSize = 12.5.sp,
-                        color = Color(0xFF6B7280)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -353,10 +353,11 @@ private fun TarjetaResumen(
             .clip(RoundedCornerShape(20.dp))
             .border(
                 width = 1.dp,
-                color = Color(0xFFCFFAFE),
+                color = MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(20.dp)
             ),
-        color = Color(0xFFF0FCFF)
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
         Column(
             modifier = Modifier.padding(18.dp)
@@ -365,7 +366,7 @@ private fun TarjetaResumen(
                 text = "Resumen",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -374,7 +375,7 @@ private fun TarjetaResumen(
                 Text(
                     text = "No has seleccionado ningún servicio",
                     fontSize = 13.sp,
-                    color = Color(0xFF9CA3AF)
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             } else {
                 Column(
@@ -395,20 +396,21 @@ private fun TarjetaResumen(
                         ) {
                             Text(
                                 text = "${item.servicio.nombre}  $cantStr",
+                                modifier = Modifier.weight(1f).padding(end = 12.dp),
                                 fontSize = 13.sp,
-                                color = Color(0xFF4B5563)
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
                                 text = "S/ $subtotalStr",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E1B4B)
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    HorizontalDivider(color = Color(0xFFCFFAFE), thickness = 1.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.25f), thickness = 1.dp)
                     Spacer(modifier = Modifier.height(4.dp))
 
                     val totalStr = String.format(Locale.US, "%.2f", total)
@@ -421,13 +423,13 @@ private fun TarjetaResumen(
                             text = "Total",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E1B4B)
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
                             text = "S/ $totalStr",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }

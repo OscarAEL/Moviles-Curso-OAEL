@@ -200,7 +200,7 @@ fun InicioScreen(
                             text = "Últimos pedidos",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E1B4B)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Text(
@@ -354,7 +354,7 @@ private fun TarjetaPedidoActivo(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(18.dp),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.surface
                 ) {
                     Box(modifier = Modifier.padding(12.dp)) {
                         StepperEstado(estadoStr = pedido.estado)
@@ -382,7 +382,7 @@ private fun AccesoRapidoCard(
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable { onClick() },
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -411,7 +411,7 @@ private fun AccesoRapidoCard(
                     text = titulo,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(

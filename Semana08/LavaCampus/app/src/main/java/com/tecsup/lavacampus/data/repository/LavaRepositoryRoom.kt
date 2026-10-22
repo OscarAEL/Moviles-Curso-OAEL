@@ -24,6 +24,8 @@ class LavaRepositoryRoom(
     private val detalleDao = db.detalleDao()
 
     // Usuarios
+    override suspend fun obtenerUsuarioPorRol(rol: String): Usuario? = usuarioDao.obtenerPorRol(rol)
+
     override suspend fun login(correo: String, clave: String): Usuario? {
         return usuarioDao.login(correo, clave)
     }

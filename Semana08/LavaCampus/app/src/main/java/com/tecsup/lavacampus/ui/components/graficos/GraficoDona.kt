@@ -1,5 +1,6 @@
 package com.tecsup.lavacampus.ui.components.graficos
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -111,12 +112,12 @@ fun GraficoDona(
                     text = totalInt.toString(),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1B4B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "pedidos",
                     fontSize = 10.5.sp,
-                    color = Color(0xFF6B7280)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -150,7 +151,7 @@ fun GraficoDona(
                         Text(
                             text = item.etiqueta,
                             fontSize = 13.sp,
-                            color = Color(0xFF374151)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -158,7 +159,7 @@ fun GraficoDona(
                         text = cantidadStr,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1B4B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

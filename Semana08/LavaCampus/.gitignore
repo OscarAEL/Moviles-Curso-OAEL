@@ -16,3 +16,4 @@ local.properties
 
 # Configuracion local de Android Studio
 .idea/
+/.kotlin/

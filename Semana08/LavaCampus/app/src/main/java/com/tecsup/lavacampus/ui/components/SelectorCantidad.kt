@@ -48,14 +48,14 @@ fun SelectorCantidad(
                     .size(32.dp)
                     .clip(CircleShape)
                     .background(
-                        if (enabled && puedeDecrementar) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB)
+                        if (enabled && puedeDecrementar) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Remove,
                     contentDescription = "Restar",
-                    tint = if (enabled && puedeDecrementar) Color.White else Color(0xFF9CA3AF),
+                    tint = if (enabled && puedeDecrementar) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -68,7 +68,7 @@ fun SelectorCantidad(
             text = cantidadTexto,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF1E1B4B)
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.width(4.dp))
@@ -84,14 +84,14 @@ fun SelectorCantidad(
                     .size(32.dp)
                     .clip(CircleShape)
                     .background(
-                        if (enabled && puedeIncrementar) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB)
+                        if (enabled && puedeIncrementar) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Sumar",
-                    tint = if (enabled && puedeIncrementar) Color.White else Color(0xFF9CA3AF),
+                    tint = if (enabled && puedeIncrementar) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                     modifier = Modifier.size(18.dp)
                 )
             }
