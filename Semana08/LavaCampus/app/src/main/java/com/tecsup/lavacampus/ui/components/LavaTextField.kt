@@ -17,7 +17,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -35,13 +34,14 @@ fun LavaTextField(
     passwordVisible: Boolean = false,
     onPasswordToggle: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    errorText: String? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
             fontSize = 13.sp,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
         )
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
@@ -49,37 +49,51 @@ fun LavaTextField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
+            isError = errorText != null,
+            supportingText =
+                errorText?.let { mensaje ->
+                    { Text(mensaje, color = MaterialTheme.colorScheme.error) }
+                },
             singleLine = true,
-            shape = RoundedCornerShape(16.dp),
-            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            shape = RoundedCornerShape(14.dp),
+            visualTransformation =
+                if (isPassword && !passwordVisible) PasswordVisualTransformation()
+                else VisualTransformation.None,
             keyboardOptions = keyboardOptions,
-            leadingIcon = leadingIcon?.let { icon ->
-                {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
-            trailingIcon = if (isPassword && onPasswordToggle != null) {
-                {
-                    IconButton(onClick = onPasswordToggle) {
+            leadingIcon =
+                leadingIcon?.let { icon ->
+                    {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                }
-            } else null,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                disabledContainerColor = Color(0xFFF3F4F6),
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = Color(0xFFE5E7EB)
-            )
+                },
+            trailingIcon =
+                if (isPassword && onPasswordToggle != null) {
+                    {
+                        IconButton(onClick = onPasswordToggle) {
+                            Icon(
+                                imageVector =
+                                    if (passwordVisible) Icons.Default.VisibilityOff
+                                    else Icons.Default.Visibility,
+                                contentDescription =
+                                    if (passwordVisible) "Ocultar contraseña"
+                                    else "Mostrar contraseña",
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                            )
+                        }
+                    }
+                } else null,
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                ),
         )
     }
 }

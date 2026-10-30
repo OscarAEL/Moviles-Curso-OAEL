@@ -1,6 +1,5 @@
 package com.tecsup.lavacampus.ui.administrador
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,14 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -57,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecsup.lavacampus.data.local.entity.Servicio
 import com.tecsup.lavacampus.model.Rol
+import com.tecsup.lavacampus.ui.components.Cabecera
 import com.tecsup.lavacampus.ui.components.IconoServicio
 import com.tecsup.lavacampus.ui.components.LavaScaffold
 import com.tecsup.lavacampus.ui.components.LavaTextField
@@ -68,7 +66,7 @@ fun FormularioServicioScreen(
     viewModel: ServiciosViewModel,
     servicioId: Int? = null,
     onBackClick: () -> Unit,
-    onGuardadoExito: () -> Unit
+    onGuardadoExito: () -> Unit,
 ) {
     val servicios by viewModel.servicios.collectAsState()
     val cargando by viewModel.cargando.collectAsState()
@@ -133,13 +131,14 @@ fun FormularioServicioScreen(
                 Text(
                     text = "¿Eliminar servicio?",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
                 )
             },
             text = {
                 Text(
-                    text = "¿Estás seguro de que deseas eliminar permanentemente el servicio '${servicioActual?.nombre}'?",
-                    fontSize = 14.sp
+                    text =
+                        "¿Estás seguro de que deseas eliminar permanentemente el servicio '${servicioActual?.nombre}'?",
+                    fontSize = 14.sp,
                 )
             },
             confirmButton = {
@@ -148,23 +147,23 @@ fun FormularioServicioScreen(
                         mostrarDialogoEliminar = false
                         viewModel.eliminar(servicioActual!!)
                     },
-                    enabled = !operando
+                    enabled = !operando,
                 ) {
                     Text(
                         text = "Eliminar",
                         color = Color(0xFFEF4444),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { mostrarDialogoEliminar = false },
-                    enabled = !operando
+                    enabled = !operando,
                 ) {
                     Text(text = "Cancelar")
                 }
-            }
+            },
         )
     }
 
@@ -172,78 +171,50 @@ fun FormularioServicioScreen(
         rol = Rol.ADMIN,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                IconButton(
-                    onClick = onBackClick,
-                    enabled = !operando,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-
-                Text(
-                    text = if (esEdicion) "Editar servicio" else "Nuevo servicio",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-
-                if (esEdicion) {
-                    IconButton(
-                        onClick = { mostrarDialogoEliminar = true },
-                        enabled = !operando && servicioActual != null,
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Eliminar servicio",
-                            tint = Color(0xFFEF4444)
-                        )
-                    }
-                }
-            }
-        }
+            Cabecera(
+                if (esEdicion) "Editar servicio" else "Nuevo servicio",
+                if (!operando) onBackClick else null,
+                accion = {
+                    if (esEdicion)
+                        IconButton(
+                            onClick = { mostrarDialogoEliminar = true },
+                            enabled = !operando && servicioActual != null,
+                        ) {
+                            Icon(
+                                Icons.Outlined.Delete,
+                                "Eliminar servicio",
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                },
+            )
+        },
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .imePadding()
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).imePadding()) {
             if (esEdicion && cargando && !cargadoInicial) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else if (esEdicion && !cargando && servicioActual == null) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = "El servicio solicitado no fue encontrado",
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             } else {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp)
-                        .verticalScroll(rememberScrollState())
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .padding(horizontal = 20.dp)
+                            .verticalScroll(rememberScrollState())
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -252,7 +223,7 @@ fun FormularioServicioScreen(
                         value = nombre,
                         onValueChange = { if (!operando) nombre = it },
                         label = "Nombre del servicio",
-                        enabled = !operando
+                        enabled = !operando,
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -262,39 +233,49 @@ fun FormularioServicioScreen(
                         text = "Se cobra por",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        listOf("KG" to "Kilo", "PRENDA" to "Prenda", "UNIDAD" to "Unidad").forEach { (cod, label) ->
-                            val estaSeleccionado = unidad == cod
-                            Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = if (estaSeleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(44.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .border(
-                                        width = 1.dp,
-                                        color = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB),
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                                    .clickable(enabled = !operando) { unidad = cod }
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = label,
-                                        fontSize = 13.5.sp,
-                                        fontWeight = if (estaSeleccionado) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (estaSeleccionado) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                        listOf("KG" to "Kilo", "PRENDA" to "Prenda", "UNIDAD" to "Unidad")
+                            .forEach { (cod, label) ->
+                                val estaSeleccionado = unidad == cod
+                                Surface(
+                                    shape = RoundedCornerShape(22.dp),
+                                    color =
+                                        if (estaSeleccionado) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.surface,
+                                    modifier =
+                                        Modifier.weight(1f)
+                                            .height(44.dp)
+                                            .clip(RoundedCornerShape(22.dp))
+                                            .border(
+                                                width = 1.dp,
+                                                color =
+                                                    if (estaSeleccionado)
+                                                        MaterialTheme.colorScheme.primary
+                                                    else MaterialTheme.colorScheme.outlineVariant,
+                                                shape = RoundedCornerShape(22.dp),
+                                            )
+                                            .clickable(enabled = !operando) { unidad = cod },
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = label,
+                                            fontSize = 13.5.sp,
+                                            fontWeight =
+                                                if (estaSeleccionado) FontWeight.Bold
+                                                else FontWeight.Medium,
+                                            color =
+                                                if (estaSeleccionado) Color.White
+                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
                                 }
                             }
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -305,7 +286,7 @@ fun FormularioServicioScreen(
                         onValueChange = { if (!operando) precioInput = it },
                         label = "Precio (S/)",
                         enabled = !operando,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -315,35 +296,44 @@ fun FormularioServicioScreen(
                         text = "Tiempo de entrega",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         listOf(24 to "24 h", 48 to "48 h", 72 to "72 h").forEach { (h, label) ->
                             val estaSeleccionado = horasEntrega == h
                             Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = if (estaSeleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(44.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .border(
-                                        width = 1.dp,
-                                        color = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB),
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                                    .clickable(enabled = !operando) { horasEntrega = h }
+                                shape = RoundedCornerShape(22.dp),
+                                color =
+                                    if (estaSeleccionado) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.surface,
+                                modifier =
+                                    Modifier.weight(1f)
+                                        .height(44.dp)
+                                        .clip(RoundedCornerShape(22.dp))
+                                        .border(
+                                            width = 1.dp,
+                                            color =
+                                                if (estaSeleccionado)
+                                                    MaterialTheme.colorScheme.primary
+                                                else MaterialTheme.colorScheme.outlineVariant,
+                                            shape = RoundedCornerShape(22.dp),
+                                        )
+                                        .clickable(enabled = !operando) { horasEntrega = h },
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(
                                         text = label,
                                         fontSize = 13.5.sp,
-                                        fontWeight = if (estaSeleccionado) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (estaSeleccionado) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                        fontWeight =
+                                            if (estaSeleccionado) FontWeight.Bold
+                                            else FontWeight.Medium,
+                                        color =
+                                            if (estaSeleccionado) Color.White
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
@@ -357,7 +347,7 @@ fun FormularioServicioScreen(
                         value = descripcion,
                         onValueChange = { if (!operando) descripcion = it },
                         label = "Descripción",
-                        enabled = !operando
+                        enabled = !operando,
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -367,34 +357,44 @@ fun FormularioServicioScreen(
                         text = "Ícono",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         listOf("wash", "iron", "shirt").forEach { icoName ->
                             val estaSeleccionado = icono == icoName
                             Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = if (estaSeleccionado) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surface,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(60.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .border(
-                                        width = if (estaSeleccionado) 2.dp else 1.dp,
-                                        color = if (estaSeleccionado) MaterialTheme.colorScheme.primary else Color(0xFFE5E7EB),
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                                    .clickable(enabled = !operando) { icono = icoName }
+                                shape = RoundedCornerShape(22.dp),
+                                color =
+                                    if (estaSeleccionado)
+                                        MaterialTheme.colorScheme.primaryContainer.copy(
+                                            alpha = 0.4f
+                                        )
+                                    else MaterialTheme.colorScheme.surface,
+                                modifier =
+                                    Modifier.weight(1f)
+                                        .height(60.dp)
+                                        .clip(RoundedCornerShape(22.dp))
+                                        .border(
+                                            width = if (estaSeleccionado) 2.dp else 1.dp,
+                                            color =
+                                                if (estaSeleccionado)
+                                                    MaterialTheme.colorScheme.primary
+                                                else MaterialTheme.colorScheme.outlineVariant,
+                                            shape = RoundedCornerShape(22.dp),
+                                        )
+                                        .clickable(enabled = !operando) { icono = icoName },
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     IconoServicio(
                                         icono = icoName,
                                         modifier = Modifier.size(30.dp),
-                                        color = if (estaSeleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        color =
+                                            if (estaSeleccionado) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
@@ -405,31 +405,31 @@ fun FormularioServicioScreen(
 
                     // 7. Servicio activo Switch
                     Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
-                            .border(1.dp, Color(0xFFF1F0F5), RoundedCornerShape(18.dp)),
-                        color = MaterialTheme.colorScheme.surface
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .clip(RoundedCornerShape(22.dp))
+                                .border(1.dp, Color(0xFFF1F0F5), RoundedCornerShape(22.dp)),
+                        color = MaterialTheme.colorScheme.surface,
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 18.dp, vertical = 14.dp),
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(horizontal = 18.dp, vertical = 14.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "Servicio activo",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = "Los estudiantes podrán pedirlo",
                                     fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
 
@@ -437,10 +437,11 @@ fun FormularioServicioScreen(
                                 checked = activo,
                                 onCheckedChange = { if (!operando) activo = it },
                                 enabled = !operando,
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primary
-                                )
+                                colors =
+                                    SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                    ),
                             )
                         }
                     }
@@ -450,59 +451,54 @@ fun FormularioServicioScreen(
                     // 8. Action Buttons
                     if (operando) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     } else {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Button(
                                 onClick = {
-                                    val sAInsertar = Servicio(
-                                        id = if (esEdicion) servicioId ?: 0 else 0,
-                                        nombre = nombre,
-                                        descripcion = descripcion,
-                                        unidad = unidad,
-                                        precio = 0.0, // Calculated in viewModel from precioInput
-                                        horasEntrega = horasEntrega,
-                                        activo = activo,
-                                        icono = icono
-                                    )
+                                    val sAInsertar =
+                                        Servicio(
+                                            id = if (esEdicion) servicioId ?: 0 else 0,
+                                            nombre = nombre,
+                                            descripcion = descripcion,
+                                            unidad = unidad,
+                                            precio =
+                                                0.0, // Calculated in viewModel from precioInput
+                                            horasEntrega = horasEntrega,
+                                            activo = activo,
+                                            icono = icono,
+                                        )
                                     viewModel.guardar(sAInsertar, precioInput)
                                 },
-                                shape = RoundedCornerShape(18.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(52.dp)
+                                shape = RoundedCornerShape(22.dp),
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
                             ) {
                                 Text(
                                     text = "Guardar servicio",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = Color.White,
                                 )
                             }
 
                             OutlinedButton(
                                 onClick = onBackClick,
-                                shape = RoundedCornerShape(18.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(52.dp)
+                                shape = RoundedCornerShape(22.dp),
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
                             ) {
                                 Text(
                                     text = "Cancelar",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
                                 )
                             }
                         }

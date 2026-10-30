@@ -1,70 +1,40 @@
 package com.tecsup.lavacampus.ui.theme
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.tecsup.lavacampus.model.Rol
 
-private val EstudianteLightColorScheme = lightColorScheme(
-    primary = EstudiantePrimary,
-    primaryContainer = EstudianteContainer,
-    background = EstudianteBackground,
-    surface = Color.White,
-    onPrimary = EstudianteOnPrimary,
-    onPrimaryContainer = EstudianteOnContainer,
-    onBackground = Color(0xFF1E293B),
-    onSurface = Color(0xFF1E293B)
-)
+private fun colores(admin: Boolean) =
+    lightColorScheme(
+        primary = Color(if (admin) 0xFF7025E8 else 0xFF0C7892),
+        onPrimary = Color.White,
+        primaryContainer = Color(if (admin) 0xFFEDE7FF else 0xFFC9F9FE),
+        onPrimaryContainer = Color(if (admin) 0xFF241047 else 0xFF07313D),
+        secondary = Color(if (admin) 0xFF200C3F else 0xFF062F3A),
+        onSecondary = Color.White,
+        secondaryContainer = Color(if (admin) 0xFFD5C5FF else 0xFF1CCAE1),
+        onSecondaryContainer = Color(if (admin) 0xFF200C3F else 0xFF062F3A),
+        background = Color(if (admin) 0xFFFAF8FF else 0xFFF4FBFC),
+        onBackground = Color(if (admin) 0xFF200C3F else 0xFF07313D),
+        surface = Color.White,
+        onSurface = Color(if (admin) 0xFF200C3F else 0xFF07313D),
+        onSurfaceVariant = Color(if (admin) 0xFF67577F else 0xFF496E7A),
+        surfaceContainerHighest = Color(if (admin) 0xFFECE5F8 else 0xFFDFEFF3),
+        outline = Color(if (admin) 0xFFBDA9DC else 0xFF8EBFCB),
+        outlineVariant = Color(if (admin) 0xFFE5DDF2 else 0xFFD6EBEF),
+        error = Color(0xFFBB2029),
+        errorContainer = Color(0xFFFFE4E5),
+        onErrorContainer = Color(0xFF8E1720),
+    )
 
-private val EstudianteDarkColorScheme = darkColorScheme(
-    primary = EstudiantePrimaryDark,
-    primaryContainer = EstudianteContainerDark,
-    background = EstudianteBackgroundDark,
-    surface = Color(0xFF1E293B),
-    onPrimary = EstudianteOnPrimaryDark,
-    onPrimaryContainer = Color(0xFFCFFAFE),
-    onBackground = Color(0xFFF1F5F9),
-    onSurface = Color(0xFFF1F5F9)
-)
-
-private val AdminLightColorScheme = lightColorScheme(
-    primary = AdminPrimary,
-    primaryContainer = AdminContainer,
-    background = AdminBackground,
-    surface = Color.White,
-    onPrimary = AdminOnPrimary,
-    onPrimaryContainer = AdminOnContainer,
-    onBackground = Color(0xFF1E1B4B),
-    onSurface = Color(0xFF1E1B4B)
-)
-
-private val AdminDarkColorScheme = darkColorScheme(
-    primary = AdminPrimaryDark,
-    primaryContainer = AdminContainerDark,
-    background = AdminBackgroundDark,
-    surface = Color(0xFF2E2B5F),
-    onPrimary = AdminOnPrimaryDark,
-    onPrimaryContainer = Color(0xFFEDE9FE),
-    onBackground = Color(0xFFF5F3FF),
-    onSurface = Color(0xFFF5F3FF)
-)
-
+@Suppress("UNUSED_PARAMETER")
 @Composable
-fun LavaTheme(
-    rol: Rol = Rol.CLIENTE,
-    darkTheme: Boolean = LocalModoOscuro.current,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        darkTheme -> if (rol == Rol.ADMIN) AdminDarkColorScheme else EstudianteDarkColorScheme
-        else -> if (rol == Rol.ADMIN) AdminLightColorScheme else EstudianteLightColorScheme
-    }
-
+fun LavaTheme(rol: Rol = Rol.CLIENTE, darkTheme: Boolean = false, content: @Composable () -> Unit) {
+    // La opción oscura permanece visible, pero el rediseño usa siempre el tema claro.
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = colores(rol == Rol.ADMIN),
         typography = Typography,
-        content = content
+        content = content,
     )
 }

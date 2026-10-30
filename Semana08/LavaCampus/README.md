@@ -10,7 +10,7 @@ Proyecto del laboratorio de **Semana 08 de Programación en Móviles - TECSUP**,
 | --- | --- |
 | Estudiante | Inicio con pedido activo y últimos pedidos; nuevo pedido con cantidades, total y entrega estimada; detalle y seguimiento; pedidos activos e historial; tarifas; cancelación antes de iniciar el lavado; perfil y preferencias. |
 | Administrador | Panel con contadores e ingresos; bandeja con búsqueda y filtros; gestión de estados, casilleros y cobros; creación, edición y desactivación de servicios; clientes con cantidad de pedidos y gasto; ajustes y recepción de pedidos. |
-| Ambos | Inicio de sesión, cambio de perfil en modo práctica, modo claro/oscuro y recuperación de sesión y preferencias al volver a abrir la app. |
+| Ambos | Inicio de sesión, cambio de perfil en modo práctica, tema claro y recuperación de sesión y preferencias al volver a abrir la app. La opción de modo oscuro queda visible y deshabilitada en el rediseño. |
 
 ### Reglas de negocio
 
@@ -168,7 +168,7 @@ Seis capturas de las pantallas reales de la app en un dispositivo Android, con d
 | 9 | Ver un cambio de estado desde el estudiante | Se actualiza sin cerrar la pantalla. | OK |
 | 10 | Ingresos de la semana | Suma de pedidos pagados de esa semana. | OK |
 | 11 | Eliminar un servicio usado | Conserva el servicio y muestra el mensaje. | OK |
-| 12 | Cerrar y abrir | Conserva pedidos, perfil y modo oscuro. | OK |
+| 12 | Cerrar y abrir | Conserva pedidos, perfil y preferencias. En el rediseño, el modo oscuro permanece deshabilitado. | OK |
 
 Se comprueban también fechas deterministas: **miércoles 21/10/2026 + 48 h = viernes 23/10/2026** y **viernes 23/10/2026 + 48 h = lunes 26/10/2026**.
 
@@ -217,3 +217,19 @@ Las pruebas de reglas usan Room en memoria y DataStore temporal. Para ejecutarla
 2. `ia: agrega descuento por volumen`
 3. `ia: agrega repetir un pedido`
 4. `docs: agrega PROMPTS.md`
+
+
+## Rediseño de estudiante y administrador
+
+La interfaz utiliza la dirección visual de las maquetas aprobadas: cian para estudiante, morado para administrador, navegación inferior en forma de píldora flotante, listas separadas por líneas, cabeceras alineadas a la izquierda y tarjetas destacadas para seguimiento, casillero e ingresos.
+
+La fuente **Plus Jakarta Sans** está incluida localmente en `res/font`, con su [licencia OFL](app/src/main/assets/plus-jakarta-sans-license.txt), y funciona sin descargar fuentes durante el uso de la app.
+
+- Se rediseñaron bienvenida, acceso, registro, inicio, nuevo pedido, detalle, activos e historial, tarifas y perfil.
+- Se adaptaron panel, bandeja, gestión del pedido, servicios, formulario de servicio, clientes y ajustes.
+- El resumen de Nuevo pedido se desplaza con el contenido; total y confirmación permanecen accesibles en la barra inferior, que se adapta al teclado.
+- El modo oscuro queda visible, apagado y deshabilitado por indicación para esta entrega. El tema se mantiene claro aunque exista una preferencia oscura anterior, sin borrar esa preferencia.
+- Avisos, recepción de pedidos, cambio de perfil, cierre de sesión y validaciones de registro conservan su funcionamiento. El registro sigue siendo exclusivo del estudiante y vuelve al login.
+- Las reglas, consultas, entidades, migraciones, repositorios y ViewModels no se modificaron durante el rediseño. Se conservaron los cambios de registro que ya existían antes de empezar esta revisión.
+
+Las seis capturas anteriores se actualizaron con la nueva interfaz. `RedisenoPantallasTest` recorre 19 vistas y comprueba, entre otros controles, repetición, casilleros ocupados, confirmación y modo oscuro deshabilitado. Las pruebas de reglas y migración continúan usando datos aislados.

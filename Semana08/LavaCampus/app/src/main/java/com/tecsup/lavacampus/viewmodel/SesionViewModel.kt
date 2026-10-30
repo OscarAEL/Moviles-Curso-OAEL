@@ -29,6 +29,14 @@ class SesionViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _registroCompletado = MutableStateFlow(false)
+    val registroCompletado = _registroCompletado.asStateFlow()
+    private val _correoRegistrado = MutableStateFlow<String?>(null)
+    val correoRegistrado = _correoRegistrado.asStateFlow()
+
+    fun consumirRegistroCompletado() { _registroCompletado.value = false }
+    fun consumirCorreoRegistrado() { _correoRegistrado.value = null }
+
     private val _cargando = MutableStateFlow(false)
     val cargando: StateFlow<Boolean> = _cargando.asStateFlow()
 
@@ -109,6 +117,28 @@ class SesionViewModel(
             } finally {
                 _cargando.value = false
             }
+        }
+    }
+
+    fun registrar(nombre: String, codigo: String, correo: String, clave: String, confirmacion: String) {
+        if (_cargando.value || _restaurandoSesion.value) return
+        if (clave != confirmacion) {
+            _error.value = "Las contraseñas no coinciden"
+            return
+        }
+        _cargando.value = true
+        _error.value = null
+        viewModelScope.launch {
+            try {
+                esperarInicializacion().getOrThrow()
+                val usuario = repository.registrarEstudiante(nombre, codigo, correo, clave)
+                // Crear la cuenta no inicia sesión: la pantalla vuelve al login.
+                _correoRegistrado.value = usuario.correo
+                _registroCompletado.value = true
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _error.value = e.message ?: "No se pudo registrar la cuenta"
+            } finally { _cargando.value = false }
         }
     }
 

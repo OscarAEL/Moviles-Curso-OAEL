@@ -23,33 +23,42 @@ import com.tecsup.lavacampus.ui.estudiante.*
 import com.tecsup.lavacampus.ui.theme.LavaTheme
 import com.tecsup.lavacampus.ui.theme.LocalModoOscuro
 import com.tecsup.lavacampus.viewmodel.*
+import java.io.File
+import java.util.UUID
 import kotlinx.coroutines.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.util.UUID
 
 /** Seis pantallas reales con la siembra del laboratorio en una BD aislada. */
 @RunWith(AndroidJUnit4::class)
 class CapturasReadmeTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
 
-    @Test fun seisPantallasYControlesDeAceptacion() {
+    @Test
+    fun seisPantallasYControlesDeAceptacion() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val db = Room.inMemoryDatabaseBuilder(context, LavaDatabase::class.java).build()
         val repo = LavaRepositoryRoom(db)
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         val archivo = File(context.cacheDir, "capturas-${UUID.randomUUID()}.preferences_pb")
-        val prefs = PreferenciasStore(PreferenceDataStoreFactory.create(scope = scope, produceFile = { archivo }))
+        val prefs =
+            PreferenciasStore(
+                PreferenceDataStoreFactory.create(scope = scope, produceFile = { archivo })
+            )
         val store = ViewModelStore()
-        val owner = object : ViewModelStoreOwner { override val viewModelStore = store }
+        val owner =
+            object : ViewModelStoreOwner {
+                override val viewModelStore = store
+            }
         val vista = mutableIntStateOf(-1)
         try {
-            val alumno = runBlocking { withTimeout(15000) {
-                DatosIniciales.sembrar(db)
-                repo.obtenerUsuarioPorRol("CLIENTE")!!
-            } }
+            val alumno = runBlocking {
+                withTimeout(15000) {
+                    DatosIniciales.sembrar(db)
+                    repo.obtenerUsuarioPorRol("CLIENTE")!!
+                }
+            }
             lateinit var inicio: InicioViewModel
             lateinit var nuevo: NuevoPedidoViewModel
             lateinit var detalle: DetallePedidoViewModel
@@ -57,12 +66,24 @@ class CapturasReadmeTest {
             lateinit var bandeja: BandejaViewModel
             lateinit var gestion: GestionPedidoViewModel
             compose.runOnUiThread {
-                inicio = ViewModelProvider(owner, InicioViewModel.Factory(repo, alumno))[InicioViewModel::class.java]
-                nuevo = ViewModelProvider(owner, NuevoPedidoViewModel.Factory(repo, prefs, alumno))[NuevoPedidoViewModel::class.java]
-                detalle = ViewModelProvider(owner, DetallePedidoViewModel.Factory(repo, 4, alumno.id))[DetallePedidoViewModel::class.java]
-                panel = ViewModelProvider(owner, PanelViewModel.Factory(repo))[PanelViewModel::class.java]
-                bandeja = ViewModelProvider(owner, BandejaViewModel.Factory(repo, "EN_PROCESO"))[BandejaViewModel::class.java]
-                gestion = ViewModelProvider(owner, GestionPedidoViewModel.Factory(repo, 7))[GestionPedidoViewModel::class.java]
+                inicio =
+                    ViewModelProvider(owner, InicioViewModel.Factory(repo, alumno))[
+                        InicioViewModel::class.java]
+                nuevo =
+                    ViewModelProvider(owner, NuevoPedidoViewModel.Factory(repo, prefs, alumno))[
+                        NuevoPedidoViewModel::class.java]
+                detalle =
+                    ViewModelProvider(owner, DetallePedidoViewModel.Factory(repo, 4, alumno.id))[
+                        DetallePedidoViewModel::class.java]
+                panel =
+                    ViewModelProvider(owner, PanelViewModel.Factory(repo))[
+                        PanelViewModel::class.java]
+                bandeja =
+                    ViewModelProvider(owner, BandejaViewModel.Factory(repo, "EN_PROCESO"))[
+                        BandejaViewModel::class.java]
+                gestion =
+                    ViewModelProvider(owner, GestionPedidoViewModel.Factory(repo, 7))[
+                        GestionPedidoViewModel::class.java]
                 compose.activity.setContent {
                     CompositionLocalProvider(LocalModoOscuro provides false) {
                         LavaTheme {
@@ -71,7 +92,12 @@ class CapturasReadmeTest {
                                 1 -> NuevoPedidoScreen(nuevo, {}, {})
                                 2 -> DetallePedidoScreen(detalle, {})
                                 3 -> PanelScreen(panel, {}, {}, {}, {}, {})
-                                4 -> BandejaScreen(bandeja, filtroInicialStr = "EN_PROCESO", onGestionarPedido = {})
+                                4 ->
+                                    BandejaScreen(
+                                        bandeja,
+                                        filtroInicialStr = "EN_PROCESO",
+                                        onGestionarPedido = {},
+                                    )
                                 5 -> GestionPedidoScreen(gestion, {})
                             }
                         }
@@ -85,7 +111,7 @@ class CapturasReadmeTest {
 
             compose.runOnIdle { vista.intValue = 1 }
             compose.waitUntil(15000) { nuevo.serviciosActivos.value.size == 3 }
-            compose.onNodeWithText("Confirmar pedido").performScrollTo().assertIsNotEnabled()
+            compose.onNodeWithText("Confirmar pedido").assertIsNotEnabled()
             compose.runOnIdle {
                 val lavado = nuevo.serviciosActivos.value.single { it.unidad == "KG" }
                 val planchado = nuevo.serviciosActivos.value.single { it.nombre == "Planchado" }
@@ -94,7 +120,7 @@ class CapturasReadmeTest {
                 repeat(5) { nuevo.cambiarCantidad(planchado.id, 1.0) }
             }
             compose.waitUntil(15000) { nuevo.totalCalculado.value == 40.5 }
-            compose.onNodeWithText("Confirmar pedido").performScrollTo().assertIsEnabled()
+            compose.onNodeWithText("Confirmar pedido").assertIsEnabled()
             compose.onNodeWithText("S/ 40.50").assertIsDisplayed()
             captura(context.cacheDir, "estudiante-nuevo-pedido.png")
 
@@ -115,14 +141,20 @@ class CapturasReadmeTest {
 
             compose.runOnIdle { vista.intValue = 5 }
             compose.waitUntil(15000) { "C-05" in gestion.casillerosOcupados.value }
-            compose.onNodeWithText("C-05").assertHasNoClickAction()
+            compose
+                .onNodeWithContentDescription("Casillero C-05")
+                .assertIsNotEnabled()
+                .assertHasNoClickAction()
             compose.runOnIdle { gestion.elegirCasillero("C-06") }
             compose.waitForIdle()
-            compose.onNode(hasScrollToIndexAction()).performScrollToIndex(4)
-            compose.onNodeWithText("C-06").assertIsDisplayed()
+            compose.onNodeWithContentDescription("Casillero C-06").performScrollTo()
+            compose.onNodeWithContentDescription("Casillero C-06").assertIsDisplayed()
             captura(context.cacheDir, "administrador-gestion-pedido.png")
         } finally {
-            compose.runOnUiThread { vista.intValue = -1; store.clear() }
+            compose.runOnUiThread {
+                vista.intValue = -1
+                store.clear()
+            }
             compose.waitForIdle()
             runBlocking { scope.coroutineContext[Job]!!.cancelAndJoin() }
             db.close()
@@ -133,7 +165,11 @@ class CapturasReadmeTest {
     private fun captura(cache: File, nombre: String) {
         val carpeta = File(cache, "readme").apply { mkdirs() }
         File(carpeta, nombre).outputStream().use {
-            compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+            compose
+                .onRoot()
+                .captureToImage()
+                .asAndroidBitmap()
+                .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
         }
     }
 }

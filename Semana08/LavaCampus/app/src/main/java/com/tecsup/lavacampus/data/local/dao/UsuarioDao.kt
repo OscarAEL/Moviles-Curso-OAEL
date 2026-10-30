@@ -13,7 +13,7 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuarios WHERE rol = :rol ORDER BY id LIMIT 1")
     suspend fun obtenerPorRol(rol: String): Usuario?
 
-    @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
+    @Query("SELECT * FROM usuarios WHERE correo = :correo COLLATE NOCASE AND clave = :clave LIMIT 1")
     suspend fun login(correo: String, clave: String): Usuario?
 
     @Query("SELECT * FROM usuarios WHERE id = :id LIMIT 1")
@@ -21,6 +21,15 @@ interface UsuarioDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertarTodos(lista: List<Usuario>)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertar(usuario: Usuario): Long
+
+    @Query("SELECT COUNT(*) FROM usuarios WHERE correo = :correo COLLATE NOCASE")
+    suspend fun contarCorreo(correo: String): Int
+
+    @Query("SELECT COUNT(*) FROM usuarios WHERE codigo = :codigo COLLATE NOCASE")
+    suspend fun contarCodigo(codigo: String): Int
 
     @Query("SELECT COUNT(*) FROM usuarios")
     suspend fun contar(): Int

@@ -1,0 +1,19 @@
+
+com.tecsup.lavacampus.RedisenoPantallasTest:.
+com.tecsup.lavacampus.CapturasReadmeTest:.
+com.tecsup.lavacampus.ContrasteVisualTest:.
+com.tecsup.lavacampus.MejoraAtrasadosTest:..
+com.tecsup.lavacampus.MejoraDescuentoTest:..
+com.tecsup.lavacampus.MejoraRepetirTest:....
+com.tecsup.lavacampus.MigracionVolumenTest:.
+com.tecsup.lavacampus.RegistroEstudianteTest:.......
+com.tecsup.lavacampus.RegistroVisualTest:..
+com.tecsup.lavacampus.AceptacionLaboratorioTest:.........
+com.tecsup.lavacampus.AdministracionPersistenciaTest:...
+com.tecsup.lavacampus.PerfilNavegacionTest:.
+
+Time: 46.829
+
+OK (34 tests)
+
+

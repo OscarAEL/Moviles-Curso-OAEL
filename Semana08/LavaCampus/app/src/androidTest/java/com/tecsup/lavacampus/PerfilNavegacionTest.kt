@@ -7,6 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.tecsup.lavacampus.model.Rol
+import java.io.File
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -14,7 +15,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class PerfilNavegacionTest {
@@ -45,27 +45,27 @@ class PerfilNavegacionTest {
             }
             actividad = ActivityScenario.launch(MainActivity::class.java)
             esperarTexto("Perfil")
-            compose.onNodeWithText("Perfil").performClick()
+            compose.onNodeWithContentDescription("Perfil").performClick()
             compose.onNodeWithText(alumno.nombre).assertIsDisplayed()
-            compose.onNodeWithText("Pedidos totales").assertIsDisplayed()
+            compose.onNodeWithText("Pedidos").assertIsDisplayed()
             captura(File(context.cacheDir, "pruebas"), "perfil-claro.png")
-            compose.onAllNodes(isToggleable())[0].performClick()
-            compose.waitUntil(10000) { runBlocking { store.modoOscuro.first() } }
-            compose.onAllNodes(isToggleable())[0].assertIsOn()
+            compose.onAllNodes(isToggleable())[0].assertIsNotEnabled().assertIsOff()
+            assertEquals(false, io { store.modoOscuro.first() })
+            compose.onAllNodes(isToggleable())[0].assertIsNotEnabled().assertIsOff()
             actividad.close()
             actividad = ActivityScenario.launch(MainActivity::class.java)
             esperarTexto("Perfil")
-            compose.onNodeWithText("Perfil").performClick()
-            compose.onAllNodes(isToggleable())[0].assertIsOn()
-            captura(File(context.cacheDir, "pruebas"), "perfil-oscuro.png")
+            compose.onNodeWithContentDescription("Perfil").performClick()
+            compose.onAllNodes(isToggleable())[0].assertIsNotEnabled().assertIsOff()
+            captura(File(context.cacheDir, "pruebas"), "perfil-modo-no-disponible.png")
             compose.onNodeWithText("Cambiar de perfil").performClick()
             esperarTexto("Panel de la lavandería")
             compose.onNodeWithText("Panel de la lavandería").assertIsDisplayed()
-            compose.onNodeWithText("Ajustes").performClick()
-            compose.onAllNodes(isToggleable())[0].assertIsOn()
+            compose.onNodeWithContentDescription("Ajustes").performClick()
+            compose.onAllNodes(isToggleable())[0].assertIsNotEnabled().assertIsOff()
             compose.onAllNodes(isToggleable())[2].performClick()
             compose.waitUntil(10000) { runBlocking { !store.recibirPedidos.first() } }
-            captura(File(context.cacheDir, "pruebas"), "ajustes-oscuro.png")
+            captura(File(context.cacheDir, "pruebas"), "ajustes-redisenados.png")
             compose.onNodeWithText("Cambiar de perfil").performClick()
             esperarTexto("Nuevo pedido")
             compose.onNodeWithText("Nuevo pedido").assertIsDisplayed()
@@ -81,7 +81,11 @@ class PerfilNavegacionTest {
                 store.guardarRecibirPedidos(recibirAnterior)
                 if (clienteAnterior > 0) store.guardarSesion(Rol.CLIENTE, clienteAnterior)
                 if (adminAnterior > 0) store.guardarSesion(Rol.ADMIN, adminAnterior)
-                if (sesionAnterior.usuarioId > 0) store.guardarSesion(Rol.valueOf(sesionAnterior.perfil), sesionAnterior.usuarioId)
+                if (sesionAnterior.usuarioId > 0)
+                    store.guardarSesion(
+                        Rol.valueOf(sesionAnterior.perfil),
+                        sesionAnterior.usuarioId,
+                    )
                 else store.cerrarSesion()
             }
         }
@@ -90,14 +94,19 @@ class PerfilNavegacionTest {
     private fun <T> io(block: suspend () -> T): T = runBlocking { withTimeout(15000) { block() } }
 
     private fun esperarTexto(texto: String) {
-        compose.waitUntil(10000) { compose.onAllNodesWithText(texto).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithText(texto).fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithContentDescription(texto).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     private fun captura(directorio: File?, nombre: String) {
         if (directorio == null) return
         directorio.mkdirs()
         compose.onRoot().captureToImage().asAndroidBitmap().let { bitmap ->
-            File(directorio, nombre).outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+            File(directorio, nombre).outputStream().use {
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+            }
         }
     }
 }

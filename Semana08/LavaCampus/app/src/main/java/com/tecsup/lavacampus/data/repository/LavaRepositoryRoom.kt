@@ -26,6 +26,24 @@ class LavaRepositoryRoom(
     private val detalleDao = db.detalleDao()
 
     // Usuarios
+    override suspend fun registrarEstudiante(nombre: String, codigo: String, correo: String, clave: String): Usuario {
+        val nombreLimpio = nombre.trim()
+        val codigoLimpio = codigo.trim()
+        val correoLimpio = correo.trim().lowercase(java.util.Locale.ROOT)
+        require(nombreLimpio.length in 2..100 && nombreLimpio.all { it.isLetter() || it == ' ' }) { "El nombre debe tener de 2 a 100 caracteres, solo letras y espacios" }
+        require(Regex("[0-9]{6}").matches(codigoLimpio)) { "El código debe tener exactamente 6 dígitos" }
+        require(correoLimpio.length <= 254 && android.util.Patterns.EMAIL_ADDRESS.matcher(correoLimpio).matches()) { "Ingresa un correo válido" }
+        require(clave.length in 8..128 && clave.any { it.isLowerCase() } && clave.any { it.isUpperCase() } && clave.any { it.isDigit() }) { "La contraseña debe tener de 8 a 128 caracteres, con minúscula, mayúscula y número" }
+        // La comprobación y la inserción son atómicas: dos intentos no crean cuentas duplicadas.
+        return db.withTransaction {
+            require(usuarioDao.contarCorreo(correoLimpio) == 0) { "Este correo ya está registrado" }
+            require(usuarioDao.contarCodigo(codigoLimpio) == 0) { "Este código ya está registrado" }
+            val usuario = Usuario(nombre = nombreLimpio, codigo = codigoLimpio, correo = correoLimpio,
+                clave = clave, rol = "CLIENTE")
+            usuario.copy(id = usuarioDao.insertar(usuario).toInt())
+        }
+    }
+
     override suspend fun obtenerUsuarioPorRol(rol: String): Usuario? = usuarioDao.obtenerPorRol(rol)
 
     override suspend fun login(correo: String, clave: String): Usuario? {
