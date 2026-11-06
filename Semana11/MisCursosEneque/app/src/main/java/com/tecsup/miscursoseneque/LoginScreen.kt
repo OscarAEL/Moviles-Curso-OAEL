@@ -6,20 +6,25 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,10 +35,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
@@ -51,170 +59,197 @@ fun LoginScreen(
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
 
-    val primaryPurple = Color(0xFF5E49A6)
-    val tecsupBlue = Color(0xFF00A3E0)
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .systemBarsPadding()
+            .background(HeaderGradientBrush)
     ) {
-        // Top Header
-        Column(
+        // Background canvas graphics (concentric rings & dots)
+        HeaderBackgroundDecoration(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Programación Móvil - Tecsup",
-                fontSize = 14.sp,
-                color = Color(0xFF666666),
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Tecsup",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = tecsupBlue
-            )
-        }
+                .height(260.dp)
+        )
 
-        // Main Center Content
+        // Main screen content with system bar padding handling
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center)
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
-            Text(
-                text = "Iniciar Sesión 🔐",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
+            // Header Section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
+            ) {
+                TopHeaderRow()
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    errorMessage = ""
-                },
-                label = { Text("Correo electrónico") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = primaryPurple,
-                    unfocusedBorderColor = Color(0xFFCCCCCC),
-                    focusedLabelColor = primaryPurple,
-                    unfocusedLabelColor = Color(0xFF666666),
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    errorMessage = ""
-                },
-                label = { Text("Contraseña") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = primaryPurple,
-                    unfocusedBorderColor = Color(0xFFCCCCCC),
-                    focusedLabelColor = primaryPurple,
-                    unfocusedLabelColor = Color(0xFF666666),
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            if (errorMessage.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (isLoading) {
-                CircularProgressIndicator(color = primaryPurple)
-            } else {
-                Button(
-                    onClick = {
-                        val cleanEmail = email.trim()
-                        val cleanPassword = password.trim()
-                        if (cleanEmail.isEmpty() || cleanPassword.isEmpty()) {
-                            errorMessage = "Por favor ingrese correo y contraseña"
-                            return@Button
-                        }
-                        isLoading = true
-                        errorMessage = ""
-                        auth.signInWithEmailAndPassword(cleanEmail, cleanPassword)
-                            .addOnCompleteListener { task ->
-                                isLoading = false
-                                if (task.isSuccessful) {
-                                    Toast.makeText(context, "¡Bienvenido/a!", Toast.LENGTH_SHORT).show()
-                                    onLoginSuccess()
-                                } else {
-                                    errorMessage = task.exception?.localizedMessage ?: "Error al iniciar sesión"
-                                }
-                            }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = primaryPurple),
-                    shape = RoundedCornerShape(24.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
+                // Title and Subtitle in Header
+                Column(
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 ) {
                     Text(
-                        text = "Ingresar",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        text = "MisCursosEneque",
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Tu ruta académica, en un solo lugar",
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // White Panel containing form & footer
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp, vertical = 28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Title inside white panel
+                    Text(
+                        text = "Iniciar sesión",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PremiumColors.TextDark,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-            Text(
-                text = "¿No tienes cuenta? Regístrate aquí",
-                color = primaryPurple,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                modifier = Modifier.clickable { onNavigateToRegister() }
-            )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Ingresa tus datos para continuar",
+                        fontSize = 14.sp,
+                        color = PremiumColors.TextMuted,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Email input field
+                    PremiumInputField(
+                        value = email,
+                        onValueChange = {
+                            email = it
+                            errorMessage = ""
+                        },
+                        label = "Correo electrónico",
+                        placeholder = "nombre@correo.com",
+                        trailingIcon = Icons.Default.Email,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Password input field
+                    PremiumInputField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            errorMessage = ""
+                        },
+                        label = "Contraseña",
+                        placeholder = "Tu contraseña",
+                        trailingIcon = Icons.Default.Lock,
+                        isPassword = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
+
+                    if (errorMessage.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Main Action Button
+                    GradientButton(
+                        text = "Ingresar",
+                        isLoading = isLoading,
+                        icon = Icons.AutoMirrored.Filled.ArrowForward,
+                        onClick = {
+                            val cleanEmail = email.trim()
+                            val cleanPassword = password.trim()
+                            if (cleanEmail.isEmpty() || cleanPassword.isEmpty()) {
+                                errorMessage = "Por favor ingrese correo y contraseña"
+                                return@GradientButton
+                            }
+                            isLoading = true
+                            errorMessage = ""
+                            auth.signInWithEmailAndPassword(cleanEmail, cleanPassword)
+                                .addOnCompleteListener { task ->
+                                    isLoading = false
+                                    if (task.isSuccessful) {
+                                        Toast.makeText(context, "¡Bienvenido/a!", Toast.LENGTH_SHORT).show()
+                                        onLoginSuccess()
+                                    } else {
+                                        errorMessage = task.exception?.localizedMessage ?: "Error al iniciar sesión"
+                                    }
+                                }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Navigation Link to Register
+                    Row(
+                        modifier = Modifier.clickable { onNavigateToRegister() },
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = PremiumColors.TextMuted,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                ) {
+                                    append("¿No tienes cuenta? ")
+                                }
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = Color(0xFF3A2FB0),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textDecoration = TextDecoration.Underline
+                                    )
+                                ) {
+                                    append("Regístrate aquí")
+                                }
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f, fill = false).heightIn(min = 36.dp))
+
+                    // Footer text at bottom
+                    AppFooter()
+                }
+            }
         }
-
-        // Bottom Footer Text
-        Text(
-            text = "Lab 11 - Tecsup",
-            fontSize = 12.sp,
-            color = Color(0xFF888888),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
-        )
     }
 }
