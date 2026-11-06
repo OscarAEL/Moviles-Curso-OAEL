@@ -22,8 +22,9 @@ import com.tecsup.lavacampus.ui.components.LavaTextField
 import com.tecsup.lavacampus.viewmodel.SesionViewModel
 
 @Composable
-fun RegistroScreen(sesionViewModel: SesionViewModel, onVolver: () -> Unit) {
+fun RegistroScreen(sesionViewModel: SesionViewModel, onVolver: () -> Unit, soporte: Boolean = false) {
     var nombre by rememberSaveable { mutableStateOf("") }
+    var apellido by rememberSaveable { mutableStateOf("") }
     var codigo by rememberSaveable { mutableStateOf("") }
     var correo by rememberSaveable { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
@@ -70,7 +71,7 @@ fun RegistroScreen(sesionViewModel: SesionViewModel, onVolver: () -> Unit) {
         }
     }
     LavaScaffold(
-        rol = Rol.CLIENTE,
+        rol = if (soporte) Rol.SOPORTE else Rol.CLIENTE,
         topBar = { Cabecera("", if (!cargando) onVolver else null) },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
@@ -83,26 +84,28 @@ fun RegistroScreen(sesionViewModel: SesionViewModel, onVolver: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                "Crea tu cuenta",
+                if (soporte) "Registro de soporte" else "Crea tu cuenta",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                "Solo para estudiantes del campus",
+                if (soporte) "Crea tu cuenta del equipo de soporte" else "Solo para estudiantes del campus",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             LavaTextField(
                 nombre,
                 { nombre = it.filter { c -> c.isLetter() || c == ' ' }.take(100) },
-                "Nombre completo",
+                if (soporte) "Nombre" else "Nombre completo",
                 enabled = !cargando,
                 errorText = if (intento) errorNombre else null,
             )
+            if (soporte) LavaTextField(apellido, { apellido = it.filter { c -> c.isLetter() || c == ' ' }.take(50) }, "Apellido", enabled = !cargando,
+                errorText = if (intento && apellido.trim().length < 2) "Ingresa un apellido válido" else null)
             LavaTextField(
                 codigo,
                 { codigo = it.filter { c -> c in '0'..'9' }.take(6) },
-                "Código de estudiante",
+                if (soporte) "Código de soporte" else "Código de estudiante",
                 enabled = !cargando,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 errorText = if (intento) errorCodigo else null,
@@ -163,7 +166,9 @@ fun RegistroScreen(sesionViewModel: SesionViewModel, onVolver: () -> Unit) {
                                 )
                                 .all { it == null }
                         ) {
-                            sesionViewModel.registrar(nombre, codigo, correo, clave, confirmacion)
+                            if (soporte) {
+                                sesionViewModel.registrarSoporte(nombre, apellido, codigo, correo, clave, confirmacion)
+                            } else sesionViewModel.registrar(nombre, codigo, correo, clave, confirmacion)
                         }
                     },
                     enabled =
@@ -171,7 +176,7 @@ fun RegistroScreen(sesionViewModel: SesionViewModel, onVolver: () -> Unit) {
                             codigo.isNotBlank() &&
                             correo.isNotBlank() &&
                             clave.isNotEmpty() &&
-                            confirmacion.isNotEmpty(),
+                            confirmacion.isNotEmpty() && (!soporte || apellido.isNotBlank()),
                 )
             }
             Text(

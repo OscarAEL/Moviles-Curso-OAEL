@@ -43,6 +43,8 @@ import com.tecsup.lavacampus.ui.estudiante.SplashScreen
 import com.tecsup.lavacampus.ui.estudiante.TarifasScreen
 import com.tecsup.lavacampus.ui.theme.LavaTheme
 import com.tecsup.lavacampus.ui.theme.LocalModoOscuro
+import com.tecsup.lavacampus.ui.soporte.SoporteScreen
+import com.tecsup.lavacampus.viewmodel.SoporteViewModel
 import com.tecsup.lavacampus.viewmodel.BandejaViewModel
 import com.tecsup.lavacampus.viewmodel.ClientesViewModel
 import com.tecsup.lavacampus.viewmodel.DetallePedidoViewModel
@@ -60,6 +62,8 @@ object Destinos {
     const val SPLASH = "splash"
     const val LOGIN = "login"
     const val REGISTRO = "registro"
+    const val REGISTRO_SOPORTE = "registro_soporte"
+    const val SOPORTE = "soporte"
     const val INICIO = "inicio"
     const val PANEL = "panel"
     const val SERVICIOS = "servicios"
@@ -112,14 +116,14 @@ fun AppNavGraph(
                 if (
                     rutaActual != Destinos.SPLASH &&
                         rutaActual != Destinos.LOGIN &&
-                        rutaActual != Destinos.REGISTRO
+                        rutaActual != Destinos.REGISTRO && rutaActual != Destinos.REGISTRO_SOPORTE
                 ) {
                     navController.navigate(Destinos.LOGIN) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
             } else {
-                val destinoValido = if (usuario.rol == "ADMIN") Destinos.PANEL else Destinos.INICIO
+                val destinoValido = when(usuario.rol) { "ADMIN" -> Destinos.PANEL; "SOPORTE" -> Destinos.SOPORTE; else -> Destinos.INICIO }
                 val rutaActual = navController.currentDestination?.route
                 val rutasAdmin =
                     setOf(
@@ -136,11 +140,15 @@ fun AppNavGraph(
                     rutaActual != null &&
                         rutaActual != Destinos.SPLASH &&
                         rutaActual != Destinos.LOGIN &&
-                        ((rutaActual in rutasAdmin) != (usuario.rol == "ADMIN"))
+                        when (usuario.rol) {
+                            "ADMIN" -> rutaActual !in rutasAdmin
+                            "SOPORTE" -> rutaActual != Destinos.SOPORTE
+                            else -> rutaActual in rutasAdmin || rutaActual == Destinos.SOPORTE
+                        }
                 if (
                     rutaActual == Destinos.SPLASH ||
                         rutaActual == Destinos.LOGIN ||
-                        rutaActual == Destinos.REGISTRO ||
+                        rutaActual == Destinos.REGISTRO || rutaActual == Destinos.REGISTRO_SOPORTE ||
                         rolIncorrecto
                 ) {
                     navController.navigate(destinoValido) {
@@ -152,7 +160,7 @@ fun AppNavGraph(
     }
 
     CompositionLocalProvider(LocalModoOscuro provides oscuro) {
-        LavaTheme(rol = if (usuarioActual?.rol == "ADMIN") Rol.ADMIN else Rol.CLIENTE) {
+        LavaTheme(rol = Rol.entries.firstOrNull { it.name == usuarioActual?.rol } ?: Rol.CLIENTE) {
             if (restaurandoSesion) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -162,8 +170,7 @@ fun AppNavGraph(
                 }
             } else {
                 val destinoInicial = remember {
-                    if (usuarioActual?.rol == "ADMIN") Destinos.PANEL
-                    else if (usuarioActual != null) Destinos.INICIO else Destinos.SPLASH
+                    when(usuarioActual?.rol) { "ADMIN" -> Destinos.PANEL; "SOPORTE" -> Destinos.SOPORTE; null -> Destinos.SPLASH; else -> Destinos.INICIO }
                 }
                 NavHost(
                     navController = navController,
@@ -180,6 +187,7 @@ fun AppNavGraph(
                     composable(Destinos.LOGIN) {
                         LoginScreen(
                             sesionViewModel = sesionViewModel,
+                            onRegistroSoporteClick = { navController.navigate(Destinos.REGISTRO_SOPORTE) { launchSingleTop = true } },
                             onRegistroClick = {
                                 navController.navigate(Destinos.REGISTRO) { launchSingleTop = true }
                             },
@@ -194,6 +202,17 @@ fun AppNavGraph(
                                 navController.popBackStack()
                             },
                         )
+                    }
+
+                    composable(Destinos.REGISTRO_SOPORTE) {
+                        RegistroScreen(sesionViewModel, onVolver = { sesionViewModel.limpiarError(); navController.popBackStack() }, soporte = true)
+                    }
+                    composable(Destinos.SOPORTE) {
+                        val usuario = usuarioActual
+                        if (usuario != null && usuario.rol == "SOPORTE") {
+                            val soporteVm: SoporteViewModel = viewModel(factory = SoporteViewModel.Factory(app.repository))
+                            SoporteScreen(usuario, soporteVm, sesionViewModel)
+                        }
                     }
 
                     composable(Destinos.INICIO) {

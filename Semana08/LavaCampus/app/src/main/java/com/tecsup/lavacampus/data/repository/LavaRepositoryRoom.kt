@@ -26,7 +26,17 @@ class LavaRepositoryRoom(
     private val detalleDao = db.detalleDao()
 
     // Usuarios
-    override suspend fun registrarEstudiante(nombre: String, codigo: String, correo: String, clave: String): Usuario {
+    override suspend fun registrarEstudiante(nombre: String, codigo: String, correo: String, clave: String): Usuario =
+        registrarUsuario(nombre, codigo, correo, clave, "CLIENTE")
+
+    override suspend fun registrarSoporte(nombre: String, apellido: String, codigo: String, correo: String, clave: String): Usuario {
+        require(nombre.trim().length >= 2 && nombre.trim().all { it.isLetter() || it == ' ' }) { "Ingresa un nombre válido" }
+        require(apellido.trim().length >= 2 && apellido.trim().all { it.isLetter() || it == ' ' }) { "Ingresa un apellido válido" }
+        // Se conserva el nombre completo en la columna existente, sin borrar ni migrar cuentas.
+        return registrarUsuario("${nombre.trim()} ${apellido.trim()}", codigo, correo, clave, "SOPORTE")
+    }
+
+    private suspend fun registrarUsuario(nombre: String, codigo: String, correo: String, clave: String, rol: String): Usuario {
         val nombreLimpio = nombre.trim()
         val codigoLimpio = codigo.trim()
         val correoLimpio = correo.trim().lowercase(java.util.Locale.ROOT)
@@ -39,7 +49,7 @@ class LavaRepositoryRoom(
             require(usuarioDao.contarCorreo(correoLimpio) == 0) { "Este correo ya está registrado" }
             require(usuarioDao.contarCodigo(codigoLimpio) == 0) { "Este código ya está registrado" }
             val usuario = Usuario(nombre = nombreLimpio, codigo = codigoLimpio, correo = correoLimpio,
-                clave = clave, rol = "CLIENTE")
+                clave = clave, rol = rol)
             usuario.copy(id = usuarioDao.insertar(usuario).toInt())
         }
     }

@@ -19,9 +19,13 @@ object DatosIniciales {
 
         // Toda la comprobación y siembra ocurre dentro de una única transacción atómica
         db.withTransaction {
+            val otros = Servicio(nombre = "Otros Servicios", descripcion = "Servicio adicional. Tarifa editable por administración.", unidad = "UNIDAD", precio = 5.0, horasEntrega = 24, activo = true, icono = "shirt")
             // 1. Comprobar primero usuarioDao.contar()
             if (usuarioDao.contar() > 0) {
-                // Si ya existen usuarios, no hacer nada y terminar la transacción
+                // Añadir únicamente el servicio nuevo sin reinsertar usuarios ni pedidos.
+                if (servicioDao.obtenerTodosLista().none { it.nombre.equals("Otros Servicios", ignoreCase = true) }) {
+                    servicioDao.insertar(otros)
+                }
                 return@withTransaction
             }
 
@@ -69,7 +73,7 @@ object DatosIniciales {
                 )
             )
 
-            val faltantes = serviciosBase.filter { it.nombre !in nombresExistentes }
+            val faltantes = (serviciosBase + otros).filter { it.nombre !in nombresExistentes }
             if (faltantes.isNotEmpty()) {
                 servicioDao.insertarTodos(faltantes)
             }

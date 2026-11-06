@@ -21,10 +21,11 @@ import com.tecsup.lavacampus.ui.components.*
 import com.tecsup.lavacampus.viewmodel.*
 
 @Composable
-fun LoginScreen(sesionViewModel: SesionViewModel, onRegistroClick: () -> Unit = {}) {
+fun LoginScreen(sesionViewModel: SesionViewModel, onRegistroClick: () -> Unit = {}, onRegistroSoporteClick: () -> Unit = {}) {
     var rol by rememberSaveable { mutableStateOf(Rol.CLIENTE) }
     var correo by rememberSaveable { mutableStateOf("ana@correo.test") }
     var clave by remember { mutableStateOf("1234") }
+    var confirmacion by remember { mutableStateOf("") }
     var visible by remember { mutableStateOf(false) }
     val error by sesionViewModel.error.collectAsState()
     val cargando by sesionViewModel.cargando.collectAsState()
@@ -34,7 +35,7 @@ fun LoginScreen(sesionViewModel: SesionViewModel, onRegistroClick: () -> Unit = 
         correoRegistrado?.let {
             correo = it
             clave = ""
-            rol = Rol.CLIENTE
+            rol = sesionViewModel.rolRegistrado.value
             sesionViewModel.consumirCorreoRegistrado()
             host.showSnackbar("Cuenta creada. Ingresa con tu contraseña")
         }
@@ -65,7 +66,7 @@ fun LoginScreen(sesionViewModel: SesionViewModel, onRegistroClick: () -> Unit = 
                     )
                     .padding(4.dp)
             ) {
-                listOf(Rol.CLIENTE, Rol.ADMIN).forEach { item ->
+                listOf(Rol.CLIENTE, Rol.ADMIN, Rol.SOPORTE).forEach { item ->
                     Box(
                         Modifier.weight(1f)
                             .fillMaxHeight()
@@ -89,9 +90,9 @@ fun LoginScreen(sesionViewModel: SesionViewModel, onRegistroClick: () -> Unit = 
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            if (item == Rol.CLIENTE) "Estudiante" else "Administrador",
+                            when(item) { Rol.CLIENTE -> "Estudiante"; Rol.ADMIN -> "Administrador"; Rol.SOPORTE -> "Soporte" },
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             color =
                                 if (rol == item) Color.White
                                 else MaterialTheme.colorScheme.onBackground,
@@ -116,22 +117,23 @@ fun LoginScreen(sesionViewModel: SesionViewModel, onRegistroClick: () -> Unit = 
                 enabled = !cargando,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             )
+            if (rol == Rol.SOPORTE) LavaTextField(confirmacion, { confirmacion = it }, "Confirmar clave", isPassword = true, passwordVisible = visible, enabled = !cargando, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
             Spacer(Modifier.height(4.dp))
             BotonPrincipal(
                 if (cargando) "Ingresando…" else "Ingresar",
-                { sesionViewModel.login(correo, clave, rol) },
+                { sesionViewModel.login(correo, clave, rol, if (rol == Rol.SOPORTE) confirmacion else null) },
                 enabled = !cargando,
             )
-            if (rol == Rol.CLIENTE)
+            if (rol != Rol.ADMIN)
                 TextButton(
                     onClick = {
                         sesionViewModel.limpiarError()
-                        onRegistroClick()
+                        if (rol == Rol.SOPORTE) onRegistroSoporteClick() else onRegistroClick()
                     },
                     enabled = !cargando,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 ) {
-                    Text("¿No tienes cuenta? Regístrate", fontSize = 13.sp)
+                    Text(if (rol == Rol.SOPORTE) "Registrar cuenta de soporte" else "¿No tienes cuenta? Regístrate", fontSize = 13.sp)
                 }
         }
     }

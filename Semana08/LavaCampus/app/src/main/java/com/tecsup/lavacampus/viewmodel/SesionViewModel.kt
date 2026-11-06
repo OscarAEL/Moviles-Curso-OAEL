@@ -29,6 +29,9 @@ class SesionViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _rolRegistrado = MutableStateFlow(Rol.CLIENTE)
+    val rolRegistrado = _rolRegistrado.asStateFlow()
+
     private val _registroCompletado = MutableStateFlow(false)
     val registroCompletado = _registroCompletado.asStateFlow()
     private val _correoRegistrado = MutableStateFlow<String?>(null)
@@ -88,7 +91,11 @@ class SesionViewModel(
         }
     }
 
-    fun login(correo: String, clave: String, rolSeleccionado: Rol) {
+    fun login(correo: String, clave: String, rolSeleccionado: Rol, confirmacion: String? = null) {
+        if (rolSeleccionado == Rol.SOPORTE && (clave.isEmpty() || clave != confirmacion)) {
+            _error.value = "La clave y su confirmación deben coincidir"
+            return
+        }
         if (_cargando.value) return
 
         val correoLimpio = correo.trim()
@@ -105,7 +112,7 @@ class SesionViewModel(
                 if (usuario == null) {
                     _error.value = "Correo o contraseña incorrectos"
                 } else if (usuario.rol != rolSeleccionado.name) {
-                    val rolTexto = if (rolSeleccionado == Rol.CLIENTE) "Estudiante" else "Administrador"
+                    val rolTexto = when (rolSeleccionado) { Rol.CLIENTE -> "Estudiante"; Rol.ADMIN -> "Administrador"; Rol.SOPORTE -> "Soporte" }
                     _error.value = "El usuario no corresponde al rol de $rolTexto"
                 } else {
                     preferenciasStore.guardarSesion(rolSeleccionado, usuario.id)
@@ -133,11 +140,31 @@ class SesionViewModel(
                 esperarInicializacion().getOrThrow()
                 val usuario = repository.registrarEstudiante(nombre, codigo, correo, clave)
                 // Crear la cuenta no inicia sesión: la pantalla vuelve al login.
+                _rolRegistrado.value = Rol.CLIENTE
                 _correoRegistrado.value = usuario.correo
                 _registroCompletado.value = true
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _error.value = e.message ?: "No se pudo registrar la cuenta"
+            } finally { _cargando.value = false }
+        }
+    }
+
+    fun registrarSoporte(nombre: String, apellido: String, codigo: String, correo: String, clave: String, confirmacion: String) {
+        if (_cargando.value || _restaurandoSesion.value) return
+        if (clave != confirmacion) { _error.value = "Las contraseñas no coinciden"; return }
+        _cargando.value = true
+        _error.value = null
+        viewModelScope.launch {
+            try {
+                esperarInicializacion().getOrThrow()
+                val usuario = repository.registrarSoporte(nombre, apellido, codigo, correo, clave)
+                _rolRegistrado.value = Rol.SOPORTE
+                _correoRegistrado.value = usuario.correo
+                _registroCompletado.value = true
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _error.value = e.message ?: "No se pudo registrar soporte"
             } finally { _cargando.value = false }
         }
     }

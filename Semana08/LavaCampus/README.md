@@ -233,3 +233,12 @@ La fuente **Plus Jakarta Sans** está incluida localmente en `res/font`, con su 
 - Las reglas, consultas, entidades, migraciones, repositorios y ViewModels no se modificaron durante el rediseño. Se conservaron los cambios de registro que ya existían antes de empezar esta revisión.
 
 Las seis capturas anteriores se actualizaron con la nueva interfaz. `RedisenoPantallasTest` recorre 19 vistas y comprueba, entre otros controles, repetición, casilleros ocupados, confirmación y modo oscuro deshabilitado. Las pruebas de reglas y migración continúan usando datos aislados.
+
+
+## Perfil Soporte y Otros Servicios
+
+El selector de acceso incluye Estudiante, Administrador y Soporte. Soporte se registra con código, nombre, apellido, correo y clave, vuelve al login y debe confirmar su clave para ingresar. Dispone de una pantalla propia de consulta de servicios y cierre de sesión. Las rutas de cada perfil permanecen separadas.
+
+Otros Servicios se añade una sola vez a las instalaciones existentes y nuevas, con tarifa inicial editable de S/ 5.00 por unidad y entrega en 24 h. La base existente conserva sus cuentas y pedidos. Nombre y apellido se capturan por separado y se guardan juntos como nombre completo en Usuario.nombre.
+
+[Guía breve para explicar el flujo MVVM de Soporte](docs/soporte-flujo.md).

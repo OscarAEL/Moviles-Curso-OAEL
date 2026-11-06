@@ -33,7 +33,23 @@ private fun colores(admin: Boolean) =
 fun LavaTheme(rol: Rol = Rol.CLIENTE, darkTheme: Boolean = false, content: @Composable () -> Unit) {
     // La opción oscura permanece visible, pero el rediseño usa siempre el tema claro.
     MaterialTheme(
-        colorScheme = colores(rol == Rol.ADMIN),
+        colorScheme = if (rol == Rol.SOPORTE) colores(false).copy(
+            primary = Color(0xFF087F5B),
+            onPrimary = Color.White,
+            primaryContainer = Color(0xFFD5F5E6),
+            onPrimaryContainer = Color(0xFF073C2B),
+            secondary = Color(0xFF073C2B),
+            onSecondary = Color.White,
+            secondaryContainer = Color(0xFF76E0AE),
+            onSecondaryContainer = Color(0xFF073C2B),
+            background = Color(0xFFF3FBF6),
+            onBackground = Color(0xFF103E2D),
+            onSurface = Color(0xFF103E2D),
+            onSurfaceVariant = Color(0xFF446B57),
+            surfaceContainerHighest = Color(0xFFE0F0E7),
+            outline = Color(0xFF8CBBA2),
+            outlineVariant = Color(0xFFD5E9DD),
+        ) else colores(rol == Rol.ADMIN),
         typography = Typography,
         content = content,
     )

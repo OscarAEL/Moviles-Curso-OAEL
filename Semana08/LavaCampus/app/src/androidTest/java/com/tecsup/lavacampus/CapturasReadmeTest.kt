@@ -110,7 +110,7 @@ class CapturasReadmeTest {
             captura(context.cacheDir, "estudiante-inicio.png")
 
             compose.runOnIdle { vista.intValue = 1 }
-            compose.waitUntil(15000) { nuevo.serviciosActivos.value.size == 3 }
+            compose.waitUntil(15000) { nuevo.serviciosActivos.value.size >= 3 }
             compose.onNodeWithText("Confirmar pedido").assertIsNotEnabled()
             compose.runOnIdle {
                 val lavado = nuevo.serviciosActivos.value.single { it.unidad == "KG" }

@@ -30,6 +30,7 @@ class PreferenciasStore(private val dataStore: DataStore<Preferences>) {
         private val USUARIO_ID = intPreferencesKey("usuario_id")
         private val ULTIMO_CLIENTE = intPreferencesKey("ultimo_cliente_id")
         private val ULTIMO_ADMIN = intPreferencesKey("ultimo_admin_id")
+        private val ULTIMO_SOPORTE = intPreferencesKey("ultimo_soporte_id")
         private val MODO_OSCURO = booleanPreferencesKey("modo_oscuro")
         private val NOTIFICACIONES = booleanPreferencesKey("notificaciones")
         private val RECIBIR_PEDIDOS = booleanPreferencesKey("recibir_pedidos")
@@ -75,12 +76,12 @@ class PreferenciasStore(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { preferences ->
             preferences[PERFIL_ACTIVO] = rol.name
             preferences[USUARIO_ID] = usuarioId
-            preferences[if (rol == Rol.ADMIN) ULTIMO_ADMIN else ULTIMO_CLIENTE] = usuarioId
+            preferences[when (rol) { Rol.ADMIN -> ULTIMO_ADMIN; Rol.SOPORTE -> ULTIMO_SOPORTE; Rol.CLIENTE -> ULTIMO_CLIENTE }] = usuarioId
         }
     }
 
     fun ultimoUsuario(rol: Rol): Flow<Int> = safeData.map {
-        it[if (rol == Rol.ADMIN) ULTIMO_ADMIN else ULTIMO_CLIENTE] ?: 0
+        it[when (rol) { Rol.ADMIN -> ULTIMO_ADMIN; Rol.SOPORTE -> ULTIMO_SOPORTE; Rol.CLIENTE -> ULTIMO_CLIENTE }] ?: 0
     }
 
     suspend fun guardarModoOscuro(b: Boolean) {
