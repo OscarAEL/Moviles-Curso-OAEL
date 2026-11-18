@@ -2,6 +2,8 @@ package com.eneque.campusgps.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +32,15 @@ import com.eneque.campusgps.viewmodel.MapaViewModel
 fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
     val estado by vm.estado.collectAsState()
     val contexto = LocalContext.current
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultado ->
+        if (resultado.values.any { it }) {
+            vm.buscar()
+        } else {
+            vm.permisoDenegado()
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -60,9 +71,16 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                         ContextCompat.checkSelfPermission(
                             contexto, Manifest.permission.ACCESS_COARSE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
-                    if (tienePermiso) vm.buscar()
-                    // TODO Paso 2: solicitar permisos si faltan; al aceptar buscar,
-                    // y al negar llamar a vm.permisoDenegado().
+                    if (tienePermiso) {
+                        vm.buscar()
+                    } else {
+                        lanzador.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    }
                 }
             ) {
                 Text("Obtener mi ubicación")
@@ -70,6 +88,13 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
             val posicion = (estado as? UbicacionUi.Lista)?.posicion
             Text("Latitud: ${posicion?.latitud ?: "—"}")
             Text("Longitud: ${posicion?.longitud ?: "—"}")
+            val error = estado as? UbicacionUi.Error
+            if (error != null) {
+                Text(
+                    text = error.mensaje,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
 
             // TODO Paso 3: integrar MapaUbicacion.
             // TODO Paso 6: integrar ListaLugares y selección.
