@@ -178,7 +178,31 @@ Las pruebas instrumentadas verifican distancias, orden, recálculo solo en éxit
 
 El error **SERVICE_INVALID** se presentó en el emulador anterior API 30. En **Small Phone API 31 Play** se verificó la obtención de coordenadas y el marcador rojo en Lima.
 
-### Capturas
+### Capturas actuales para el rediseño
+
+Estas son las referencias visuales **actuales** de la rama `mejora-ia-campusgps`, código del commit `0eea715`, tomadas el **19 de noviembre de 2026** en **Small Phone API 31 Play**, Android 12, a **720 × 1280 px**.
+
+**Para enviarlas a Claude:** adjunta los siete PNG de [docs/capturas/actuales](docs/capturas/actuales) junto con el prompt del rediseño. Los enlaces **Abrir PNG** llevan a cada imagen original; las vistas previas solo reducen su tamaño en el README.
+
+| Estado de la app | Archivo original | Vista previa |
+| --- | --- | --- |
+| Sin ubicación: coordenadas vacías y distancias sin calcular | [Abrir PNG](docs/capturas/actuales/01-sin-ubicacion.png) | <img src="docs/capturas/actuales/01-sin-ubicacion.png" width="240" alt="Sin ubicación: coordenadas vacías y distancias sin calcular"> |
+| Ubicación obtenida, círculo de 100 m y lugar más cercano | [Abrir PNG](docs/capturas/actuales/02-ubicacion-radio-100.png) | <img src="docs/capturas/actuales/02-ubicacion-radio-100.png" width="240" alt="Ubicación obtenida, círculo de 100 m y lugar más cercano"> |
+| Opciones del radio: 100, 200 y 500 m | [Abrir PNG](docs/capturas/actuales/03-menu-radio.png) | <img src="docs/capturas/actuales/03-menu-radio.png" width="240" alt="Opciones del radio: 100, 200 y 500 m"> |
+| Filtro Comida, distancia y estado Fuera del radio | [Abrir PNG](docs/capturas/actuales/04-filtro-comida.png) | <img src="docs/capturas/actuales/04-filtro-comida.png" width="240" alt="Filtro Comida, distancia y estado Fuera del radio"> |
+| Lugar seleccionado: nombre, categoría y tarjeta resaltada | [Abrir PNG](docs/capturas/actuales/05-lugar-seleccionado.png) | <img src="docs/capturas/actuales/05-lugar-seleccionado.png" width="240" alt="Lugar seleccionado: nombre, categoría y tarjeta resaltada"> |
+| Lista desplazada con más tarjetas y distancias | [Abrir PNG](docs/capturas/actuales/06-lista-desplazada.png) | <img src="docs/capturas/actuales/06-lista-desplazada.png" width="240" alt="Lista desplazada con más tarjetas y distancias"> |
+| GPS apagado: mensaje de error y Reintentar | [Abrir PNG](docs/capturas/actuales/07-error-gps.png) | <img src="docs/capturas/actuales/07-error-gps.png" width="240" alt="GPS apagado: mensaje de error y Reintentar"> |
+
+Son capturas reales obtenidas con `adb shell screencap` y `adb pull`, sin editar, recrear ni retocar la interfaz. El punto de Lima se envió al emulador por ADB; no se cambió código de producción. El mapa se alejó o desplazó mediante sus controles para mostrar los estados. La captura de selección muestra la ventana completa después de desplazar el mapa dentro de su recuadro.
+
+Las tarjetas se desplazan y no aparecen todas a la vez. Las partes que quedan fuera del mapa o de la lista se ven recortadas tal como ocurre en la app actual. La opción de radio se muestra con su menú abierto; no se simularon imágenes de búsqueda en curso ni del diálogo de permisos. Para el error se apagó temporalmente la ubicación del emulador y después se restauró y verificó la recuperación.
+
+Estas imágenes sirven como **referencia del diseño existente**; todavía no representan un rediseño ni prototipos generados por Claude.
+
+### Capturas históricas de la Fase 1
+
+Las siguientes imágenes corresponden a la validación anterior del laboratorio. Se conservan como evidencia histórica; para proponer el rediseño, utiliza la galería actual de arriba.
 
 Capturas reales del emulador, guardadas con `adb shell screencap` y `adb pull`, sin recrear interfaces ni introducir datos simulados en el código de producción. La lista se desplaza verticalmente; una captura no muestra las cinco tarjetas a la vez.
 
