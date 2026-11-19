@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.eneque.campusgps.data.LugaresRepository
 import com.eneque.campusgps.data.UbicacionRepository
 import com.eneque.campusgps.model.LugarConDistancia
+import com.eneque.campusgps.model.Posicion
+import com.eneque.campusgps.util.distanciaMetros
 import com.eneque.campusgps.model.UbicacionUi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,10 +35,16 @@ class MapaViewModel(
             ubicacionRepo.obtenerPosicion()
                 .onSuccess {
                     _estado.value = UbicacionUi.Lista(it)
-                    // TODO Paso 5: actualizarDistancias(it)
+                    actualizarDistancias(it)
                 }
                 .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
         }
+    }
+
+    private fun actualizarDistancias(pos: Posicion) {
+        _lugares.value = lugaresRepo.obtenerLugares()
+            .map { lugar -> LugarConDistancia(lugar, distanciaMetros(pos, lugar)) }
+            .sortedBy { it.metros }
     }
 
     fun permisoDenegado() {
