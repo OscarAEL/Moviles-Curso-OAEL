@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.eneque.campusgps.model.UbicacionUi
 import com.eneque.campusgps.viewmodel.MapaViewModel
+import com.eneque.campusgps.util.formatearDistancia
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +35,7 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -63,7 +65,7 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 .padding(16.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
                 enabled = estado != UbicacionUi.Buscando,
@@ -89,8 +91,13 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 Text("Obtener mi ubicación")
             }
             val posicion = (estado as? UbicacionUi.Lista)?.posicion
-            Text("Latitud: ${posicion?.latitud ?: "—"}")
-            Text("Longitud: ${posicion?.longitud ?: "—"}")
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text("Latitud: ${posicion?.latitud ?: "—"}")
+                Text("Longitud: ${posicion?.longitud ?: "—"}")
+            }
             val error = estado as? UbicacionUi.Error
             if (error != null) {
                 Text(
@@ -103,15 +110,31 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercano = masCercano?.id,
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
             ListaLugares(
                 lugares = lugares,
                 seleccionado = seleccionado,
                 onClick = { vm.seleccionar(it) },
-                modifier = Modifier.fillMaxWidth().height(220.dp)
+                modifier = Modifier.fillMaxWidth().height(160.dp)
             )
-            // TODO Paso 7: botón y texto del lugar más cercano.
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Button(
+                    enabled = masCercano != null,
+                    onClick = { masCercano?.let { vm.seleccionar(it.id) } }
+                ) {
+                    Text("Ir al más cercano")
+                }
+                val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
+                val metros = cercano?.metros
+                if (cercano != null && metros != null) {
+                    Text("Más cercano: ${cercano.lugar.nombre} (${formatearDistancia(metros)})")
+                }
+            }
             // TODO Paso 8: integrar MensajeError.
         }
     }

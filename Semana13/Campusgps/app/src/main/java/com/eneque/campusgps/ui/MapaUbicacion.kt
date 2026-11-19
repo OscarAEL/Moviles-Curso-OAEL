@@ -40,7 +40,8 @@ fun MapaUbicacion(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    masCercano: Int? = null
 ) {
     var lugarAbierto by rememberSaveable { mutableStateOf<Int?>(null) }
     val posicion = (estado as? UbicacionUi.Lista)?.posicion?.takeIf {
@@ -89,7 +90,7 @@ fun MapaUbicacion(
             val lugar = item.lugar
             key(lugar.id) {
                 PinUbicacion(
-                    color = Color(0xFF007FFF),
+                    color = if (lugar.id == masCercano) Color(0xFF2E7D32) else Color(0xFF007FFF),
                     modifier = Modifier
                         .placedAt(
                             Position(latitude = lugar.latitud, longitude = lugar.longitud),
@@ -132,8 +133,6 @@ fun MapaUbicacion(
             }
         }
     }
-
-    // TODO Paso 7: resaltar el lugar más cercano.
 }
 
 @Composable

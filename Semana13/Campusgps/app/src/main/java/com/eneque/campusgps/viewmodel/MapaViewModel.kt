@@ -4,11 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eneque.campusgps.data.LugaresRepository
 import com.eneque.campusgps.data.UbicacionRepository
+import com.eneque.campusgps.model.Lugar
 import com.eneque.campusgps.model.LugarConDistancia
 import com.eneque.campusgps.model.Posicion
 import com.eneque.campusgps.util.distanciaMetros
 import com.eneque.campusgps.model.UbicacionUi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -55,7 +59,10 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     // TODO Paso 8: incorporar los tipos de error y comprobar Play Services.
 
     private fun mensajeDe(e: Throwable): String = when (e) {
