@@ -142,6 +142,7 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 seleccionado = seleccionado,
                 masCercano = masCercano?.id,
                 contornoRadio = contornoRadio,
+                onSeleccionarLugar = { vm.seleccionar(it) },
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
             Column(

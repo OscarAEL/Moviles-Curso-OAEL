@@ -2,6 +2,11 @@ package com.eneque.campusgps.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.pointerInput
+import org.maplibre.compose.interaction.MapInteractions
+import org.maplibre.compose.interaction.ClickResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -11,14 +16,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -55,10 +56,10 @@ fun MapaUbicacion(
     seleccionado: Int?,
     modifier: Modifier = Modifier,
     masCercano: Int? = null,
-    contornoRadio: List<Posicion> = emptyList()
+    contornoRadio: List<Posicion> = emptyList(),
+    onSeleccionarLugar: (Int?) -> Unit
 ) {
     val alcance = rememberCoroutineScope()
-    var lugarAbierto by rememberSaveable { mutableStateOf<Int?>(null) }
     val posicion = (estado as? UbicacionUi.Lista)?.posicion?.takeIf {
         it.latitud.isFinite() && it.longitud.isFinite() &&
             it.latitud in -90.0..90.0 && it.longitud in -180.0..180.0
@@ -102,7 +103,6 @@ fun MapaUbicacion(
     }
 
     LaunchedEffect(seleccionado) {
-        lugarAbierto = seleccionado
         val lugar = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar
         if (lugar != null) {
             mapa.animateCamera(
@@ -114,15 +114,19 @@ fun MapaUbicacion(
         }
     }
 
-    LaunchedEffect(lugares) {
-        if (lugares.none { it.lugar.id == lugarAbierto }) {
-            lugarAbierto = null
-        }
-    }
-
     MaplibreMap(
-        modifier = modifier,
+        modifier = modifier.clipToBounds(),
         state = mapa,
+        interactions = MapInteractions {
+            callbacks {
+                click {
+                    onUnhandled {
+                        onSeleccionarLugar(null)
+                        ClickResult.Consume
+                    }
+                }
+            }
+        },
         // TextureView mantiene la composición y los límites del mapa dentro de Compose.
         uiOptions = MapUiOptions { renderMode = AndroidRenderMode.Texture }
     ) {
@@ -138,7 +142,7 @@ fun MapaUbicacion(
                         )
                         .semantics { contentDescription = "Marcador de ${lugar.nombre}" }
                         .clickable(onClickLabel = "Ver nombre y categoría") {
-                            lugarAbierto = if (lugarAbierto == lugar.id) null else lugar.id
+                            onSeleccionarLugar(if (seleccionado == lugar.id) null else lugar.id)
                         }
                 )
             }
@@ -154,7 +158,7 @@ fun MapaUbicacion(
                 PinUbicacion(color = Color(0xFFD32F2F))
             }
         }
-        val lugarInfo = lugares.firstOrNull { it.lugar.id == lugarAbierto }?.lugar
+        val lugarInfo = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar
         if (lugarInfo != null) {
             Column(
                 modifier = Modifier
@@ -164,7 +168,13 @@ fun MapaUbicacion(
                     )
                     .padding(bottom = 40.dp)
             ) {
-                Surface(shadowElevation = 4.dp) {
+                Surface(
+                    modifier = Modifier.pointerInput(Unit) {
+                        // Tocar la ventana no equivale a tocar el fondo del mapa.
+                        detectTapGestures(onTap = {})
+                    },
+                    shadowElevation = 4.dp
+                ) {
                     Column(Modifier.padding(8.dp)) {
                         Text(lugarInfo.nombre)
                         Text(lugarInfo.categoria)

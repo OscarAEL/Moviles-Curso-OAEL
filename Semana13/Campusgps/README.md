@@ -193,12 +193,12 @@ Capturas reales del emulador, guardadas con `adb shell screencap` y `adb pull`, 
 ### Limitaciones observadas y pendientes
 
 - Al rotar a horizontal se mantienen las coordenadas, los valores y la posición de la lista; la disposición actual no aprovecha ese tamaño de ventana y puede dejar el mapa sin altura y controles fuera de la pantalla. Falta corregir y repetir la verificación visual horizontal.
-- Los marcadores y sus ventanas de información pueden salir de los límites del mapa y superponerse a las coordenadas o controles en Small Phone. Se conserva la evidencia real; falta corregir ese recorte.
+- En la Fase 1, los marcadores y sus ventanas podían salir de los límites del mapa y superponerse a las coordenadas o controles en Small Phone. Se conserva la evidencia histórica; el recorte se corrigió posteriormente en la rama de mejoras, como se documenta al final.
 - Si el usuario está exactamente sobre un lugar, el marcador rojo puede tapar el verde porque ambos comparten posición. El texto del lugar más cercano y la lista siguen identificándolo.
 - La ausencia real de Play Services no se probó en otro dispositivo; la clasificación y la recuperación están cubiertas por pruebas instrumentadas con un repositorio controlado.
 - La simulación se devolvió al punto base de Lima, con ubicación activa y rotación automática restaurada. No se cambiaron fuentes de producción durante el Paso 9.
 
-El registro y las capturas permiten revisar el estado real. No se declara resuelta la adaptación horizontal ni el recorte de las ventanas del mapa.
+El registro y las capturas describen el estado de la Fase 1. La corrección posterior del recorte se documenta al final; la adaptación horizontal sigue pendiente.
 
 ## Para pensar
 
@@ -224,7 +224,7 @@ Android puede dejar de mostrar el diálogo tras denegaciones repetidas. CampusGP
 
 ## Estado de entrega
 
-La documentación y capturas de la Fase 1 se subieron a `main` en el commit `2589c48`. Las limitaciones visuales indicadas arriba siguen pendientes.
+La documentación y capturas de la Fase 1 se subieron a `main` en el commit `2589c48`. Las correcciones posteriores están en la rama de mejoras; la adaptación horizontal continúa pendiente.
 
 ## Fase 2: mejoras con IA
 
@@ -289,13 +289,13 @@ Pruebas nuevas: `RadioTest` verifica límites y datos inválidos; `RadioInstrume
 ### Último lugar seleccionado con DataStore
 
 - Preferences DataStore **1.3.0**, encapsulado en `SeleccionRepositoryDataStore` detrás de `SeleccionRepository`.
-- Al tocar una tarjeta o **Ir al más cercano**, se guarda el id estable del lugar.
+- Al tocar una tarjeta, un marcador del campus o **Ir al más cercano**, se guarda el id estable del lugar.
 - Al cerrar y reabrir la app, se recuperan su selección, ventana y cámara a zoom 17. No se solicita permiso ni se consulta ubicación por restaurar.
 - Solo se guarda el id: coordenadas del usuario, distancias, categoría y radio no se persisten.
 - Antes de buscar, las distancias siguen en **Sin calcular** y las coordenadas vacías. El marcador rojo y el círculo necesitan una ubicación válida.
 - Cambiar de categoría limpia una selección oculta, sin borrar la última elección guardada. La siguiente apertura empieza con **Todos** y radio **100 m**.
 - Los ids desconocidos se ignoran y una selección nueva tiene prioridad sobre una lectura inicial tardía.
-- Abrir la ventana de un marcador conserva su comportamiento previo; para guardar una elección se usa la tarjeta o el botón del más cercano.
+- Marcador, ventana y tarjeta comparten la selección del ViewModel. Tocar el marcador de un lugar no seleccionado abre su nombre y resalta su tarjeta; tocarlo de nuevo lo deselecciona.
 - El repositorio usa el contexto de aplicación; el ViewModel depende de la interfaz y los Composables no acceden a DataStore.
 
 Archivos principales: `data/SeleccionRepository.kt`, `data/SeleccionRepositoryDataStore.kt`, `viewmodel/MapaViewModel.kt`, `viewmodel/CampusViewModelFactory.kt` y `MainActivity.kt`.
@@ -309,3 +309,17 @@ Para probarlo:
 5. Oculta la selección con otra categoría y vuelve a abrir: debe recuperarse la última elección con Todos activo.
 
 `SeleccionInstrumentedTest` verifica el archivo real tras recrear el almacén y el ViewModel, datos ausentes o ids inválidos, lectura tardía, escrituras ordenadas y convivencia con categorías. Los archivos temporales de prueba se crean en el caché privado con nombres únicos y no modifican el DataStore de producción.
+
+### Corrección adicional: ventanas dentro del mapa
+
+- Marcadores, ventanas y la etiqueta **Estás aquí** se recortan al rectángulo del mapa. Ya no se dibujan sobre el botón de ubicación, las coordenadas ni las tarjetas.
+- Al mover el mapa, el contenido oculto por sus bordes vuelve a verse cuando entra en el área visible.
+- Tocar una zona vacía cierra la ventana y quita el resaltado de la tarjeta. Tocar la propia ventana la mantiene abierta.
+- Volver a tocar un marcador después de deseleccionar vuelve a abrir su ventana y a resaltar su tarjeta: ambas usan el mismo id seleccionado del ViewModel.
+- El arrastre, el zoom, los marcadores y la atribución conservan sus acciones.
+- Cerrar la selección visible no borra el último id elegido en DataStore para la siguiente apertura.
+- No modifica la distribución horizontal, que sigue pendiente.
+
+Validación: **assembleDebug correcto** y comprobación visual en API 31 Play del recorte, desplazamiento, toque de la ventana y cierre al tocar el fondo. Se repitieron selección y deselección de Biblioteca desde el marcador y el fondo: el nombre y el resaltado de la tarjeta se sincronizan en cada ciclo. Revisión manual confirmada por el usuario.
+
+Archivos de UI modificados: `ui/MapaUbicacion.kt` y `ui/PantallaMapa.kt`.

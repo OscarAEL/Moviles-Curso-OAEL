@@ -89,3 +89,27 @@ Los prompts de referencia están redactados a partir de los requisitos técnicos
 - Prueba visual real: se eligió Cafetería desde su tarjeta, se ejecutó force-stop y se abrió de nuevo la actividad (arranque COLD). Se restauraron cámara, ventana y tarjeta resaltada con Todos activo y radio 100 m; sin diálogo de permisos, coordenadas vacías y Sin calcular.
 - La tarjeta restaurada puede quedar más abajo en la lista: se desplazó para comprobar su resaltado. Se conserva la limitación previa de ventanas que pueden sobresalir del mapa; no se presenta como corregida en esta mejora.
 - Revisión manual del usuario: confirmada; comprobó que el lugar seleccionado se conserva al reabrir la app.
+
+## Corrección adicional: límites y cierre de ventanas del mapa
+
+| Prompt técnico de referencia | Resumen de la respuesta de la IA | Qué se implementó, adaptó o descartó | Por qué |
+| --- | --- | --- | --- |
+| Evita que los marcadores y sus ventanas de MapLibre se dibujen fuera del mapa. Permite cerrar la ventana y limpiar la selección visible al tocar una zona vacía, sin impedir arrastrar, acercar ni alejar. | Recortar el contenedor completo del mapa y usar el callback de clic no atendido del proveedor. Mantener la limpieza de selección en el ViewModel y consumir los toques sobre la propia ventana. | Se añadió clipToBounds a MapaUbicacion y MapInteractions con click.onUnhandled. El callback onSeleccionarLugar conecta con vm.seleccionar(id), o con null al tocar el fondo. La ventana intercepta sus propios toques; los controles siguen encima de los marcadores. | Los overlays geográficos pueden quedar parcialmente fuera de su contenedor. El recorte conserva su anclaje y evita tapar otros controles. Usar el callback del mapa evita interceptar el gesto de arrastre con un clickable colocado sobre toda la superficie. |
+| Sincroniza la selección del marcador con el resaltado de su tarjeta después de cerrar la ventana tocando el fondo y volver a elegir el mismo lugar. | Usar seleccionado del ViewModel como única fuente de verdad para ventana y tarjetas. | Se eliminó lugarAbierto del Composable. El marcador envía su id al mismo seleccionar usado por las tarjetas; al tocar el marcador seleccionado envía null. | El estado local de la ventana permitía abrir el nombre sin actualizar la tarjeta. Con un estado compartido, cada selección y deselección actualiza ambas vistas. |
+
+### Comportamiento y alcance
+
+- Marcadores, ventanas y etiqueta Estás aquí se recortan en los bordes del mapa; su parte fuera del rectángulo queda oculta y vuelve a verse al desplazar el mapa.
+- Tocar una zona vacía cierra la ventana y quita la selección visible de la tarjeta, sin recentrar la cámara.
+- Tocar la propia ventana no la cierra. Los botones de zoom, la atribución y los marcadores conservan sus acciones.
+- Se conserva el último id elegido en DataStore: limpiar la selección visible no borra el historial guardado para una próxima apertura. Tras unificar la selección, tocar un marcador también guarda su id, como la tarjeta o el botón del más cercano.
+- Ventana y tarjeta derivan de seleccionado del ViewModel, sin un estado local separado; seleccionar un marcador también utiliza el centrado de cámara a zoom 17.
+- No cambia permisos, ubicación, filtros, radios ni cálculos. La adaptación horizontal continúa pendiente.
+
+### Validación
+
+- `:app:assembleDebug`: correcto.
+- En API 31 Play se comprobó el recorte de una ventana que antes cubría las coordenadas; al arrastrar el mapa, su nombre completo reaparece dentro de los límites.
+- Se verificó que tocar la ventana mantiene el nombre y la tarjeta resaltada; tocar el fondo cierra el nombre y retira el resaltado.
+- Tras unificar la selección, assembleDebug volvió a pasar. En API 31 Play se verificó Biblioteca: deselección desde el fondo, selección desde el marcador con nombre y tarjeta azul, deselección tocando el mismo marcador y nueva selección con nombre y tarjeta azul. El resaltado se recupera en cada ciclo.
+- Revisión manual del usuario: confirmada; aprobó el recorte, el cierre al tocar el fondo y el resaltado al volver a seleccionar.
