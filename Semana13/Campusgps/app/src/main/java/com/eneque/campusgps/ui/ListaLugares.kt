@@ -2,6 +2,8 @@ package com.eneque.campusgps.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,7 +25,8 @@ fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dentroDelRadio: Set<Int> = emptySet()
 ) {
     LazyColumn(
         modifier = modifier,
@@ -50,10 +53,25 @@ fun ListaLugares(
                 ) {
                     Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium)
                     Text(item.lugar.categoria, style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        item.metros?.let { formatearDistancia(it) } ?: "Sin calcular",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            item.metros?.let { formatearDistancia(it) } ?: "Sin calcular",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        if (item.metros != null) {
+                            val dentro = item.lugar.id in dentroDelRadio
+                            Text(
+                                text = if (dentro) "Dentro del radio" else "Fuera del radio",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (dentro) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }

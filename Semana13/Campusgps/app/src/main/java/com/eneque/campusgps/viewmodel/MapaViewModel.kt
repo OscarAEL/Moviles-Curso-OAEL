@@ -11,6 +11,8 @@ import com.eneque.campusgps.model.Lugar
 import com.eneque.campusgps.model.LugarConDistancia
 import com.eneque.campusgps.model.Posicion
 import com.eneque.campusgps.util.distanciaMetros
+import com.eneque.campusgps.util.crearContornoRadio
+import com.eneque.campusgps.util.estaDentroDelRadio
 import com.eneque.campusgps.model.UbicacionUi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,6 +44,27 @@ class MapaViewModel(
             if (categoria == null) lista
             else lista.filter { it.lugar.categoria == categoria }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
+
+    val radiosDisponibles: List<Int> = listOf(100, 200, 500)
+    private val _radioMetros = MutableStateFlow(100)
+    val radioMetros: StateFlow<Int> = _radioMetros.asStateFlow()
+
+    val lugaresDentroDelRadio: StateFlow<Set<Int>> =
+        combine(lugaresFiltrados, radioMetros) { lista, radio ->
+            lista.filter { estaDentroDelRadio(it.metros, radio) }
+                .map { it.lugar.id }
+                .toSet()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    val contornoRadio: StateFlow<List<Posicion>> =
+        combine(estado, radioMetros) { estadoActual, radio ->
+            val posicion = (estadoActual as? UbicacionUi.Lista)?.posicion
+            if (posicion == null) emptyList() else crearContornoRadio(posicion, radio)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun cambiarRadio(metros: Int) {
+        if (metros in radiosDisponibles) _radioMetros.value = metros
+    }
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()

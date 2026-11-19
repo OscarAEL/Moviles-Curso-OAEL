@@ -31,9 +31,36 @@ Los prompts de referencia están redactados a partir de los requisitos técnicos
 - Comprobación visual sin ubicación: Todos muestra los cinco marcadores iniciales; Comida deja únicamente Cafetería Campus en el mapa y la lista, con Sin calcular y sin solicitar permiso.
 - Revisión manual con ubicación, selección y cambio de categorías: confirmada por el usuario en API 31 Play.
 
-## Mejoras siguientes acordadas
+## Mejora 2: radio de cercanía
 
-1. Radio de cercanía de 100, 200 y 500 m, con círculo en el mapa y señalización en la lista.
-2. Persistencia del último lugar seleccionado mediante DataStore y un Repository.
+| Prompt técnico de referencia | Resumen de la respuesta de la IA | Qué se implementó, adaptó o descartó | Por qué |
+| --- | --- | --- | --- |
+| Añade un selector de 100, 200 y 500 metros a CampusGPS. Dibuja un círculo alrededor de la ubicación válida del usuario y señala los lugares dentro del radio. Usa MapLibre Compose y OpenFreeMap, conserva el filtro por categoría y mantén los cálculos fuera de los Composables. | Guardar el radio en el ViewModel y combinarlo con las distancias calculadas. Preparar un contorno geográfico y representarlo con una fuente GeoJSON y capas de relleno y borde de MapLibre. | Se añadieron radioMetros, lugaresDentroDelRadio, contornoRadio y cambiarRadio. SelectorRadio ofrece las tres opciones desde la barra superior. Radio.kt genera un anillo cerrado de 64 segmentos y clasifica distancias; las tarjetas presentan Dentro/Fuera del radio junto a la distancia. | El radio está expresado en metros sobre el terreno. Un círculo de tamaño fijo en pantalla no mantendría esa medida al cambiar el zoom. El selector en la barra evita reducir más la altura del mapa o de la lista. |
+| Define cómo debe convivir el radio con las categorías y prueba los casos sin ubicación, en el límite del radio y después de cambiar de posición. | El radio solo señala cercanía; el filtro por categoría sigue determinando los lugares visibles. Una distancia desconocida no se marca dentro y cambiar el radio no debe consultar el GPS. | Se mantienen todos los lugares de la categoría, incluidos los que están fuera. La comparación es inclusiva, metros menor o igual al radio. El más cercano continúa siendo el primero de la categoría activa. Se añadieron pruebas unitarias e instrumentadas para los límites, el cambio de radio, el recálculo y la geometría. | Evita confundir un indicador de cercanía con un segundo filtro y conserva el comportamiento de selección, orden y lugar más cercano de la primera mejora. |
 
-Se añadirán sus prompts técnicos, decisiones y evidencias cuando se implementen. Estas dos mejoras todavía no están realizadas.
+### Decisiones y adaptación al proveedor
+
+- Valor inicial: 100 m. Solo se aceptan 100, 200 y 500 m.
+- Sin ubicación válida no hay contorno ni clasificación Dentro/Fuera; las tarjetas conservan Sin calcular.
+- El ViewModel no recibe Context y los Composables no calculan distancias ni generan el contorno.
+- El contorno usa una aproximación esférica con radio terrestre medio de 6 371 008.8 m; la clasificación de lugares usa las distancias de Location.distanceBetween.
+- Se comprueba la medida de los vértices con Location.distanceBetween y una tolerancia del 0.6 %, correspondiente a la aproximación esférica.
+- La capa se actualiza al cambiar radio o ubicación; el marcador rojo y los marcadores del campus se mantienen.
+- Al buscar o producirse un error, el círculo se oculta hasta tener nuevamente una ubicación válida. Las distancias anteriores de la lista se conservan, como en la Fase 1.
+- El cambio de radio no modifica la cámara, no solicita permisos y no inicia búsquedas.
+- Ajuste de interacción: botones +/− en una columna compacta (+ encima de −) en el lateral superior derecho del mapa, con etiquetas de accesibilidad y objetivos táctiles de 48 dp. Animan el zoom de uno en uno, conservando el centro y limitándolo entre 0 y 22. Se mantienen los gestos; los controles se dibujan sobre los marcadores. El logo se alinea abajo a la izquierda y la atribución expandible abajo a la derecha. Los controles del lateral derecho conservan un margen horizontal de 8 dp y aprovechan los bordes superior e inferior para que no se superpongan en Small Phone. Se descartó MapOverlay.Full tras comprobar que sus controles se superponían en el mapa de poca altura del emulador.
+- Latitud y longitud se presentan juntas en una fila centrada, separadas por 12 dp y con seis decimales, para liberar altura al mapa. Es solo formato visual; los cálculos conservan las coordenadas originales.
+- Referencia técnica: [fuentes y capas de MapLibre Compose](https://maplibre.org/maplibre-compose/layers/). Se utilizan FillLayer y LineLayer con un polígono; CircleLayer define tamaños de puntos en pantalla.
+
+### Validación
+
+- `:app:assembleDebug`, pruebas unitarias y APK de pruebas: correctos.
+- Once pruebas instrumentadas en Small Phone API 31 Play: correctas, sin fallos ni ignoradas (tres de radio, tres de filtros y cinco de distancias/errores).
+- Comprobación visual en API 31 Play: el menú ofrece 100, 200 y 500 m; sin ubicación no aparece el círculo. Tras obtener -12.0464, -77.0427983 se ve el círculo azul, que aumenta al elegir 200 m. Biblioteca aparece dentro de 100 m.
+- Con Comida seleccionado, Cafetería (109 m) permanece visible y como lugar más cercano: dentro con 200 m y fuera con 100 m, sin nueva búsqueda.
+- Ajuste visual posterior: assembleDebug correcto; en API 31 Play se verificaron coordenadas completas en una sola fila, mayor altura del mapa, zoom en el lateral superior derecho y apertura/cierre de la atribución en la esquina inferior derecha. La pantalla conserva círculo, marcador rojo y distancias.
+- Revisión manual del usuario: confirmada tras ejecutar la app y revisar la disposición final de las coordenadas, el zoom vertical y la atribución.
+
+## Mejora siguiente acordada
+
+Persistencia del último lugar seleccionado mediante DataStore y un Repository. Todavía no está implementada; se añadirá su registro técnico al desarrollarla.

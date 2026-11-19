@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 import androidx.core.content.ContextCompat
 import com.eneque.campusgps.model.UbicacionUi
 import com.eneque.campusgps.viewmodel.MapaViewModel
@@ -38,6 +40,9 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugaresFiltrados.collectAsState()
     val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+    val radioMetros by vm.radioMetros.collectAsState()
+    val dentroDelRadio by vm.lugaresDentroDelRadio.collectAsState()
+    val contornoRadio by vm.contornoRadio.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -56,6 +61,13 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
         topBar = {
             TopAppBar(
                 title = { Text("CampusGPS") },
+                actions = {
+                    SelectorRadio(
+                        radios = vm.radiosDisponibles,
+                        seleccionado = radioMetros,
+                        onSeleccionar = { vm.cambiarRadio(it) }
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -109,12 +121,18 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 )
             } else {
                 val posicion = (estado as? UbicacionUi.Lista)?.posicion
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Latitud: ${posicion?.latitud ?: "—"}")
-                    Text("Longitud: ${posicion?.longitud ?: "—"}")
+                    Text(
+                        text = "Latitud: ${posicion?.let { String.format(Locale.ROOT, "%.6f", it.latitud) } ?: "—"}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = "Longitud: ${posicion?.let { String.format(Locale.ROOT, "%.6f", it.longitud) } ?: "—"}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
 
@@ -123,6 +141,7 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercano = masCercano?.id,
+                contornoRadio = contornoRadio,
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
             Column(
@@ -139,6 +158,7 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                     lugares = lugares,
                     seleccionado = seleccionado,
                     onClick = { vm.seleccionar(it) },
+                    dentroDelRadio = dentroDelRadio,
                     modifier = Modifier.fillMaxWidth().weight(1f)
                 )
             }

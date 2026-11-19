@@ -235,7 +235,7 @@ La bitácora técnica y las decisiones de implementación se encuentran en [PROM
 | Mejora elegida de la guía | Estado |
 | --- | --- |
 | Filtro por categoría | Implementado; assembleDebug, pruebas unitarias y ocho pruebas instrumentadas correctas; revisión manual confirmada por el usuario |
-| Radio de cercanía | Pendiente |
+| Radio de cercanía | Implementado; assembleDebug, pruebas unitarias y once pruebas instrumentadas correctas; círculo y clasificación comprobados en API 31 Play; revisión manual confirmada por el usuario |
 | Último lugar seleccionado con DataStore | Pendiente |
 
 ### Filtro por categoría
@@ -258,3 +258,30 @@ Para comprobarlo en el emulador:
 4. Selecciona una tarjeta y elige una categoría que la excluya: la selección y su ventana deben desaparecer.
 5. Vuelve a Todos: deben conservarse las distancias y el orden.
 6. Con una categoría activa, busca de nuevo o rota: el filtro debe conservarse.
+
+### Radio de cercanía
+
+- Menú **Radio: 100 m** en la barra superior, con opciones **100, 200 y 500 m**; valor inicial de 100 m.
+- Al obtener una ubicación válida, se dibuja un círculo azul translúcido con borde alrededor de la posición del usuario.
+- El contorno geográfico se genera fuera de los Composables y se representa mediante GeoJSON en MapLibre. Es una aproximación esférica; no es un círculo de tamaño fijo en pantalla.
+- Las tarjetas muestran **Dentro del radio** o **Fuera del radio**, usando el límite inclusivo de distancia menor o igual al radio.
+- El radio señala cercanía sin ocultar lugares. El filtro por categoría, el orden y el lugar más cercano mantienen su comportamiento.
+- Cambiar el radio no solicita permisos ni consulta ubicación. La selección del radio se conserva al rotar durante la misma sesión.
+- Antes de obtener ubicación no se dibuja el círculo ni se clasifican las tarjetas. Si hay un error, se oculta el círculo y se conservan las últimas distancias de la lista.
+- La cámara conserva su comportamiento previo. Puede ser necesario alejar el mapa para ver el círculo completo, especialmente con 500 m.
+- Botones de zoom verticales **+** y **−** en el lateral derecho; atribución expandible en la esquina inferior derecha y logo abajo a la izquierda.
+- Latitud y longitud juntas en una fila centrada, con seis decimales; los cálculos usan las coordenadas completas.
+
+Archivos añadidos: `util/Radio.kt` y `ui/SelectorRadio.kt`. La clasificación y el contorno se exponen desde `MapaViewModel`; las tarjetas y el mapa solo presentan esos valores.
+
+Prueba de aceptación en el punto base de Lima, con **Todos** seleccionado:
+
+| Radio | Lugares dentro |
+| --- | --- |
+| 100 m | Biblioteca Central |
+| 200 m | Biblioteca Central, Cafetería Campus y Laboratorio de Cómputo |
+| 500 m | Los cinco lugares |
+
+Para probar la combinación, selecciona Comida: Cafetería sigue visible pero queda fuera con 100 m y dentro con 200 m. El botón del más cercano sigue apuntando a Cafetería en ambos casos.
+
+Pruebas nuevas: `RadioTest` verifica límites y datos inválidos; `RadioInstrumentedTest` verifica la clasificación, el filtro, la actualización y el tamaño del contorno con la API real de distancias de Android. Los repositorios controlados solo se usan en androidTest.
