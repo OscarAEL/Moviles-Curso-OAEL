@@ -37,6 +37,7 @@ class DistanciasInstrumentedTest {
         val estacionamiento = Posicion(-12.0440, -77.0430)
         var respuesta: Result<Posicion> = Result.success(base)
         val ubicacionRepo = object : UbicacionRepository {
+            override fun playServicesDisponible(): Boolean = true
             override suspend fun obtenerPosicion(): Result<Posicion> = respuesta
         }
         var lecturas = 0

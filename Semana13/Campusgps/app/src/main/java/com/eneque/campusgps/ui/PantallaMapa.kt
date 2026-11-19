@@ -2,6 +2,9 @@ package com.eneque.campusgps.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -90,20 +93,28 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
             ) {
                 Text("Obtener mi ubicación")
             }
-            val posicion = (estado as? UbicacionUi.Lista)?.posicion
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text("Latitud: ${posicion?.latitud ?: "—"}")
-                Text("Longitud: ${posicion?.longitud ?: "—"}")
-            }
             val error = estado as? UbicacionUi.Error
             if (error != null) {
-                Text(
-                    text = error.mensaje,
-                    color = MaterialTheme.colorScheme.error
+                MensajeError(
+                    error = error,
+                    onReintentar = { vm.buscar() },
+                    onAbrirAjustes = {
+                        contexto.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", contexto.packageName, null)
+                            }
+                        )
+                    }
                 )
+            } else {
+                val posicion = (estado as? UbicacionUi.Lista)?.posicion
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text("Latitud: ${posicion?.latitud ?: "—"}")
+                    Text("Longitud: ${posicion?.longitud ?: "—"}")
+                }
             }
 
             MapaUbicacion(
@@ -135,7 +146,6 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                     Text("Más cercano: ${cercano.lugar.nombre} (${formatearDistancia(metros)})")
                 }
             }
-            // TODO Paso 8: integrar MensajeError.
         }
     }
 }

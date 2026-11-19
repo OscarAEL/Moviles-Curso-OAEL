@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eneque.campusgps.data.LugaresRepository
 import com.eneque.campusgps.data.UbicacionRepository
+import com.eneque.campusgps.data.UbicacionNoDisponibleException
+import com.eneque.campusgps.data.PlayServicesNoDisponibleException
+import com.eneque.campusgps.model.TipoError
 import com.eneque.campusgps.model.Lugar
 import com.eneque.campusgps.model.LugarConDistancia
 import com.eneque.campusgps.model.Posicion
@@ -34,6 +37,10 @@ class MapaViewModel(
 
     fun buscar() {
         if (_estado.value == UbicacionUi.Buscando) return
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = errorDe(PlayServicesNoDisponibleException())
+            return
+        }
         _estado.value = UbicacionUi.Buscando
         viewModelScope.launch {
             ubicacionRepo.obtenerPosicion()
@@ -41,7 +48,7 @@ class MapaViewModel(
                     _estado.value = UbicacionUi.Lista(it)
                     actualizarDistancias(it)
                 }
-                .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
+                .onFailure { _estado.value = errorDe(it) }
         }
     }
 
@@ -52,7 +59,10 @@ class MapaViewModel(
     }
 
     fun permisoDenegado() {
-        _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás")
+        _estado.value = UbicacionUi.Error(
+            "Sin permiso de ubicación no puedo mostrar dónde estás",
+            TipoError.SIN_PERMISO
+        )
     }
 
     fun seleccionar(id: Int?) {
@@ -63,10 +73,22 @@ class MapaViewModel(
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    // TODO Paso 8: incorporar los tipos de error y comprobar Play Services.
-
-    private fun mensajeDe(e: Throwable): String = when (e) {
-        is SecurityException -> "Falta el permiso de ubicación"
-        else -> e.message ?: "No se pudo obtener la ubicación"
+    private fun errorDe(e: Throwable): UbicacionUi.Error = when (e) {
+        is SecurityException -> UbicacionUi.Error(
+            "Sin permiso de ubicación no puedo mostrar dónde estás",
+            TipoError.SIN_PERMISO
+        )
+        is UbicacionNoDisponibleException -> UbicacionUi.Error(
+            "Activa el GPS e intenta de nuevo",
+            TipoError.GPS_APAGADO
+        )
+        is PlayServicesNoDisponibleException -> UbicacionUi.Error(
+            "Este dispositivo no tiene Google Play Services",
+            TipoError.SIN_PLAY_SERVICES
+        )
+        else -> UbicacionUi.Error(
+            "No se pudo obtener la ubicación. Intenta de nuevo",
+            TipoError.OTRO
+        )
     }
 }
