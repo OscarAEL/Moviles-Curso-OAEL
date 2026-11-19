@@ -36,7 +36,8 @@ import com.eneque.campusgps.util.formatearDistancia
 @Composable
 fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
     val estado by vm.estado.collectAsState()
-    val lugares by vm.lugares.collectAsState()
+    val lugares by vm.lugaresFiltrados.collectAsState()
+    val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -124,12 +125,23 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 masCercano = masCercano?.id,
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
-            ListaLugares(
-                lugares = lugares,
-                seleccionado = seleccionado,
-                onClick = { vm.seleccionar(it) },
-                modifier = Modifier.fillMaxWidth().height(160.dp)
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth().height(160.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                FiltrosCategorias(
+                    categorias = vm.categorias,
+                    seleccionada = categoriaSeleccionada,
+                    onSeleccionar = { vm.filtrarPorCategoria(it) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                ListaLugares(
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    onClick = { vm.seleccionar(it) },
+                    modifier = Modifier.fillMaxWidth().weight(1f)
+                )
+            }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)

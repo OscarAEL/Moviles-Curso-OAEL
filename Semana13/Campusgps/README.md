@@ -224,10 +224,37 @@ Android puede dejar de mostrar el diálogo tras denegaciones repetidas. CampusGP
 
 ## Estado de entrega
 
-Este README corresponde a la **Fase 1, main**. La rama `mejora-ia`, sus mejoras y `PROMPTS.md` pertenecen a la Fase 2 y no se presentan aquí como realizados.
+La documentación y capturas de la Fase 1 se subieron a `main` en el commit `2589c48`. Las limitaciones visuales indicadas arriba siguen pendientes.
 
-Mensaje previsto para cerrar el Paso 9, tras revisar la documentación y evidencias:
+## Fase 2: mejoras con IA
 
-```text
-docs: agrega README con estructura y capturas
-```
+La rama de CampusGPS es **`mejora-ia-campusgps`**, creada desde `main` en `2589c48`. Se utiliza este nombre para distinguirla de la rama `mejora-ia` de otra semana del mismo repositorio.
+
+La bitácora técnica y las decisiones de implementación se encuentran en [PROMPTS.md](PROMPTS.md).
+
+| Mejora elegida de la guía | Estado |
+| --- | --- |
+| Filtro por categoría | Implementado; assembleDebug, pruebas unitarias y ocho pruebas instrumentadas correctas; revisión manual confirmada por el usuario |
+| Radio de cercanía | Pendiente |
+| Último lugar seleccionado con DataStore | Pendiente |
+
+### Filtro por categoría
+
+- Chips **Todos, Estudio, Comida, Eventos y Servicios**, con desplazamiento horizontal.
+- El ViewModel conserva los cinco lugares originales y deriva la lista visible.
+- Mapa y tarjetas usan esa misma lista filtrada; se mantiene el orden por distancia.
+- El marcador verde, el texto y el botón del más cercano consideran únicamente los lugares visibles.
+- Si el filtro oculta la tarjeta seleccionada, se limpia la selección y se cierra su ventana del mapa.
+- Cambiar de categoría no solicita permisos ni consulta ubicación.
+- Al pulsar Todos se recuperan los cinco lugares y las distancias calculadas.
+
+Archivos principales: `viewmodel/MapaViewModel.kt`, `ui/FiltrosCategorias.kt`, `ui/PantallaMapa.kt` y `ui/MapaUbicacion.kt`. Las pruebas están en `FiltrosInstrumentedTest.kt`.
+
+Para comprobarlo en el emulador:
+
+1. Antes de buscar ubicación, cambia entre categorías: Estudio muestra dos lugares y cada otra categoría muestra uno, todos con Sin calcular.
+2. Pulsa Todos y verifica que regresan los cinco.
+3. Obtén ubicación en el punto base y pulsa Comida: solo debe quedar Cafetería Campus, también como la más cercana visible.
+4. Selecciona una tarjeta y elige una categoría que la excluya: la selección y su ventana deben desaparecer.
+5. Vuelve a Todos: deben conservarse las distancias y el orden.
+6. Con una categoría activa, busca de nuevo o rota: el filtro debe conservarse.

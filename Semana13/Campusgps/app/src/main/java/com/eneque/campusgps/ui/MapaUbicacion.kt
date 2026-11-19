@@ -78,6 +78,12 @@ fun MapaUbicacion(
         }
     }
 
+    LaunchedEffect(lugares) {
+        if (lugares.none { it.lugar.id == lugarAbierto }) {
+            lugarAbierto = null
+        }
+    }
+
     MaplibreMap(
         modifier = modifier,
         state = mapa,
