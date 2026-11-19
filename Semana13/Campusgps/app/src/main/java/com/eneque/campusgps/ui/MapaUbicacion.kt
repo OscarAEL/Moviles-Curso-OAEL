@@ -35,7 +35,6 @@ import org.maplibre.spatialk.geojson.Position
 import com.eneque.campusgps.model.LugarConDistancia
 import com.eneque.campusgps.model.UbicacionUi
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun MapaUbicacion(
     estado: UbicacionUi,
@@ -62,6 +61,19 @@ fun MapaUbicacion(
     LaunchedEffect(estado) {
         if (centro != null) {
             mapa.animateCamera(CameraUpdate(center = centro, zoom = 16.0))
+        }
+    }
+
+    LaunchedEffect(seleccionado) {
+        lugarAbierto = seleccionado
+        val lugar = lugares.firstOrNull { it.lugar.id == seleccionado }?.lugar
+        if (lugar != null) {
+            mapa.animateCamera(
+                CameraUpdate(
+                    center = Position(latitude = lugar.latitud, longitude = lugar.longitud),
+                    zoom = 17.0
+                )
+            )
         }
     }
 
@@ -121,7 +133,6 @@ fun MapaUbicacion(
         }
     }
 
-    // TODO Paso 6: mover la cámara al lugar seleccionado.
     // TODO Paso 7: resaltar el lugar más cercano.
 }
 

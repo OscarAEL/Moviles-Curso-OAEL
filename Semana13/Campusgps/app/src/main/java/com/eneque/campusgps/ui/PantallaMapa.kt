@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -104,7 +105,12 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 seleccionado = seleccionado,
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
-            // TODO Paso 6: integrar ListaLugares y selección.
+            ListaLugares(
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onClick = { vm.seleccionar(it) },
+                modifier = Modifier.fillMaxWidth().height(220.dp)
+            )
             // TODO Paso 7: botón y texto del lugar más cercano.
             // TODO Paso 8: integrar MensajeError.
         }
