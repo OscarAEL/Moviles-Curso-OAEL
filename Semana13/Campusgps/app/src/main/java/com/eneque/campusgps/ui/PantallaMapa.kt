@@ -31,6 +31,8 @@ import com.eneque.campusgps.viewmodel.MapaViewModel
 @Composable
 fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -58,7 +60,7 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -96,7 +98,12 @@ fun PantallaMapa(vm: MapaViewModel, modifier: Modifier = Modifier) {
                 )
             }
 
-            // TODO Paso 3: integrar MapaUbicacion.
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
             // TODO Paso 6: integrar ListaLugares y selección.
             // TODO Paso 7: botón y texto del lugar más cercano.
             // TODO Paso 8: integrar MensajeError.

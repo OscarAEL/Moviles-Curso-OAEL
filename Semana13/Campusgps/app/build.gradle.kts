@@ -37,6 +37,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.maplibre.compose)
+    runtimeOnly(libs.maplibre.runtime.vulkan)
     implementation(libs.google.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
