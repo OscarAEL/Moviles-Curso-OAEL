@@ -236,7 +236,7 @@ La bitácora técnica y las decisiones de implementación se encuentran en [PROM
 | --- | --- |
 | Filtro por categoría | Implementado; assembleDebug, pruebas unitarias y ocho pruebas instrumentadas correctas; revisión manual confirmada por el usuario |
 | Radio de cercanía | Implementado; assembleDebug, pruebas unitarias y once pruebas instrumentadas correctas; círculo y clasificación comprobados en API 31 Play; revisión manual confirmada por el usuario |
-| Último lugar seleccionado con DataStore | Pendiente |
+| Último lugar seleccionado con DataStore | Implementado; assembleDebug, pruebas unitarias y dieciséis pruebas instrumentadas correctas; restauración verificada tras force-stop en API 31 Play; revisión manual confirmada por el usuario |
 
 ### Filtro por categoría
 
@@ -285,3 +285,27 @@ Prueba de aceptación en el punto base de Lima, con **Todos** seleccionado:
 Para probar la combinación, selecciona Comida: Cafetería sigue visible pero queda fuera con 100 m y dentro con 200 m. El botón del más cercano sigue apuntando a Cafetería en ambos casos.
 
 Pruebas nuevas: `RadioTest` verifica límites y datos inválidos; `RadioInstrumentedTest` verifica la clasificación, el filtro, la actualización y el tamaño del contorno con la API real de distancias de Android. Los repositorios controlados solo se usan en androidTest.
+
+### Último lugar seleccionado con DataStore
+
+- Preferences DataStore **1.3.0**, encapsulado en `SeleccionRepositoryDataStore` detrás de `SeleccionRepository`.
+- Al tocar una tarjeta o **Ir al más cercano**, se guarda el id estable del lugar.
+- Al cerrar y reabrir la app, se recuperan su selección, ventana y cámara a zoom 17. No se solicita permiso ni se consulta ubicación por restaurar.
+- Solo se guarda el id: coordenadas del usuario, distancias, categoría y radio no se persisten.
+- Antes de buscar, las distancias siguen en **Sin calcular** y las coordenadas vacías. El marcador rojo y el círculo necesitan una ubicación válida.
+- Cambiar de categoría limpia una selección oculta, sin borrar la última elección guardada. La siguiente apertura empieza con **Todos** y radio **100 m**.
+- Los ids desconocidos se ignoran y una selección nueva tiene prioridad sobre una lectura inicial tardía.
+- Abrir la ventana de un marcador conserva su comportamiento previo; para guardar una elección se usa la tarjeta o el botón del más cercano.
+- El repositorio usa el contexto de aplicación; el ViewModel depende de la interfaz y los Composables no acceden a DataStore.
+
+Archivos principales: `data/SeleccionRepository.kt`, `data/SeleccionRepositoryDataStore.kt`, `viewmodel/MapaViewModel.kt`, `viewmodel/CampusViewModelFactory.kt` y `MainActivity.kt`.
+
+Para probarlo:
+
+1. Selecciona una tarjeta, por ejemplo **Cafetería Campus**, y espera a que aparezca su ventana.
+2. Cierra la app con **Forzar detención** y vuelve a abrirla sin borrar datos ni desinstalarla.
+3. Comprueba que se recuperan Cafetería, su ventana y su selección, sin pedir permiso ni buscar ubicación automáticamente.
+4. Elige otra tarjeta y repite: debe recuperarse la última elegida.
+5. Oculta la selección con otra categoría y vuelve a abrir: debe recuperarse la última elección con Todos activo.
+
+`SeleccionInstrumentedTest` verifica el archivo real tras recrear el almacén y el ViewModel, datos ausentes o ids inválidos, lectura tardía, escrituras ordenadas y convivencia con categorías. Los archivos temporales de prueba se crean en el caché privado con nombres únicos y no modifican el DataStore de producción.

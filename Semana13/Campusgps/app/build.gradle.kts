@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.google.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.datastore.preferences)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

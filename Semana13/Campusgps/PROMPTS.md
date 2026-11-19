@@ -61,6 +61,31 @@ Los prompts de referencia están redactados a partir de los requisitos técnicos
 - Ajuste visual posterior: assembleDebug correcto; en API 31 Play se verificaron coordenadas completas en una sola fila, mayor altura del mapa, zoom en el lateral superior derecho y apertura/cierre de la atribución en la esquina inferior derecha. La pantalla conserva círculo, marcador rojo y distancias.
 - Revisión manual del usuario: confirmada tras ejecutar la app y revisar la disposición final de las coordenadas, el zoom vertical y la atribución.
 
-## Mejora siguiente acordada
+## Mejora 3: último lugar seleccionado con DataStore
 
-Persistencia del último lugar seleccionado mediante DataStore y un Repository. Todavía no está implementada; se añadirá su registro técnico al desarrollarla.
+| Prompt técnico de referencia | Resumen de la respuesta de la IA | Qué se implementó, adaptó o descartó | Por qué |
+| --- | --- | --- | --- |
+| Guarda el último lugar seleccionado de CampusGPS mediante Preferences DataStore y un Repository. Restaura su selección al abrir la app, mantén el ViewModel sin Context y conserva filtros, radio, permisos y proveedor del mapa. | Persistir únicamente el id estable, inyectar el repositorio desde la factory y leerlo de forma asíncrona al crear el ViewModel. Validar el id contra los lugares disponibles antes de restaurarlo. | Se añadieron SeleccionRepository y SeleccionRepositoryDataStore. MainActivity inyecta la implementación con applicationContext y la factory la entrega al ViewModel. Las tarjetas y el botón del más cercano guardan la selección mediante seleccionar. La restauración reutiliza el resaltado y la cámara existentes. | No duplica los datos del campus ni persiste coordenadas personales. Mantiene el acceso a disco fuera de Composables y separa almacenamiento de estado de pantalla. |
+| Evita que la lectura inicial sobrescriba una selección reciente y verifica que los cambios rápidos se guarden en orden. ¿Qué debe ocurrir si una categoría oculta el lugar guardado? | Leer una vez, dar prioridad a la interacción nueva y serializar las escrituras. El filtro limpia la selección visible sin borrar el último lugar elegido explícitamente. | Se usa un indicador de selección manual y una cola con un único escritor. Se rechazan ids inexistentes u ocultos por la categoría. El id recuperado solo se aplica si sigue siendo válido y visible. Se añadieron pruebas de lectura tardía, orden de escrituras y recreación real del almacén. | Evita recuperar datos obsoletos sobre una elección nueva, respeta las categorías y comprueba persistencia en disco en lugar de confiar solamente en un repositorio de memoria. |
+
+### Decisiones de implementación
+
+- Preferences DataStore 1.3.0, declarada en el catálogo de versiones; una única instancia por archivo y proceso mediante el delegado preferencesDataStore.
+- Archivo privado seleccion_campus.preferences_pb; solo contiene ultimo_lugar_id. No almacena permisos, ubicación del usuario, distancias, categoría ni radio.
+- Se guarda al seleccionar una tarjeta o pulsar Ir al más cercano. Abrir una ventana tocando un marcador mantiene su comportamiento previo y no cambia la selección de la tarjeta.
+- Al reabrir se recuperan el id y la selección, con la ventana y cámara existentes a zoom 17. No se solicita permiso ni se consulta el GPS por restaurar.
+- Si todavía no hubo una búsqueda, las coordenadas siguen vacías y las distancias muestran Sin calcular. No aparece un círculo de radio ni marcador rojo sin ubicación válida.
+- Cambiar de categoría puede ocultar la selección, pero no borra la última elección guardada. Una nueva sesión empieza con Todos, radio 100 m y el último lugar seleccionado.
+- La selección manual tiene prioridad sobre la lectura inicial; las escrituras se procesan en el orden de las pulsaciones.
+- El parámetro opcional del ViewModel conserva el contrato de las pruebas anteriores, que no necesitan almacenamiento. La factory de producción exige e inyecta el repositorio de selección.
+- Si hay un fallo de E/S, el repositorio registra un diagnóstico y mantiene la app operativa; una escritura fallida puede no persistir. Un archivo corrupto se reinicia con preferencias vacías.
+- Referencias: [guía oficial de DataStore](https://developer.android.com/topic/libraries/architecture/datastore) y [versiones de AndroidX DataStore](https://developer.android.com/jetpack/androidx/releases/datastore).
+
+### Validación
+
+- `:app:assembleDebug`, `:app:testDebugUnitTest` y `:app:assembleDebugAndroidTest`: correctos. Sincronización de Gradle correcta.
+- Dieciséis pruebas instrumentadas en Small Phone API 31 Play: correctas, sin fallos ni ignoradas (cinco de persistencia y once de radio, filtros, distancias y errores).
+- Se comprobó persistencia en un archivo real al cerrar el primer almacén y crear una segunda instancia y un nuevo ViewModel sobre el mismo archivo.
+- Prueba visual real: se eligió Cafetería desde su tarjeta, se ejecutó force-stop y se abrió de nuevo la actividad (arranque COLD). Se restauraron cámara, ventana y tarjeta resaltada con Todos activo y radio 100 m; sin diálogo de permisos, coordenadas vacías y Sin calcular.
+- La tarjeta restaurada puede quedar más abajo en la lista: se desplazó para comprobar su resaltado. Se conserva la limitación previa de ventanas que pueden sobresalir del mapa; no se presenta como corregida en esta mejora.
+- Revisión manual del usuario: confirmada; comprobó que el lugar seleccionado se conserva al reabrir la app.

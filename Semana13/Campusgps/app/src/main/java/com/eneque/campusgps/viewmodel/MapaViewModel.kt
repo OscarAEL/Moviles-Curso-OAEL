@@ -3,6 +3,9 @@ package com.eneque.campusgps.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eneque.campusgps.data.LugaresRepository
+import com.eneque.campusgps.data.SeleccionRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import com.eneque.campusgps.data.UbicacionRepository
 import com.eneque.campusgps.data.UbicacionNoDisponibleException
 import com.eneque.campusgps.data.PlayServicesNoDisponibleException
@@ -25,7 +28,8 @@ import kotlinx.coroutines.launch
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
-    private val lugaresRepo: LugaresRepository
+    private val lugaresRepo: LugaresRepository,
+    private val seleccionRepo: SeleccionRepository? = null
 ) : ViewModel() {
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
@@ -68,6 +72,27 @@ class MapaViewModel(
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
+    private var huboSeleccionManual = false
+    private val seleccionesPendientes = Channel<Int>(Channel.UNLIMITED)
+
+    init {
+        seleccionRepo?.let { repositorio ->
+            viewModelScope.launch {
+                val guardado = repositorio.ultimoLugarId.first()
+                val lugar = _lugares.value.firstOrNull { it.lugar.id == guardado }?.lugar
+                val categoria = _categoriaSeleccionada.value
+                if (!huboSeleccionManual && lugar != null &&
+                    (categoria == null || lugar.categoria == categoria)
+                ) {
+                    _seleccionado.value = lugar.id
+                }
+            }
+            // Un único escritor conserva el orden incluso ante pulsaciones rápidas.
+            viewModelScope.launch {
+                for (id in seleccionesPendientes) repositorio.guardarLugar(id)
+            }
+        }
+    }
 
     fun buscar() {
         if (_estado.value == UbicacionUi.Buscando) return
@@ -100,7 +125,14 @@ class MapaViewModel(
     }
 
     fun seleccionar(id: Int?) {
+        if (id != null) {
+            val lugar = _lugares.value.firstOrNull { it.lugar.id == id }?.lugar ?: return
+            val categoria = _categoriaSeleccionada.value
+            if (categoria != null && lugar.categoria != categoria) return
+        }
+        huboSeleccionManual = true
         _seleccionado.value = id
+        if (id != null && seleccionRepo != null) seleccionesPendientes.trySend(id)
     }
 
     fun filtrarPorCategoria(categoria: String?) {
