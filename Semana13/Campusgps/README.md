@@ -347,3 +347,20 @@ Para probarlo:
 Validación: **assembleDebug correcto** y comprobación visual en API 31 Play del recorte, desplazamiento, toque de la ventana y cierre al tocar el fondo. Se repitieron selección y deselección de Biblioteca desde el marcador y el fondo: el nombre y el resaltado de la tarjeta se sincronizan en cada ciclo. Revisión manual confirmada por el usuario.
 
 Archivos de UI modificados: `ui/MapaUbicacion.kt` y `ui/PantallaMapa.kt`.
+
+## Rediseño B: panel con radio visible
+
+Implementación en la rama `mejora-ia-campusgps`, con revisión visual aprobada por el usuario. Parte de la propuesta de Claude compartida por el usuario; Codex realizó la adaptación a Compose y su verificación.
+
+- Paleta crema y teal; amarillo reservado a **Ir al más cercano**. Marcadores azules, usuario rojo y lugar más cercano verde.
+- DM Sans para títulos y texto; DM Mono para coordenadas, radios y distancias. Fuentes empaquetadas para funcionar sin descargarlas al iniciar; licencias OFL en `app/src/main/assets/licenses`.
+- Radio visible con segmentos de 100, 200 y 500 m; categorías desplazables.
+- Tarjetas con icono de categoría, distancia y estado Dentro/Fuera. Selección con fondo, borde y franja teal; anillo en el marcador. Estar dentro del radio no equivale a estar seleccionado.
+- Barra inferior propia con resumen y botón; queda fuera del área desplazable y no cubre las tarjetas.
+- En vertical se desplaza el contenido completo para poder alcanzar todos los lugares, incluso con errores o texto grande. El mapa adapta su altura entre 168 y 240 dp: se prioriza el acceso al contenido frente a imponer los 190 dp del prototipo en toda ventana.
+- En horizontal ancho, mapa a la izquierda y panel desplazable a la derecha. Se conserva la cámara mediante estado guardable al girar o al sacar el mapa del área visible.
+- Ventana del lugar contenida en el mapa, con posición ajustada a los bordes y reserva para el zoom y la atribución. Tocar el fondo limpia ventana y tarjeta.
+- Franja de atribución permanente, botón de información con enlaces del proveedor y logo MapLibre.
+- Permisos, ubicación, cálculos, filtros y persistencia conservan los repositorios y el ViewModel existentes.
+
+Las capturas y limitaciones anteriores corresponden al diseño previo. La validación del rediseño se documenta en [VALIDACION_REDISENO.md](docs/VALIDACION_REDISENO.md): assembleDebug, pruebas unitarias e instrumentadas y comparación de 17 capturas correctas. Las capturas automáticas usan un área de mapa de prueba y no certifican el renderer nativo ni la red; el mapa real se comprobó en API 31 Play.

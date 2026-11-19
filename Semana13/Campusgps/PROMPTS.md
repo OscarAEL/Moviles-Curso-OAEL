@@ -4,7 +4,7 @@ Proyecto: Semana13/Campusgps
 
 Rama: `mejora-ia-campusgps`
 
-Herramienta utilizada: Codex
+Herramientas utilizadas: Codex para implementación y pruebas; Claude para la propuesta visual externa compartida por el usuario.
 
 Los prompts de referencia están redactados a partir de los requisitos técnicos de cada mejora. Son formulaciones normalizadas, no transcripciones literales. Las respuestas, decisiones y resultados describen el trabajo realizado.
 
@@ -113,3 +113,26 @@ Los prompts de referencia están redactados a partir de los requisitos técnicos
 - Se verificó que tocar la ventana mantiene el nombre y la tarjeta resaltada; tocar el fondo cierra el nombre y retira el resaltado.
 - Tras unificar la selección, assembleDebug volvió a pasar. En API 31 Play se verificó Biblioteca: deselección desde el fondo, selección desde el marcador con nombre y tarjeta azul, deselección tocando el mismo marcador y nueva selección con nombre y tarjeta azul. El resaltado se recupera en cada ciclo.
 - Revisión manual del usuario: confirmada; aprobó el recorte, el cierre al tocar el fondo y el resaltado al volver a seleccionar.
+
+## Rediseño visual B
+
+La propuesta visual fue elaborada en Claude y compartida por el usuario como imágenes y especificación. Codex no accedió a esa conversación externa: implementó la referencia recibida. Esta entrada resume requisitos técnicos, no reproduce mensajes personales.
+
+| Prompt técnico de referencia | Decisión e implementación |
+| --- | --- |
+| Rediseña CampusGPS con la propuesta B: paleta teal y crema, DM Sans y DM Mono, radio visible, categorías con iconos, tarjetas con distancia y barra independiente para el lugar más cercano. Conserva MVVM, los permisos, MapLibre/OpenFreeMap, la ubicación real y DataStore. | Se separó ContenidoCampus, sin dependencias de plataforma, de PantallaMapa, que conserva la conexión con el ViewModel y los permisos. Tema, tipografía y componentes comparten colores y tamaños. Las fuentes y sus licencias se empaquetan en la app. |
+| Adapta la propuesta a vertical, horizontal y texto grande; evita que el botón cubra tarjetas o que desaparezca el acceso al contenido. Mantén visible la atribución y la ventana del marcador dentro del mapa. | En vertical se usa un único panel desplazable y barra inferior fuera de la lista; en horizontal ancho, mapa a la izquierda y panel a la derecha. El mapa vertical adapta su altura entre 168 y 240 dp. El popup se posiciona según la proyección del marcador, con recorte y reserva para zoom y atribución. |
+| Conserva selección, filtros, radio, coordenadas y posición de cámara al girar. Diferencia selección de pertenencia al radio. | El ViewModel mantiene su estado; la cámara y sus últimas acciones se guardan con rememberSaveable y un Saver. La selección usa fondo, borde, franja y anillo teal; pertenecer al radio solo modifica el indicador. |
+
+### Adaptaciones del prototipo
+
+- Se conserva el texto de Obtener mi ubicación, junto al icono, y objetivos táctiles de al menos 48 dp.
+- El encabezado y el pie usan dos filas cuando el ancho o el tamaño de texto lo necesitan.
+- Se descartó imponer 190 dp de mapa en cualquier ventana: todo el contenido debe seguir siendo alcanzable en pantallas bajas.
+- Los cinco nombres y categorías proceden del repositorio existente.
+- Los colores de los marcadores mantienen su significado: azul campus, rojo usuario y verde más cercano.
+- Se conserva la acción Abrir ajustes ya implementada; no se añade una nueva política de permisos ni una búsqueda automática.
+- Las capturas de presentación usan un área de mapa de prueba, sin red ni coordenadas simuladas en el flujo de producción. El mapa nativo se comprueba por separado en API 31 Play.
+- Validación: assembleDebug, pruebas unitarias e instrumentadas y comparación de 17 capturas correctas. El mapa real cargó en API 31 Play y se obtuvieron coordenadas de Lima con Biblioteca a 88 m. Se revisaron horizontal y texto al 130 %.
+- Ajuste tras girar: si no cabe la ventana con margen ni arriba ni abajo, se elige el lado con más espacio para evitar tapar el marcador en el mapa vertical de poca altura.
+- Revisión visual final aprobada por el usuario y cierre autorizado en la rama `mejora-ia-campusgps`. Detalles en [VALIDACION_REDISENO.md](docs/VALIDACION_REDISENO.md).

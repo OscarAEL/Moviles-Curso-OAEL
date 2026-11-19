@@ -1,21 +1,25 @@
 package com.eneque.campusgps.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.eneque.campusgps.ui.theme.CampusMono
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectorRadio(
     radios: List<Int>,
@@ -23,27 +27,29 @@ fun SelectorRadio(
     onSeleccionar: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var abierto by remember { mutableStateOf(false) }
-    Box(modifier) {
-        TextButton(
-            onClick = { abierto = true },
-            modifier = Modifier.semantics {
-                contentDescription = "Radio de cercanía: $seleccionado metros"
-            }
-        ) {
-            Text("Radio: $seleccionado m", color = MaterialTheme.colorScheme.onPrimary)
-        }
-        DropdownMenu(expanded = abierto, onDismissRequest = { abierto = false }) {
-            radios.forEach { radio ->
-                DropdownMenuItem(
-                    text = { Text("$radio m") },
-                    trailingIcon = { if (radio == seleccionado) Text("✓") },
-                    modifier = Modifier.semantics { selected = radio == seleccionado },
-                    onClick = {
-                        onSeleccionar(radio)
-                        abierto = false
-                    }
-                )
+    Row(modifier, verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Radio", style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        SingleChoiceSegmentedButtonRow(Modifier.weight(1f).fillMaxWidth()) {
+            radios.forEachIndexed { index, radio ->
+                SegmentedButton(
+                    selected = seleccionado == radio,
+                    onClick = { onSeleccionar(radio) },
+                    shape = SegmentedButtonDefaults.itemShape(index, radios.size,
+                        baseShape = RoundedCornerShape(14.dp)),
+                    border = BorderStroke(0.dp, Color.Transparent),
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.primary,
+                        activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                        inactiveContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        inactiveContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    modifier = Modifier.heightIn(min = 48.dp)
+                ) {
+                    Text("$radio m", fontFamily = CampusMono,
+                        style = MaterialTheme.typography.labelMedium)
+                }
             }
         }
     }
