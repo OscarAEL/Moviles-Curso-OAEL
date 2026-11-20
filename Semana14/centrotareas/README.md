@@ -97,9 +97,9 @@ flowchart TD
 - **Estado de pantalla:** el contador y el texto del campo usan rememberSaveable;
   el trabajo y sus resultados viven en el ViewModel y sobreviven a la rotación.
 
-En los pasos 2 a 4, la tarea con progreso permanece simulada en el ViewModel,
-tal como pide el laboratorio. Moverla al Repository con Flow es una de las
-mejoras posibles para la fase 2.
+En la fase 1 (pasos 2 a 4), la tarea con progreso se simulaba en el ViewModel.
+En esta rama de fase 2 se trasladó al Repository y se expone como Flow<Float>.
+El ViewModel recoge el flujo y mantiene los estados y el Job de cancelación.
 
 ## Observación del Paso 1
 
@@ -122,8 +122,9 @@ La versión bloqueante queda conservada en el commit `8b69163`.
 
 ## Corrutinas, progreso y cancelación
 
-La tarea usa viewModelScope.launch, con 100 iteraciones de delay(40) dentro de
-withContext(Dispatchers.Default). Publica progreso entre 0f y 1f.
+La tarea usa viewModelScope.launch para recoger el Flow<Float> del Repository.
+El Repository ejecuta 100 iteraciones de delay(40), emite el avance de 0f a 1f
+con flow { emit(...) } y usa flowOn(Dispatchers.Default).
 Un Job permite cancelarla, y finally siempre restablece corriendo a false.
 Al cancelar, conserva el porcentaje y muestra Cancelado. Un nuevo inicio
 reinicia la barra. Iniciar se deshabilita mientras trabaja.
@@ -214,7 +215,7 @@ HILO: Despues: main
 El estudiante revisó el README, probó el límite calibrado y confirmó el cierre
 de la fase 1 antes de autorizar sus commits y push.
 
-## Capturas
+## Capturas de la fase 1
 
 Capturas reales del emulador, tomadas durante las pruebas. Los campos muestran
 los valores usados en cada caso.
@@ -299,12 +300,41 @@ capturas, en un commit de documentación separado de la calibración.
 
 ## Fase 2
 
-La rama para esta fase será `mejora-ia-centrotareas`, creada desde el cierre
-de la fase 1 en main. Se implementarán al menos tres mejoras funcionales
-del laboratorio.
-Al menos una debe modificar Repository o ViewModel, y deben existir al menos
-tres commits de mejora.
+La rama activa es `mejora-ia-centrotareas`, creada desde el cierre de la fase 1
+en main (9170b5a). El plan inicial incluye tres mejoras funcionales, además
+del rediseño que se trabajará con prototipos de Claude.
 
-Además se realizará un rediseño a partir de prototipos de Claude.
-Los prompts importantes, las respuestas y las decisiones técnicas
-se registrarán en `PROMPTS.md` durante esa fase.
+| Mejora | Capas | Estado |
+| --- | --- | --- |
+| Progreso de la tarea desde el Repository con Flow | Repository y ViewModel | Implementada, pendiente de revisión del estudiante y commit. |
+| Progreso del cálculo de primos | Repository, ViewModel y View | Pendiente. |
+| Tabla que acumula tiempos secuenciales y paralelos | ViewModel y View | Pendiente. |
+
+### Mejora 1: progreso desde el Repository
+
+`TareasRepository.progresoTarea()` devuelve un Flow<Float> frío: cada
+recolección ejecuta una tarea nueva desde 0 %. La implementación local emite
+el progreso con flow y ejecuta el productor en Dispatchers.Default mediante
+flowOn. No expone estados de pantalla ni depende de Composables.
+
+El ViewModel recoge ese flujo dentro de viewModelScope, actualiza su StateFlow
+y conserva su Job, la protección contra doble inicio y el bloque finally.
+Al cancelar el Job se cancela también la recolección y el productor del flujo;
+no queda una tarea independiente en el Repository.
+La pantalla conserva sus controles y recoge el estado del ViewModel.
+
+Logcat mantiene la etiqueta HILO: Antes y Despues se registran en el ViewModel
+sobre main; Dentro se registra desde el productor del Repository en un worker.
+
+Pruebas para revisar esta mejora:
+
+1. Iniciar y comprobar avance de 0 a 100 % en unos cuatro segundos.
+2. Pulsar Tócame durante el avance: debe sumar.
+3. Cancelar a mitad y comprobar que la barra permanece detenida.
+4. Reiniciar: debe empezar desde cero y terminar normalmente.
+5. Girar el dispositivo durante la tarea: debe continuar.
+6. Filtrar Logcat por HILO y comprobar los hilos indicados.
+
+Cada mejora tendrá su propio commit después de las pruebas y la confirmación
+del estudiante. Los prompts, respuestas y decisiones se registran en
+[PROMPTS.md](PROMPTS.md). El rediseño con Claude sigue pendiente.
