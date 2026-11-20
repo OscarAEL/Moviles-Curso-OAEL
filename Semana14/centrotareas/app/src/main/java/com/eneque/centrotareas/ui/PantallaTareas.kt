@@ -86,7 +86,7 @@ private fun ContenidoTareas(
     onCambiarSimularError: (Boolean) -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
-    var hasta by rememberSaveable { mutableStateOf("500000") }
+    var hasta by rememberSaveable { mutableStateOf("1250000") }
     val limite = hasta.toIntOrNull()?.takeIf { it >= 2 }
     val calculandoPrimos = primos is PrimosUi.Calculando
     val cargando = carga is CargaUi.Cargando
