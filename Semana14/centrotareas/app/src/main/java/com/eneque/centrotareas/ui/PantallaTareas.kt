@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.eneque.centrotareas.model.CargaUi
 import com.eneque.centrotareas.model.PrimosUi
 import com.eneque.centrotareas.ui.theme.CentroTareasTheme
 import com.eneque.centrotareas.viewmodel.TareasViewModel
@@ -44,6 +45,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val carga by viewModel.carga.collectAsState()
     ContenidoTareas(
         mensaje = mensaje,
         progreso = progreso,
@@ -52,7 +54,10 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         onCancelar = viewModel::cancelar,
         primos = primos,
         onContar = viewModel::contar,
-        onCancelarPrimos = viewModel::cancelarPrimos
+        onCancelarPrimos = viewModel::cancelarPrimos,
+        carga = carga,
+        onCargarUnaPorUna = viewModel::cargarUnaPorUna,
+        onCargarALaVez = viewModel::cargarALaVez
     )
 }
 
@@ -66,12 +71,16 @@ private fun ContenidoTareas(
     onCancelar: () -> Unit,
     primos: PrimosUi,
     onContar: (Int) -> Unit,
-    onCancelarPrimos: () -> Unit
+    onCancelarPrimos: () -> Unit,
+    carga: CargaUi,
+    onCargarUnaPorUna: () -> Unit,
+    onCargarALaVez: () -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
     val limite = hasta.toIntOrNull()?.takeIf { it >= 2 }
     val calculandoPrimos = primos is PrimosUi.Calculando
+    val cargando = carga is CargaUi.Cargando
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -169,12 +178,35 @@ private fun ContenidoTareas(
             item {
                 TarjetaTarea(titulo = "Dos cargas") {
                     Text("Perfil y pedidos ficticios")
-                    // TODO Pasos 6 y 7: conectar cargas, error simulado y reintento.
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = {}, enabled = false) { Text("Una por una") }
-                        Button(onClick = {}, enabled = false) { Text("A la vez") }
+                        OutlinedButton(onClick = onCargarUnaPorUna, enabled = !cargando) {
+                            Text("Una por una")
+                        }
+                        Button(onClick = onCargarALaVez, enabled = !cargando) {
+                            Text("A la vez")
+                        }
                     }
-                    Text("Sin cargas")
+                    when (carga) {
+                        CargaUi.Inicial -> Text("Sin cargas")
+                        CargaUi.Cargando -> {
+                            CircularProgressIndicator()
+                            Text("Cargando...")
+                        }
+                        is CargaUi.Exito -> Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium,
+                            color = Color(0xFFD8F3DC),
+                            contentColor = Color(0xFF174B26)
+                        ) {
+                            Text(
+                                text = "Modo: ${carga.modo}\nPerfil: ${carga.perfil}\n" +
+                                    "Pedidos: ${carga.pedidos}\nTiempo: ${carga.milisegundos} ms",
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        is CargaUi.Error -> Text(carga.mensaje)
+                    }
+                    // TODO Paso 7: agregar error simulado y reintento.
                 }
             }
         }
@@ -213,7 +245,10 @@ private fun PantallaTareasPreview() {
             onCancelar = {},
             primos = PrimosUi.Inicial,
             onContar = {},
-            onCancelarPrimos = {}
+            onCancelarPrimos = {},
+            carga = CargaUi.Inicial,
+            onCargarUnaPorUna = {},
+            onCargarALaVez = {}
         )
     }
 }

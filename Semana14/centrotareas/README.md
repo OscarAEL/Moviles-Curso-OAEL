@@ -14,9 +14,11 @@ La IA está autorizada por el docente en ambas fases.
 - Paso 3: barra y porcentaje de progreso con StateFlow.
 - Paso 4: cancelación con Job y protección contra doble inicio.
 - Paso 5: cálculo de primos en segundo plano, tiempo y cancelación.
-- Pasos 6 a 8: pendientes.
+- Paso 6: comparación de cargas secuenciales y en paralelo con async.
+- Pasos 7 y 8: pendientes.
 
-Los botones de cargas permanecen deshabilitados hasta implementar el paso 6.
+Las tres tarjetas ya tienen su lógica principal. El error simulado y el reintento
+se incorporarán en el paso 7.
 
 ## Ejecutar
 
@@ -144,6 +146,31 @@ que 2; también mientras hay un cálculo. Cancelar solo se habilita al calcular.
 Se mantiene N = 500000 como valor inicial: en Small Phone API 31 PLAY se
 obtuvieron 41538 primos en 2153 ms en la medición inicial. El tiempo varía
 según el dispositivo y su carga.
+
+## Paso 6: cargas una por una y en paralelo
+
+**Una por una** carga el perfil (2 s) y luego los pedidos (3 s), por lo que tarda
+aproximadamente 5 s. **A la vez** lanza ambas llamadas con `async` dentro de
+`coroutineScope` y espera los resultados con `await()`: tarda aproximadamente
+3 s, el tiempo de la carga más lenta.
+
+El ViewModel publica Cargando antes de iniciar y rechaza otra carga mientras
+está en ese estado. Los dos botones se deshabilitan durante la espera y se
+muestra un indicador circular. Al finalizar, un recuadro verde muestra el modo,
+Ana Torres (ficticia), 3 pedidos y el tiempo medido en milisegundos.
+
+Las llamadas suspend del Repository usan delay, así que no necesitan bloquear
+el hilo principal ni simular red real.
+
+### Prueba manual del Paso 6
+
+1. Pulsar Una por una: comprobar el indicador y los botones deshabilitados.
+2. Al finalizar, comprobar perfil, 3 pedidos y un tiempo próximo a 5000 ms.
+3. Pulsar A la vez: comprobar los mismos datos y un tiempo próximo a 3000 ms.
+4. Intentar pulsar de nuevo mientras carga: no debe iniciar otra carga.
+5. Durante ambas cargas, comprobar que se puede desplazar la pantalla y que
+   Tócame sigue sumando.
+6. Girar la pantalla durante una carga: debe continuar sin reiniciarse.
 
 La estructura de paquetes, el diagrama MVVM, las capturas y las respuestas finales
 se completarán en el paso 8.
