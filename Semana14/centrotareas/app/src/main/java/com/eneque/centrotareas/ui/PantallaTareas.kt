@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -36,12 +37,21 @@ import com.eneque.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
-    ContenidoTareas(mensaje = mensaje, onTareaLarga = viewModel::tareaLarga)
+    val progreso by viewModel.progreso.collectAsState()
+    ContenidoTareas(
+        mensaje = mensaje,
+        progreso = progreso,
+        onTareaLarga = viewModel::tareaLarga
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ContenidoTareas(mensaje: String, onTareaLarga: () -> Unit) {
+private fun ContenidoTareas(
+    mensaje: String,
+    progreso: Float,
+    onTareaLarga: () -> Unit
+) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
 
@@ -77,10 +87,15 @@ private fun ContenidoTareas(mensaje: String, onTareaLarga: () -> Unit) {
             item {
                 TarjetaTarea(titulo = "Tarea con progreso") {
                     Text(mensaje)
+                    LinearProgressIndicator(
+                        progress = { progreso },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text("${(progreso * 100).toInt()} %")
                     Button(onClick = onTareaLarga) {
-                        Text("Tarea larga")
+                        Text("Iniciar")
                     }
-                    // TODO Pasos 3 y 4: agregar progreso y cancelación.
+                    // TODO Paso 4: agregar control de doble inicio y cancelación.
                 }
             }
             item {
@@ -140,6 +155,6 @@ private fun TarjetaTarea(
 @Composable
 private fun PantallaTareasPreview() {
     CentroTareasTheme {
-        ContenidoTareas(mensaje = "Listo", onTareaLarga = {})
+        ContenidoTareas(mensaje = "Listo", progreso = 0f, onTareaLarga = {})
     }
 }

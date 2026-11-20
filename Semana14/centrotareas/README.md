@@ -11,7 +11,8 @@ La IA está autorizada por el docente en ambas fases.
 - Paso 0: proyecto base compilado y probado.
 - Paso 1: demostración del bloqueo del hilo principal.
 - Paso 2: tarea con corrutinas y registros del hilo en Logcat.
-- Pasos 3 a 8: pendientes.
+- Paso 3: barra y porcentaje de progreso con StateFlow.
+- Pasos 4 a 8: pendientes.
 
 Los botones de primos y cargas permanecen deshabilitados hasta implementar sus pasos.
 
@@ -66,6 +67,25 @@ laboratorio; una espera simulada con delay por sí sola no requiere ese dispatch
 3. Al cabo de unos cuatro segundos debe aparecer Terminó.
 4. Filtrar Logcat por HILO: debe mostrar Antes: main, Dentro:
    DefaultDispatcher-worker-... y Despues: main.
+
+## Paso 3: progreso con StateFlow
+
+El ViewModel expone `progreso: StateFlow<Float>` de solo lectura. Al iniciar,
+reinicia el progreso a 0 y muestra `Trabajando...`. Dentro de
+`withContext(Dispatchers.Default)`, realiza 100 iteraciones con `delay(40)`
+y publica `i / 100f` en cada una. Al finalizar muestra `Terminó`.
+
+La pantalla recoge el estado y lo muestra con `LinearProgressIndicator` y el
+porcentaje debajo. El botón ahora se llama **Iniciar**.
+
+### Prueba manual del Paso 3
+
+1. Pulsar Iniciar: la barra debe comenzar en 0 %.
+2. Comprobar que avanza hasta 100 % en aproximadamente cuatro segundos.
+3. Pulsar Tócame durante el avance: el contador debe seguir sumando.
+4. Al terminar, comprobar que aparece Terminó y 100 %.
+5. Pulsar Iniciar otra vez: la barra debe empezar de cero.
+6. Girar el dispositivo durante la tarea: el progreso debe continuar.
 
 El control de doble inicio y la cancelación se incorporarán en el paso 4.
 
