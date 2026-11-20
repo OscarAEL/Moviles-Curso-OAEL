@@ -92,42 +92,56 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
-    fun cargarUnaPorUna() {
-        if (_carga.value is CargaUi.Cargando) return
+    private val _simularError = MutableStateFlow(false)
+    val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
-        _carga.value = CargaUi.Cargando
-        viewModelScope.launch {
-            val inicio = System.currentTimeMillis()
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
+    }
+
+    fun cargarUnaPorUna() {
+        cargar("Una por una") { provocarError ->
             val perfil = repo.cargarPerfil()
-            val pedidos = repo.cargarPedidos(false)
-            _carga.value = CargaUi.Exito(
-                modo = "Una por una",
-                perfil = perfil,
-                pedidos = pedidos.size,
-                milisegundos = System.currentTimeMillis() - inicio
-            )
+            val pedidos = repo.cargarPedidos(provocarError)
+            Pair(perfil, pedidos)
         }
     }
 
     fun cargarALaVez() {
-        if (_carga.value is CargaUi.Cargando) return
-
-        _carga.value = CargaUi.Cargando
-        viewModelScope.launch {
-            val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = coroutineScope {
+        cargar("A la vez") { provocarError ->
+            coroutineScope {
                 val perfilPendiente = async { repo.cargarPerfil() }
-                val pedidosPendientes = async { repo.cargarPedidos(false) }
+                val pedidosPendientes = async { repo.cargarPedidos(provocarError) }
                 Pair(perfilPendiente.await(), pedidosPendientes.await())
             }
-            _carga.value = CargaUi.Exito(
-                modo = "A la vez",
-                perfil = perfil,
-                pedidos = pedidos.size,
-                milisegundos = System.currentTimeMillis() - inicio
-            )
         }
     }
 
-    // TODO Paso 7: simularError y manejo de errores.
+    private fun cargar(
+        modo: String,
+        obtenerDatos: suspend (Boolean) -> Pair<String, List<String>>
+    ) {
+        if (_carga.value is CargaUi.Cargando) return
+
+        val provocarError = _simularError.value
+        _carga.value = CargaUi.Cargando
+        viewModelScope.launch {
+            try {
+                val inicio = System.currentTimeMillis()
+                val (perfil, pedidos) = obtenerDatos(provocarError)
+                _carga.value = CargaUi.Exito(
+                    modo = modo,
+                    perfil = perfil,
+                    pedidos = pedidos.size,
+                    milisegundos = System.currentTimeMillis() - inicio
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _carga.value = CargaUi.Error(
+                    "No se pudo cargar: " + (e.message ?: "Error desconocido")
+                )
+            }
+        }
+    }
 }

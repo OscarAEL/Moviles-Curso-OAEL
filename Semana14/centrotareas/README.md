@@ -15,10 +15,11 @@ La IA está autorizada por el docente en ambas fases.
 - Paso 4: cancelación con Job y protección contra doble inicio.
 - Paso 5: cálculo de primos en segundo plano, tiempo y cancelación.
 - Paso 6: comparación de cargas secuenciales y en paralelo con async.
-- Pasos 7 y 8: pendientes.
+- Paso 7: error simulado, manejo de excepciones y reintento.
+- Paso 8: pruebas de aceptación y documentación final pendientes.
 
-Las tres tarjetas ya tienen su lógica principal. El error simulado y el reintento
-se incorporarán en el paso 7.
+Las tres tarjetas tienen su lógica principal, incluida la simulación de error
+y el reintento de las cargas.
 
 ## Ejecutar
 
@@ -171,6 +172,33 @@ el hilo principal ni simular red real.
 5. Durante ambas cargas, comprobar que se puede desplazar la pantalla y que
    Tócame sigue sumando.
 6. Girar la pantalla durante una carga: debe continuar sin reiniciarse.
+
+## Paso 7: errores y reintento
+
+El ViewModel expone `simularError: StateFlow<Boolean>` y
+`cambiarSimularError(valor)`. Cada carga toma el valor del interruptor al
+iniciar y lo pasa al Repository. El interruptor se deshabilita mientras carga.
+
+Con Simular error activado, cargarPedidos lanza
+`IOException("Sin conexión")`. Ambas modalidades manejan el error y publican
+`Error("No se pudo cargar: Sin conexión")`. La pantalla muestra un recuadro
+de error con **Reintentar**, que ejecuta nuevamente **A la vez**.
+
+El manejo común de las cargas captura primero `CancellationException` y la
+relanza; solo convierte las demás excepciones en errores de pantalla.
+Las dos llamadas async siguen dentro de coroutineScope, de modo que un fallo
+se propaga al bloque de carga y cancela cualquier hermana que siga pendiente.
+
+### Prueba manual del Paso 7
+
+1. Activar Simular error y pulsar Una por una: debe mostrar el recuadro de error
+   con No se pudo cargar: Sin conexión y Reintentar, sin cerrar la app.
+2. Repetir con A la vez: debe mostrar el mismo error.
+3. Con el interruptor aún activado, pulsar Reintentar: debe volver a fallar.
+4. Desactivar Simular error y pulsar Reintentar: debe mostrar éxito en modo
+   A la vez, Ana Torres, 3 pedidos y un tiempo próximo a 3000 ms.
+5. Comprobar que, al finalizar con error o éxito, se habilitan los controles.
+6. Volver a probar Una por una con el interruptor desactivado: debe tener éxito.
 
 La estructura de paquetes, el diagrama MVVM, las capturas y las respuestas finales
 se completarán en el paso 8.

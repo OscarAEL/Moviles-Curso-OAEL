@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -29,8 +30,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,6 +50,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
+    val simularError by viewModel.simularError.collectAsState()
     ContenidoTareas(
         mensaje = mensaje,
         progreso = progreso,
@@ -57,7 +62,9 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         onCancelarPrimos = viewModel::cancelarPrimos,
         carga = carga,
         onCargarUnaPorUna = viewModel::cargarUnaPorUna,
-        onCargarALaVez = viewModel::cargarALaVez
+        onCargarALaVez = viewModel::cargarALaVez,
+        simularError = simularError,
+        onCambiarSimularError = viewModel::cambiarSimularError
     )
 }
 
@@ -74,7 +81,9 @@ private fun ContenidoTareas(
     onCancelarPrimos: () -> Unit,
     carga: CargaUi,
     onCargarUnaPorUna: () -> Unit,
-    onCargarALaVez: () -> Unit
+    onCargarALaVez: () -> Unit,
+    simularError: Boolean,
+    onCambiarSimularError: (Boolean) -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -178,6 +187,19 @@ private fun ContenidoTareas(
             item {
                 TarjetaTarea(titulo = "Dos cargas") {
                     Text("Perfil y pedidos ficticios")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Simular error")
+                        Switch(
+                            modifier = Modifier.semantics { contentDescription = "Simular error" },
+                            checked = simularError,
+                            onCheckedChange = onCambiarSimularError,
+                            enabled = !cargando
+                        )
+                    }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = onCargarUnaPorUna, enabled = !cargando) {
                             Text("Una por una")
@@ -204,9 +226,23 @@ private fun ContenidoTareas(
                                 modifier = Modifier.padding(16.dp)
                             )
                         }
-                        is CargaUi.Error -> Text(carga.mensaje)
+                        is CargaUi.Error -> Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(carga.mensaje)
+                                Button(onClick = onCargarALaVez) {
+                                    Text("Reintentar")
+                                }
+                            }
+                        }
                     }
-                    // TODO Paso 7: agregar error simulado y reintento.
                 }
             }
         }
@@ -248,7 +284,9 @@ private fun PantallaTareasPreview() {
             onCancelarPrimos = {},
             carga = CargaUi.Inicial,
             onCargarUnaPorUna = {},
-            onCargarALaVez = {}
+            onCargarALaVez = {},
+            simularError = false,
+            onCambiarSimularError = {}
         )
     }
 }
