@@ -20,8 +20,8 @@ del mismo repositorio.
 | Tarjeta | Comportamiento |
 | --- | --- |
 | Tarea con progreso | Avanza de 0 a 100 % en unos 4 s; permite cancelar y reiniciar. |
-| Contar números primos | Calcula en segundo plano, mide el tiempo y permite cancelar. |
-| Dos cargas | Compara ejecución secuencial y paralela; permite simular un error y reintentar. |
+| Contar números primos | Calcula en segundo plano, muestra progreso, mide el tiempo y permite cancelar. |
+| Dos cargas | Compara ejecución secuencial y paralela, acumula tiempos y permite simular un error y reintentar. |
 
 **Tócame** cuenta los toques y sirve como prueba de respuesta de la pantalla.
 Todos los datos son ficticios: Ana Torres y pedidos 101, 102 y 103.
@@ -73,6 +73,11 @@ docs/capturas/
 ├── 05-paralela.png
 ├── 06-error.png
 └── 07-rotacion.png
+
+docs/capturas-fase2/
+├── 01-flow.png
+├── 02-primos-progreso.png
+└── 03-tabla.png
 ```
 
 ## Arquitectura MVVM + Repository
@@ -301,14 +306,14 @@ capturas, en un commit de documentación separado de la calibración.
 ## Fase 2
 
 La rama activa es `mejora-ia-centrotareas`, creada desde el cierre de la fase 1
-en main (9170b5a). El plan inicial incluye tres mejoras funcionales, además
-del rediseño que se trabajará con prototipos de Claude.
+en main (9170b5a). Las tres mejoras funcionales están implementadas y verificadas,
+quedando pendiente el rediseño que se coordinará con Claude en la siguiente etapa.
 
 | Mejora | Capas | Estado |
 | --- | --- | --- |
-| Progreso de la tarea desde el Repository con Flow | Repository y ViewModel | Implementada, pendiente de revisión del estudiante y commit. |
-| Progreso del cálculo de primos | Repository, ViewModel y View | Implementada, pendiente de revisión del estudiante y commit. |
-| Tabla que acumula tiempos secuenciales y paralelos | ViewModel y View | Pendiente. |
+| Progreso de la tarea desde el Repository con Flow | Repository y ViewModel | Implementada, verificada y confirmada en commit. |
+| Progreso del cálculo de primos | Repository, ViewModel y View | Implementada, verificada y confirmada en commit. |
+| Tabla que acumula tiempos secuenciales y paralelos | ViewModel y View | Implementada, verificada y confirmada en commit. |
 
 ### Mejora 1: progreso desde el Repository
 
@@ -350,6 +355,40 @@ El resultado, el tiempo, la validación numérica y la cancelación se conservan
 Para probar: usar el límite inicial o uno mayor, comprobar que el porcentaje
 avanza y que Cancelar muestra Cancelado; después contar hasta 1000 y comprobar 168.
 
-Cada mejora tendrá su propio commit después de las pruebas y la confirmación
-del estudiante. Los prompts, respuestas y decisiones se registran en
-[PROMPTS.md](PROMPTS.md). El rediseño con Claude sigue pendiente.
+### Mejora 3: comparación de tiempos
+
+Al terminar correctamente una carga, el ViewModel añade su modo y duración
+a una lista inmutable expuesta mediante StateFlow<List<TiempoCarga>>.
+La tabla de Dos cargas muestra el número de ejecución, el modo y los milisegundos.
+El tiempo de la fila coincide con el del recuadro de resultado.
+
+La lista acumula todas las cargas exitosas de la sesión, incluido Reintentar
+cuando tiene éxito. Un error no añade filas. El ViewModel conserva la lista
+al rotar, pero no se persiste frente al cierre o la muerte del proceso.
+
+Para probar: ejecutar Una por una y A la vez; deben aparecer dos filas con
+unos 5000 y 3000 ms. Simular un error no debe añadir una tercera fila.
+Desactivar el error y reintentar sí debe añadir una nueva fila en modo A la vez.
+
+### Verificación funcional de las mejoras 2 y 3
+
+- Porcentaje de primos observado al 82 %; el límite inicial conserva el
+  resultado de 96469 primos.
+- Cálculo grande cancelado; se pudo volver a contar hasta 1000 y obtener 168.
+- Tabla inicial vacía; primera fila secuencial de 5003 ms y segunda fila
+  paralela de 3005 ms, coincidiendo con sus resultados.
+- El error simulado no añadió filas.
+- Reintentar sin error añadió una tercera fila paralela de 3002 ms.
+- Las tres filas se conservaron al girar y volver a vertical.
+- assembleDebug y lintDebug pasaron con las tres mejoras.
+
+### Evidencias de la fase 2
+
+| Flow de la tarea | Progreso de primos | Tabla de tiempos |
+| --- | --- | --- |
+| <img src="docs/capturas-fase2/01-flow.png" alt="Tarea producida por Flow" width="240"> | <img src="docs/capturas-fase2/02-primos-progreso.png" alt="Cálculo de primos al 82 por ciento" width="240"> | <img src="docs/capturas-fase2/03-tabla.png" alt="Tres mediciones de carga conservadas tras rotar" width="240"> |
+
+Las tres mejoras fueron verificadas y autorizadas por el estudiante. Cada mejora
+cuenta con su propio commit en la rama `mejora-ia-centrotareas`, la cual se sube a
+GitHub. Los prompts, respuestas y decisiones se registran en [PROMPTS.md](PROMPTS.md).
+El rediseño con Claude se coordinará en la siguiente etapa.

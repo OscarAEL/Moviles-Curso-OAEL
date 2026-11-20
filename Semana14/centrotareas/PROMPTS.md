@@ -21,6 +21,12 @@ No se atribuyen respuestas a Gemini.
 | Estudiante: «primero terminemos con lo q falta», y dejar el rediseño para un traspaso posterior a Gemini y Claude. | Codex continuó las mejoras funcionales pendientes, conservando la revisión antes de commit y push. | El rediseño no se implementa todavía; el prompt de traspaso se preparará después. | Completar primero los requisitos funcionales y mantener un punto de partida verificable para el rediseño. |
 | Instrucción técnica derivada del PDF: mostrar el porcentaje del cálculo de primos sin bloquear ni romper su cancelación. | El Repository recibe un callback de progreso y el ViewModel expone Calculando(progreso). La UI dibuja una barra y porcentaje. | Se limita la emisión a cambios de porcentaje entero y se mantiene ensureActive; no se añaden esperas artificiales ni dependencias nuevas. | Evitar cientos de miles de actualizaciones de UI, conservar el rendimiento y poder cancelar. |
 
+## Mejora 3: comparación de tiempos
+
+| Prompt o instrucción | Qué respondió la IA | Qué se cambió o descartó | Por qué |
+| --- | --- | --- | --- |
+| Continuación de «primero terminemos con lo q falta» e instrucción derivada del PDF: acumular tiempos de Una por una y A la vez en una tabla. | Codex añadió TiempoCarga, una lista inmutable mediante StateFlow y una tabla dentro de Dos cargas. | Solo se registran cargas exitosas; el reintento exitoso también cuenta. Se conserva en ViewModel y no se añade persistencia ni dependencias. | Comparar mediciones reales de la sesión sin mezclar errores con resultados ni introducir una cuarta mejora de almacenamiento. |
+
 ## Revisión de la primera mejora
 
 - Implementación preparada en la rama de fase 2.
@@ -31,4 +37,17 @@ No se atribuyen respuestas a Gemini.
   comprobados en el emulador.
 - Logcat: main antes y después; DefaultDispatcher-worker-1 dentro del
   productor del Repository. La ejecución completa duró unos cuatro segundos.
-- Commit y push pendientes de esa confirmación.
+- Commit y push autorizados por el estudiante.
+
+## Revisión de las mejoras 2 y 3
+
+- Compilación y Lint correctos con las tres mejoras.
+- Primos: porcentaje observado al 82 %, resultado 96469 con el límite inicial,
+  cancelación de un cálculo grande y nuevo resultado de 168 para N = 1000.
+- Tabla: filas secuencial 5003 ms y paralela 3005 ms; el error no agrega filas;
+  el reintento exitoso agrega una tercera de 3002 ms.
+- Las tres filas permanecen después de rotar y regresar a vertical.
+- Se guardaron capturas en docs/capturas-fase2.
+- Mejoras verificadas y autorizadas por el estudiante. Se completan los tres
+  commits separados en la rama `mejora-ia-centrotareas` y se realiza el push a GitHub.
+  El rediseño y su prompt de traspaso se coordinarán en la siguiente etapa.

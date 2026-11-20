@@ -11,9 +11,11 @@ import kotlinx.coroutines.launch
 import com.eneque.centrotareas.data.TareasRepository
 import com.eneque.centrotareas.model.CargaUi
 import com.eneque.centrotareas.model.PrimosUi
+import com.eneque.centrotareas.model.TiempoCarga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
@@ -87,6 +89,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
+    private val _tiempos = MutableStateFlow<List<TiempoCarga>>(emptyList())
+    val tiempos: StateFlow<List<TiempoCarga>> = _tiempos.asStateFlow()
+
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
@@ -124,11 +129,13 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             try {
                 val inicio = System.currentTimeMillis()
                 val (perfil, pedidos) = obtenerDatos(provocarError)
+                val duracion = System.currentTimeMillis() - inicio
+                _tiempos.update { anteriores -> anteriores + TiempoCarga(modo, duracion) }
                 _carga.value = CargaUi.Exito(
                     modo = modo,
                     perfil = perfil,
                     pedidos = pedidos.size,
-                    milisegundos = System.currentTimeMillis() - inicio
+                    milisegundos = duracion
                 )
             } catch (e: CancellationException) {
                 throw e

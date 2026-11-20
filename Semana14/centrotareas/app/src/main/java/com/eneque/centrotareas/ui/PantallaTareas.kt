@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -36,10 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.eneque.centrotareas.model.CargaUi
 import com.eneque.centrotareas.model.PrimosUi
+import com.eneque.centrotareas.model.TiempoCarga
 import com.eneque.centrotareas.ui.theme.CentroTareasTheme
 import com.eneque.centrotareas.viewmodel.TareasViewModel
 
@@ -51,6 +54,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
+    val tiempos by viewModel.tiempos.collectAsState()
     ContenidoTareas(
         mensaje = mensaje,
         progreso = progreso,
@@ -64,7 +68,8 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         onCargarUnaPorUna = viewModel::cargarUnaPorUna,
         onCargarALaVez = viewModel::cargarALaVez,
         simularError = simularError,
-        onCambiarSimularError = viewModel::cambiarSimularError
+        onCambiarSimularError = viewModel::cambiarSimularError,
+        tiempos = tiempos
     )
 }
 
@@ -83,7 +88,8 @@ private fun ContenidoTareas(
     onCargarUnaPorUna: () -> Unit,
     onCargarALaVez: () -> Unit,
     simularError: Boolean,
-    onCambiarSimularError: (Boolean) -> Unit
+    onCambiarSimularError: (Boolean) -> Unit,
+    tiempos: List<TiempoCarga>
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("1250000") }
@@ -246,6 +252,36 @@ private fun ContenidoTareas(
                             }
                         }
                     }
+                    Text(
+                        "Comparación de tiempos",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    if (tiempos.isEmpty()) {
+                        Text("Sin mediciones. Completa una carga para registrar su tiempo.")
+                    } else {
+                        Text("Solo se registran cargas exitosas.")
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text("#", modifier = Modifier.weight(0.3f))
+                            Text("Modo", modifier = Modifier.weight(1.3f))
+                            Text(
+                                "Tiempo (ms)",
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.End
+                            )
+                        }
+                        HorizontalDivider()
+                        tiempos.forEachIndexed { indice, tiempo ->
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Text("${indice + 1}", modifier = Modifier.weight(0.3f))
+                                Text(tiempo.modo, modifier = Modifier.weight(1.3f))
+                                Text(
+                                    "${tiempo.milisegundos}",
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.End
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -289,7 +325,8 @@ private fun PantallaTareasPreview() {
             onCargarUnaPorUna = {},
             onCargarALaVez = {},
             simularError = false,
-            onCambiarSimularError = {}
+            onCambiarSimularError = {},
+            tiempos = emptyList()
         )
     }
 }
