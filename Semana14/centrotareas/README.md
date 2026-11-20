@@ -12,7 +12,8 @@ La IA está autorizada por el docente en ambas fases.
 - Paso 1: demostración del bloqueo del hilo principal.
 - Paso 2: tarea con corrutinas y registros del hilo en Logcat.
 - Paso 3: barra y porcentaje de progreso con StateFlow.
-- Pasos 4 a 8: pendientes.
+- Paso 4: cancelación con Job y protección contra doble inicio.
+- Pasos 5 a 8: pendientes.
 
 Los botones de primos y cargas permanecen deshabilitados hasta implementar sus pasos.
 
@@ -87,7 +88,30 @@ porcentaje debajo. El botón ahora se llama **Iniciar**.
 5. Pulsar Iniciar otra vez: la barra debe empezar de cero.
 6. Girar el dispositivo durante la tarea: el progreso debe continuar.
 
-El control de doble inicio y la cancelación se incorporarán en el paso 4.
+## Paso 4: cancelación con Job
+
+El ViewModel guarda la corrutina en `trabajo: Job?` y expone
+`corriendo: StateFlow<Boolean>`. Si ya está corriendo, `tareaLarga()` no
+inicia otra tarea. El bloque `finally` restablece corriendo a false tanto
+al completar como al cancelar.
+
+`cancelar()` cancela el Job y publica `Cancelado`. La suspensión `delay`
+coopera con la cancelación y se conserva el progreso alcanzado. No se captura
+ni se consume la excepción de cancelación.
+
+**Iniciar** se deshabilita mientras corre la tarea y **Cancelar** (OutlinedButton)
+solo se habilita durante la ejecución.
+
+### Prueba manual del Paso 4
+
+1. Al abrir, comprobar que Iniciar está habilitado y Cancelar deshabilitado.
+2. Pulsar Iniciar: Iniciar debe deshabilitarse y Cancelar habilitarse.
+3. Intentar pulsar Iniciar nuevamente: no debe reiniciarse ni duplicarse la tarea.
+4. Pulsar Cancelar a mitad: debe aparecer Cancelado y detenerse la barra.
+5. Esperar más de cuatro segundos: el progreso debe seguir detenido.
+6. Pulsar Iniciar otra vez: la barra debe empezar de cero.
+7. Dejar que termine: debe mostrar Terminó y 100 %, con Iniciar habilitado.
+8. Comprobar que Tócame responde durante la tarea y que girar la pantalla no la reinicia.
 
 La estructura de paquetes, el diagrama MVVM, las capturas y las respuestas finales
 se completarán en el paso 8.

@@ -38,10 +38,13 @@ import com.eneque.centrotareas.viewmodel.TareasViewModel
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
+    val corriendo by viewModel.corriendo.collectAsState()
     ContenidoTareas(
         mensaje = mensaje,
         progreso = progreso,
-        onTareaLarga = viewModel::tareaLarga
+        corriendo = corriendo,
+        onTareaLarga = viewModel::tareaLarga,
+        onCancelar = viewModel::cancelar
     )
 }
 
@@ -50,7 +53,9 @@ fun PantallaTareas(viewModel: TareasViewModel) {
 private fun ContenidoTareas(
     mensaje: String,
     progreso: Float,
-    onTareaLarga: () -> Unit
+    corriendo: Boolean,
+    onTareaLarga: () -> Unit,
+    onCancelar: () -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -92,10 +97,14 @@ private fun ContenidoTareas(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text("${(progreso * 100).toInt()} %")
-                    Button(onClick = onTareaLarga) {
-                        Text("Iniciar")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onTareaLarga, enabled = !corriendo) {
+                            Text("Iniciar")
+                        }
+                        OutlinedButton(onClick = onCancelar, enabled = corriendo) {
+                            Text("Cancelar")
+                        }
                     }
-                    // TODO Paso 4: agregar control de doble inicio y cancelación.
                 }
             }
             item {
@@ -155,6 +164,12 @@ private fun TarjetaTarea(
 @Composable
 private fun PantallaTareasPreview() {
     CentroTareasTheme {
-        ContenidoTareas(mensaje = "Listo", progreso = 0f, onTareaLarga = {})
+        ContenidoTareas(
+            mensaje = "Listo",
+            progreso = 0f,
+            corriendo = false,
+            onTareaLarga = {},
+            onCancelar = {}
+        )
     }
 }
