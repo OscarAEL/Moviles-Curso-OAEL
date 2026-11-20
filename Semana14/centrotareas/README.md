@@ -13,9 +13,10 @@ La IA está autorizada por el docente en ambas fases.
 - Paso 2: tarea con corrutinas y registros del hilo en Logcat.
 - Paso 3: barra y porcentaje de progreso con StateFlow.
 - Paso 4: cancelación con Job y protección contra doble inicio.
-- Pasos 5 a 8: pendientes.
+- Paso 5: cálculo de primos en segundo plano, tiempo y cancelación.
+- Pasos 6 a 8: pendientes.
 
-Los botones de primos y cargas permanecen deshabilitados hasta implementar sus pasos.
+Los botones de cargas permanecen deshabilitados hasta implementar el paso 6.
 
 ## Ejecutar
 
@@ -112,6 +113,37 @@ solo se habilita durante la ejecución.
 6. Pulsar Iniciar otra vez: la barra debe empezar de cero.
 7. Dejar que termine: debe mostrar Terminó y 100 %, con Iniciar habilitado.
 8. Comprobar que Tócame responde durante la tarea y que girar la pantalla no la reinicia.
+
+## Paso 5: contar primos
+
+El Repository cuenta los números primos entre 2 y N en
+`withContext(Dispatchers.Default)`, con `ensureActive()` en cada vuelta.
+La función privada esPrimo prueba divisores hasta la raíz del número, usando
+`d.toLong() * d <= n` para evitar desbordes.
+
+El ViewModel mide el tiempo con `System.currentTimeMillis()` y expone los
+estados Inicial, Calculando, Listo y Cancelado. Al capturar
+`CancellationException`, publica Cancelado y vuelve a lanzar la excepción.
+El cálculo tiene su propio Job, independiente de la tarea con progreso.
+
+La pantalla muestra el resultado y los milisegundos en un recuadro verde.
+Contar se deshabilita con entradas no enteras, fuera del rango Int o menores
+que 2; también mientras hay un cálculo. Cancelar solo se habilita al calcular.
+
+### Prueba manual del Paso 5
+
+1. Probar N = 100, 1000 y 10000: deben salir 25, 168 y 1229 primos.
+2. Probar N = 100000 y 500000: deben salir 9592 y 41538.
+3. Con un N grande, comprobar que se muestra Calculando y que se puede cancelar.
+4. Comprobar que el estado pasa a Cancelado y se permite otro cálculo.
+5. Comprobar que el contador Tócame sigue respondiendo durante el cálculo.
+6. Vaciar el campo o usar 0, 1 o un número fuera del rango Int:
+   Contar debe quedar deshabilitado.
+7. Girar la pantalla durante un cálculo: debe continuar sin reiniciarse.
+
+Se mantiene N = 500000 como valor inicial: en Small Phone API 31 PLAY se
+obtuvieron 41538 primos en 2153 ms en la medición inicial. El tiempo varía
+según el dispositivo y su carga.
 
 La estructura de paquetes, el diagrama MVVM, las capturas y las respuestas finales
 se completarán en el paso 8.

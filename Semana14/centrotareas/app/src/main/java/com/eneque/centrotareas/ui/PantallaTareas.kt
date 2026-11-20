@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,9 +30,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.eneque.centrotareas.model.PrimosUi
 import com.eneque.centrotareas.ui.theme.CentroTareasTheme
 import com.eneque.centrotareas.viewmodel.TareasViewModel
 
@@ -39,12 +43,16 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
+    val primos by viewModel.primos.collectAsState()
     ContenidoTareas(
         mensaje = mensaje,
         progreso = progreso,
         corriendo = corriendo,
         onTareaLarga = viewModel::tareaLarga,
-        onCancelar = viewModel::cancelar
+        onCancelar = viewModel::cancelar,
+        primos = primos,
+        onContar = viewModel::contar,
+        onCancelarPrimos = viewModel::cancelarPrimos
     )
 }
 
@@ -55,10 +63,15 @@ private fun ContenidoTareas(
     progreso: Float,
     corriendo: Boolean,
     onTareaLarga: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    primos: PrimosUi,
+    onContar: (Int) -> Unit,
+    onCancelarPrimos: () -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
+    val limite = hasta.toIntOrNull()?.takeIf { it >= 2 }
+    val calculandoPrimos = primos is PrimosUi.Calculando
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -114,15 +127,43 @@ private fun ContenidoTareas(
                         onValueChange = { hasta = it },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Hasta N") },
+                        enabled = !calculandoPrimos,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true
                     )
-                    // TODO Paso 5: validar N y conectar el cálculo y su estado.
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = {}, enabled = false) { Text("Contar") }
-                        OutlinedButton(onClick = {}, enabled = false) { Text("Cancelar") }
+                        Button(
+                            onClick = { limite?.let(onContar) },
+                            enabled = limite != null && !calculandoPrimos
+                        ) {
+                            Text("Contar")
+                        }
+                        OutlinedButton(
+                            onClick = onCancelarPrimos,
+                            enabled = calculandoPrimos
+                        ) {
+                            Text("Cancelar")
+                        }
                     }
-                    Text("Sin cálculo")
+                    when (primos) {
+                        PrimosUi.Inicial -> Text("Sin cálculo")
+                        PrimosUi.Calculando -> {
+                            CircularProgressIndicator()
+                            Text("Calculando...")
+                        }
+                        PrimosUi.Cancelado -> Text("Cancelado")
+                        is PrimosUi.Listo -> Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium,
+                            color = Color(0xFFD8F3DC),
+                            contentColor = Color(0xFF174B26)
+                        ) {
+                            Text(
+                                text = "Primos: ${primos.cantidad}\nTiempo: ${primos.milisegundos} ms",
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
                 }
             }
             item {
@@ -169,7 +210,10 @@ private fun PantallaTareasPreview() {
             progreso = 0f,
             corriendo = false,
             onTareaLarga = {},
-            onCancelar = {}
+            onCancelar = {},
+            primos = PrimosUi.Inicial,
+            onContar = {},
+            onCancelarPrimos = {}
         )
     }
 }

@@ -3,6 +3,7 @@ package com.eneque.centrotareas.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -61,7 +62,30 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
     val primos: StateFlow<PrimosUi> = _primos.asStateFlow()
 
-    // TODO Paso 5: contar(hasta) y cancelarPrimos().
+    private var trabajoPrimos: Job? = null
+
+    fun contar(hasta: Int) {
+        if (hasta < 2 || trabajoPrimos?.isCompleted == false) return
+
+        _primos.value = PrimosUi.Calculando
+        trabajoPrimos = viewModelScope.launch {
+            try {
+                val inicio = System.currentTimeMillis()
+                val cantidad = repo.contarPrimos(hasta)
+                _primos.value = PrimosUi.Listo(
+                    cantidad = cantidad,
+                    milisegundos = System.currentTimeMillis() - inicio
+                )
+            } catch (e: CancellationException) {
+                _primos.value = PrimosUi.Cancelado
+                throw e
+            }
+        }
+    }
+
+    fun cancelarPrimos() {
+        trabajoPrimos?.cancel()
+    }
 
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
