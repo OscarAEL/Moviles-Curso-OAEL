@@ -307,7 +307,7 @@ del rediseño que se trabajará con prototipos de Claude.
 | Mejora | Capas | Estado |
 | --- | --- | --- |
 | Progreso de la tarea desde el Repository con Flow | Repository y ViewModel | Implementada, pendiente de revisión del estudiante y commit. |
-| Progreso del cálculo de primos | Repository, ViewModel y View | Pendiente. |
+| Progreso del cálculo de primos | Repository, ViewModel y View | Implementada, pendiente de revisión del estudiante y commit. |
 | Tabla que acumula tiempos secuenciales y paralelos | ViewModel y View | Pendiente. |
 
 ### Mejora 1: progreso desde el Repository
@@ -334,6 +334,21 @@ Pruebas para revisar esta mejora:
 4. Reiniciar: debe empezar desde cero y terminar normalmente.
 5. Girar el dispositivo durante la tarea: debe continuar.
 6. Filtrar Logcat por HILO y comprobar los hilos indicados.
+
+### Mejora 2: progreso del cálculo de primos
+
+El Repository recibe un callback de progreso en contarPrimos y comunica
+avances de 0 a 100 % en Dispatchers.Default. Solo notifica al cambiar el
+porcentaje entero (como máximo 101 valores), sin retrasos artificiales.
+El cálculo mantiene ensureActive en cada iteración y usa Long al calcular
+el porcentaje para evitar desbordes.
+
+PrimosUi.Calculando incluye el avance. El ViewModel lo publica mediante su
+StateFlow y la pantalla muestra una barra y el porcentaje mientras calcula.
+El resultado, el tiempo, la validación numérica y la cancelación se conservan.
+
+Para probar: usar el límite inicial o uno mayor, comprobar que el porcentaje
+avanza y que Cancelar muestra Cancelado; después contar hasta 1000 y comprobar 168.
 
 Cada mejora tendrá su propio commit después de las pruebas y la confirmación
 del estudiante. Los prompts, respuestas y decisiones se registran en

@@ -14,6 +14,13 @@ No se atribuyen respuestas a Gemini.
 | Estudiante: «listo continuemos con la fase 2» | Codex propuso progreso desde el Repository con Flow, progreso de primos y tabla de tiempos; comenzó solo la primera mejora. | Las otras dos mejoras y el rediseño quedan para pasos posteriores. Se conserva la revisión del estudiante antes de cada commit y push. | Cumplir el mínimo de tres mejoras funcionales y mantener cada cambio verificable por separado. |
 | Instrucción técnica derivada por Codex del PDF: mover la tarea simulada al Repository y exponer progreso con flow, emit y flowOn(Dispatchers.Default), conservando MVVM y cancelación. | Se añadió progresoTarea(): Flow<Float> a la interfaz; el Repository emite de 0 a 100 % y el ViewModel recoge el flujo con su Job existente. | Se retiraron del ViewModel el ciclo de espera y el cambio manual de dispatcher. Se mantuvieron StateFlow, finally, control de doble inicio y registros HILO. No se crean scopes independientes ni se consume CancellationException. | El Repository produce los datos de progreso; el ViewModel coordina el ciclo de vida y los estados. Cancelar el Job detiene toda la tarea mediante concurrencia estructurada. |
 
+## Mejora 2: progreso de primos
+
+| Prompt o instrucción | Qué respondió la IA | Qué se cambió o descartó | Por qué |
+| --- | --- | --- | --- |
+| Estudiante: «primero terminemos con lo q falta», y dejar el rediseño para un traspaso posterior a Gemini y Claude. | Codex continuó las mejoras funcionales pendientes, conservando la revisión antes de commit y push. | El rediseño no se implementa todavía; el prompt de traspaso se preparará después. | Completar primero los requisitos funcionales y mantener un punto de partida verificable para el rediseño. |
+| Instrucción técnica derivada del PDF: mostrar el porcentaje del cálculo de primos sin bloquear ni romper su cancelación. | El Repository recibe un callback de progreso y el ViewModel expone Calculando(progreso). La UI dibuja una barra y porcentaje. | Se limita la emisión a cambios de porcentaje entero y se mantiene ensureActive; no se añaden esperas artificiales ni dependencias nuevas. | Evitar cientos de miles de actualizaciones de UI, conservar el rendimiento y poder cancelar. |
+
 ## Revisión de la primera mejora
 
 - Implementación preparada en la rama de fase 2.
