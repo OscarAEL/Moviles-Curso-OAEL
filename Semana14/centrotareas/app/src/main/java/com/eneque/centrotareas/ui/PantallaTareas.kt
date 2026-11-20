@@ -36,12 +36,12 @@ import com.eneque.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
-    ContenidoTareas(mensaje = mensaje)
+    ContenidoTareas(mensaje = mensaje, onTareaLargaMala = viewModel::tareaLargaMala)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ContenidoTareas(mensaje: String) {
+private fun ContenidoTareas(mensaje: String, onTareaLargaMala: () -> Unit) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
 
@@ -77,11 +77,10 @@ private fun ContenidoTareas(mensaje: String) {
             item {
                 TarjetaTarea(titulo = "Tarea con progreso") {
                     Text(mensaje)
-                    // TODO Pasos 1 a 4: conectar la tarea, el progreso y la cancelación.
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = {}, enabled = false) { Text("Iniciar") }
-                        OutlinedButton(onClick = {}, enabled = false) { Text("Cancelar") }
+                    Button(onClick = onTareaLargaMala) {
+                        Text("Tarea larga (MAL)")
                     }
+                    // TODO Pasos 2 a 4: corregir el bloqueo, agregar progreso y cancelar.
                 }
             }
             item {
@@ -141,6 +140,6 @@ private fun TarjetaTarea(
 @Composable
 private fun PantallaTareasPreview() {
     CentroTareasTheme {
-        ContenidoTareas(mensaje = "Listo")
+        ContenidoTareas(mensaje = "Listo", onTareaLargaMala = {})
     }
 }
