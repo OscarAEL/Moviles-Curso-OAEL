@@ -14,9 +14,9 @@ Actúa como diseñador senior de interfaces Android. Propón un rediseño visual
    - C: editorial contemporánea, con jerarquía tipográfica marcada.
 2. Para cada propuesta, un tablero con **tres pantallas de teléfono**: lista, detalle y crear publicación. Muéstralas de frente, con texto legible y sin marcos decorativos que oculten contenido. Usa un tamaño de referencia de 390 × 844 y escala suficiente para comparar detalles.
 3. Un tablero adicional con los estados de carga, error sin conexión, lista vacía, éxito de publicación y confirmación/éxito de eliminación.
-4. Entrega imágenes PNG o imágenes exportables. Si tu entorno no genera imágenes raster, entrega tableros SVG que se puedan exportar a PNG. No respondas únicamente con descripciones.
-5. Acompaña cada propuesta con una explicación breve y una ficha de colores hexadecimales, tipografía, espaciados, radios, elevaciones e iconos.
-6. Recomienda una de las tres propuestas y explica tu criterio. No implementes la aplicación ni generes código Kotlin.
+4. **Entrega los prototipos como imágenes generadas, visibles en la conversación y descargables en PNG o JPEG. Solo quiero ver imágenes del rediseño para elegir una propuesta. No entregues código Kotlin, Java, HTML, CSS, JavaScript, SVG ni artefactos de código. No sustituyas las imágenes por descripciones o instrucciones para dibujarlas. Si esta sesión no permite generar imágenes, indícalo claramente antes de continuar, sin reemplazarlas por código.**
+5. Puedes acompañar las imágenes con una explicación breve y una ficha de colores hexadecimales, tipografía, espaciados, radios, elevaciones e iconos. El entregable principal son las imágenes, no el texto.
+6. Recomienda una de las tres propuestas y explica brevemente tu criterio. La implementación de la app se hará después, con otro asistente, a partir de las imágenes que yo elija.
 
 ## Funcionalidad existente que debes conservar
 
