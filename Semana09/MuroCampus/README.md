@@ -141,4 +141,4 @@ Las instrucciones de trabajo, respuestas y decisiones técnicas se registran en 
 
 La Fase 1 se desarrolla por pasos en `main`; la Fase 2 en `mejora-ia-murocampus`. El docente autorizó IA para ambas fases, según la indicación recibida por el estudiante. El rediseño visual con Claude se hará después de completar el laboratorio.
 
-Las cinco capturas originales corresponden a la Fase 1. Esta rama conserva esa evidencia y agrega las tres mejoras funcionales. El rediseño visual aún no se ha aplicado.
+Las cinco capturas originales corresponden a la Fase 1. Esta rama conserva esa evidencia y agrega las tres mejoras funcionales. El rediseño visual aún no se ha aplicado. El siguiente paso es elegir prototipos con el [prompt para Claude](docs/PROMPT_CLAUDE_REDISENO.md) y compartir las imágenes seleccionadas para implementarlas.
