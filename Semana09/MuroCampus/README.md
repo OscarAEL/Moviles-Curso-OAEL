@@ -22,6 +22,7 @@ com.eneque.murocampus/
 │   ├── ErroresRed.kt
 │   ├── PostRepository.kt
 │   └── remote/
+│       ├── AcceptJsonInterceptor.kt
 │       ├── PostApi.kt
 │       └── RetrofitClient.kt
 ├── viewmodel/
@@ -64,6 +65,7 @@ URL base: https://jsonplaceholder.typicode.com/
 | Comentarios | GET posts/{id}/comments |
 | Filtro | GET posts?userId=N |
 | Crear | POST posts |
+| Eliminar (Fase 2) | DELETE posts/{id} |
 
 JSONPlaceholder devuelve 100 publicaciones, 10 por usuario y 5 comentarios por publicación. El POST responde con id 101 y código 201, pero **no guarda la publicación**. Por eso no aparecerá al recargar la lista.
 
@@ -111,8 +113,32 @@ Comandos adicionales:
 5. **Un UiState y when.** Representa estados mutuamente excluyentes y permite comprobar exhaustivamente qué debe dibujarse. Tres booleanos independientes podrían representar combinaciones contradictorias, como cargar y mostrar éxito a la vez.
 6. **Un servicio real.** Las publicaciones creadas serían persistentes, tendrían identificadores reales y aparecerían en consultas posteriores. Habría que actualizar la lista según la respuesta, definir autenticación y permisos, y gestionar validaciones y errores del servidor. Los reintentos de POST requerirían evitar duplicados, por ejemplo mediante claves de idempotencia.
 
+## Fase 2: mejora-ia-murocampus
+
+Se implementaron tres mejoras, cada una con su commit:
+
+1. **Búsqueda local por título.** Filtra las publicaciones descargadas sin nuevas peticiones. Ignora mayúsculas y espacios exteriores; borrar la consulta recupera la lista cargada. Se combina con el filtro por usuario.
+2. **Eliminar publicación.** DELETE con `Response<Unit>`, validación del código HTTP en el Repository, estado de envío y error en el ViewModel, y confirmación y reintento en la pantalla.
+3. **Encabezado Accept.** Un interceptor agrega un solo `Accept: application/json` a todas las peticiones, también en release. El registro BODY sigue limitado a debug.
+
+JSONPlaceholder también **simula DELETE**: responde 200 pero el recurso seguirá existiendo en las consultas siguientes. La app muestra este límite y conserva la lista original.
+
+Validación de las mejoras:
+
+- **8 pruebas locales aprobadas**: incluyen comprobación de 200/500 al eliminar y del interceptor sin acceder a internet.
+- **8 pruebas instrumentadas aprobadas**: incluyen búsqueda sin nuevas consultas, cancelación, fallos de detalle y pruebas contra JSONPlaceholder.
+- Prueba manual: buscar `sunt` devuelve 7 coincidencias; confirmar Eliminar muestra el éxito de la simulación.
+- Logcat: GET y DELETE incluyen `Accept: application/json`; DELETE devuelve 200.
+- La app final compila y está instalada en el emulador.
+
+| Búsqueda | Eliminación simulada |
+| --- | --- |
+| <img src="docs/capturas/mejora-busqueda.png" width="240" alt="Búsqueda local con siete coincidencias"> | <img src="docs/capturas/mejora-eliminar.png" width="240" alt="Confirmación de eliminación simulada"> |
+
+Las instrucciones de trabajo, respuestas y decisiones técnicas se registran en [PROMPTS.md](PROMPTS.md).
+
 ## Historial y uso de IA
 
 La Fase 1 se desarrolla por pasos en `main`; la Fase 2 en `mejora-ia-murocampus`. El docente autorizó IA para ambas fases, según la indicación recibida por el estudiante. El rediseño visual con Claude se hará después de completar el laboratorio.
 
-Las cinco capturas corresponden a la Fase 1. Las mejoras de la Fase 2 se documentarán en su propia rama.
+Las cinco capturas originales corresponden a la Fase 1. Esta rama conserva esa evidencia y agrega las tres mejoras funcionales. El rediseño visual aún no se ha aplicado.
