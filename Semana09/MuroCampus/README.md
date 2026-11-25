@@ -160,9 +160,3 @@ Detalles de adaptación y referencia: [REDISENO_B.md](docs/REDISENO_B.md). Licen
 | Crear B | Publicación enviada |
 | --- | --- |
 | <img src="docs/capturas/redisenob-crear.png" width="240" alt="Formulario del rediseño B"> | <img src="docs/capturas/redisenob-exito.png" width="240" alt="Publicado con id 101 en el rediseño B"> |
-
-## Historial y uso de IA
-
-La Fase 1 se desarrolla por pasos en `main`; la Fase 2 en `mejora-ia-murocampus`. El docente autorizó IA para ambas fases, según la indicación recibida por el estudiante. Después de completar el laboratorio, Claude propuso las imágenes del rediseño y Codex implementó la opción B elegida por el estudiante.
-
-Las cinco capturas originales corresponden a la Fase 1. Esta rama conserva esa evidencia, agrega las tres mejoras funcionales y, en un commit posterior, el rediseño B. Se conserva el [prompt enviado a Claude](docs/PROMPT_CLAUDE_REDISENO.md) como parte del proceso de diseño.
