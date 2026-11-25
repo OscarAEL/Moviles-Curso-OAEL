@@ -9,6 +9,7 @@ Las instrucciones técnicas de la tabla son reformulaciones de trabajo del encar
 | Construir la base desde cero y respetar MVVM + Repository. | Se crearon los componentes, modelos, API, cliente, Repository, estados y pantallas por pasos. | Se conservó el paquete com.eneque.murocampus y el repositorio del curso. | No había proyecto base del docente y el proyecto ya estaba conectado a GitHub. |
 | Mantener la traducción de errores fuera de viewmodel. | ErroresRed.kt interpreta IOException, HttpException y SerializationException en data. | Se adaptó la ubicación sugerida por el ejemplo de la guía. | Evitar que el ViewModel importe excepciones de Retrofit. |
 | Agregar búsqueda por título sobre publicaciones ya descargadas. | StateFlow de búsqueda combinado con el estado de la lista, sin distinguir mayúsculas y con trim. | Se conserva la lista original y se deriva listaFiltrada; no se llama al Repository por cada carácter. | Evita tráfico innecesario y permite borrar la consulta para recuperar los datos cargados. |
+| Agregar DELETE con Response<Unit> sin romper MVVM. | El Repository comprueba isSuccessful y convierte los códigos fallidos en Result.failure; el ViewModel publica el estado. | Se agregó confirmación, bloqueo de envíos repetidos y mensaje explícito de simulación. No se elimina permanentemente de la lista local. | JSONPlaceholder no persiste DELETE; ocultar datos como si el servidor los hubiese borrado sería engañoso. Se probaron respuestas 200 y 500, fallos de red y cancelación. |
 
 ## Criterios de revisión
 

@@ -37,6 +37,12 @@ class ServicioRealTest {
         )
     }
 
+    @Test fun eliminarDevuelve200SinCuerpo() = runBlocking {
+        val respuesta = RetrofitClient.api.eliminar(1)
+        assertEquals(200, respuesta.code())
+        assertTrue(repo.eliminar(1).isSuccess)
+    }
+
     @Test fun crearDevuelve101YConservaElCuerpo() = runBlocking {
         val nuevo = NuevoPost(1, "Prueba del laboratorio", "Contenido de práctica")
         val creado = repo.crear(nuevo).getOrThrow()

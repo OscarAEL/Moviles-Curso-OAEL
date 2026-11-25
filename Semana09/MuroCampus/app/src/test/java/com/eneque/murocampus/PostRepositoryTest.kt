@@ -21,8 +21,13 @@ import retrofit2.Response
 class PostRepositoryTest {
     private val post = Post(1, 1, "Título", "Contenido")
 
-    private inner class ApiFalsa(private val error: Exception? = null) : PostApi {
+    private inner class ApiFalsa(private val error: Exception? = null, val codigoEliminar: Int = 200) : PostApi {
         private fun comprobar() { error?.let { throw it } }
+        override suspend fun eliminar(id: Int): Response<Unit> {
+            comprobar()
+            return if (codigoEliminar in 200..299) Response.success(Unit)
+            else Response.error(codigoEliminar, "{}".toResponseBody())
+        }
         override suspend fun listar(): List<Post> { comprobar(); return listOf(post) }
         override suspend fun detalle(id: Int): Post { comprobar(); return post }
         override suspend fun comentarios(id: Int): List<Comentario> {
@@ -50,7 +55,7 @@ class PostRepositoryTest {
         val repo = PostRepositoryRemote(ApiFalsa(fallo))
         val resultados = listOf(
             repo.listar(), repo.detalle(1), repo.comentarios(1),
-            repo.porUsuario(2), repo.crear(NuevoPost(1, "T", "C"))
+            repo.porUsuario(2), repo.crear(NuevoPost(1, "T", "C")), repo.eliminar(1)
         )
         resultados.forEach { assertSame(fallo, it.exceptionOrNull()) }
         assertTrue(mensajeDe(fallo).startsWith("Sin conexión a internet."))
@@ -60,7 +65,8 @@ class PostRepositoryTest {
         val repo = PostRepositoryRemote(ApiFalsa(CancellationException("Salir de pantalla")))
         val operaciones: List<suspend () -> Unit> = listOf(
             { repo.listar(); Unit }, { repo.detalle(1); Unit }, { repo.comentarios(1); Unit },
-            { repo.porUsuario(2); Unit }, { repo.crear(NuevoPost(1, "T", "C")); Unit }
+            { repo.porUsuario(2); Unit }, { repo.crear(NuevoPost(1, "T", "C")); Unit },
+            { repo.eliminar(1); Unit }
         )
         operaciones.forEach { operacion ->
             try {
@@ -70,6 +76,12 @@ class PostRepositoryTest {
                 // Excepción esperada: se conserva la cancelación estructurada.
             }
         }
+    }
+
+    @Test fun eliminarCompruebaElCodigoHttp() = runBlocking {
+        assertTrue(PostRepositoryRemote(ApiFalsa()).eliminar(1).isSuccess)
+        val fallo = PostRepositoryRemote(ApiFalsa(codigoEliminar = 500)).eliminar(1)
+        assertEquals("Error del servidor (500)", mensajeDe(fallo.exceptionOrNull()!!))
     }
 
     @Test fun recursoInexistenteExpone404SinCerrarLaApp() = runBlocking {

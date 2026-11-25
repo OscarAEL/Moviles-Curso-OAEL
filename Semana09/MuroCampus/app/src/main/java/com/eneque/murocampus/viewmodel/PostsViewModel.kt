@@ -45,10 +45,24 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     val detalle = _detalle.asStateFlow()
     private var cargaDetalle: Job? = null
     private var detalleId: Int? = null
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)
+    val eliminacion = _eliminacion.asStateFlow()
+    private var tareaEliminar: Job? = null
+
+    fun eliminar(id: Int) {
+        if (tareaEliminar?.isActive == true || _eliminacion.value is UiState.Exito) return
+        tareaEliminar = viewModelScope.launch {
+            _eliminacion.value = UiState.Cargando
+            repo.eliminar(id)
+                .onSuccess { _eliminacion.value = UiState.Exito(Unit) }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
 
     fun abrir(id: Int) {
         if (detalleId == id && (_detalle.value is UiState.Exito || cargaDetalle?.isActive == true)) return
         detalleId = id
+        _eliminacion.value = null
         cargaDetalle?.cancel()
         cargaDetalle = viewModelScope.launch {
             _detalle.value = UiState.Cargando
@@ -69,6 +83,8 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun cerrarDetalle() {
         cargaDetalle?.cancel()
+        tareaEliminar?.cancel()
+        _eliminacion.value = null
         detalleId = null
         _detalle.value = UiState.Cargando
     }

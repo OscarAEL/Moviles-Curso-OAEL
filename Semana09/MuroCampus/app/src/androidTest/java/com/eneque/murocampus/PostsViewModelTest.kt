@@ -32,6 +32,7 @@ class PostsViewModelTest {
         val cancelado = CompletableDeferred<Unit>()
         val post = Post(1, 1, "Título", "Contenido")
         var llamadasLista = 0
+        override suspend fun eliminar(id: Int) = Result.success(Unit)
         override suspend fun listar(): Result<List<Post>> {
             llamadasLista++
             return Result.success(listOf(post))

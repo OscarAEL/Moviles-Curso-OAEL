@@ -4,6 +4,8 @@ import com.eneque.murocampus.model.Comentario
 import com.eneque.murocampus.model.NuevoPost
 import com.eneque.murocampus.model.Post
 import com.eneque.murocampus.model.Usuario
+import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -25,6 +27,9 @@ interface PostApi {
 
     @POST("posts")
     suspend fun crear(@Body nuevo: NuevoPost): Post
+
+    @DELETE("posts/{id}")
+    suspend fun eliminar(@Path("id") id: Int): Response<Unit>
 }
 
 // Ejemplo de Usuario que la guía supone incluido en el proyecto base.
