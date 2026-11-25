@@ -31,7 +31,11 @@ class PostsViewModelTest {
         val inicio = CompletableDeferred<Unit>()
         val cancelado = CompletableDeferred<Unit>()
         val post = Post(1, 1, "Título", "Contenido")
-        override suspend fun listar() = Result.success(listOf(post))
+        var llamadasLista = 0
+        override suspend fun listar(): Result<List<Post>> {
+            llamadasLista++
+            return Result.success(listOf(post))
+        }
         override suspend fun porUsuario(userId: Int) = Result.success(listOf(post.copy(userId = userId)))
         override suspend fun crear(nuevo: NuevoPost) =
             Result.success(Post(nuevo.userId, 101, nuevo.title, nuevo.body))
@@ -54,6 +58,21 @@ class PostsViewModelTest {
             almacen.put("posts", vm)
         }
         return vm
+    }
+
+    @Test fun buscarFiltraSinVolverALaRed() {
+        val repo = RepoFalso()
+        val vm = crear(repo)
+        instrumentacion.runOnMainSync { vm.buscar("tÍtU") }
+        instrumentacion.waitForIdleSync()
+        assertEquals(1, (vm.listaFiltrada.value as UiState.Exito).datos.size)
+        instrumentacion.runOnMainSync { vm.buscar("sin coincidencias") }
+        instrumentacion.waitForIdleSync()
+        assertTrue((vm.listaFiltrada.value as UiState.Exito).datos.isEmpty())
+        instrumentacion.runOnMainSync { vm.buscar("  ") }
+        instrumentacion.waitForIdleSync()
+        assertEquals(1, (vm.listaFiltrada.value as UiState.Exito).datos.size)
+        assertEquals(1, repo.llamadasLista)
     }
 
     @After fun limpiar() { instrumentacion.runOnMainSync { almacen.clear() } }

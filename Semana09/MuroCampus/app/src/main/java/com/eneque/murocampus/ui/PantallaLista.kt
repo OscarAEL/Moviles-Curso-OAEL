@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +32,8 @@ fun PantallaLista(
     onAbrir: (Int) -> Unit = {},
     listaState: LazyListState = rememberLazyListState()
 ) {
-    val estado by vm.lista.collectAsStateWithLifecycle()
+    val estado by vm.listaFiltrada.collectAsStateWithLifecycle()
+    val busqueda by vm.busqueda.collectAsStateWithLifecycle()
     val filtro by vm.usuarioFiltro.collectAsStateWithLifecycle()
     Column(modifier = modifier.fillMaxSize()) {
         LazyRow(
@@ -52,6 +54,11 @@ fun PantallaLista(
                 )
             }
         }
+        OutlinedTextField(
+            value = busqueda, onValueChange = vm::buscar,
+            label = { Text("Buscar por título") }, singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             when (val actual = estado) {
                 UiState.Cargando -> Cargando()

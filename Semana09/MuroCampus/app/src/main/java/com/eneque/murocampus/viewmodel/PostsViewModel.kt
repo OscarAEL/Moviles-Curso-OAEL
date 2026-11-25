@@ -11,12 +11,27 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista = _lista.asStateFlow()
     private var cargaLista: Job? = null
+    private val _busqueda = MutableStateFlow("")
+    val busqueda = _busqueda.asStateFlow()
+    val listaFiltrada = combine(lista, busqueda) { estado, consulta ->
+        when (estado) {
+            is UiState.Exito -> UiState.Exito(
+                estado.datos.filter { it.title.contains(consulta.trim(), ignoreCase = true) }
+            )
+            else -> estado
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, UiState.Cargando)
+
+    fun buscar(texto: String) { _busqueda.value = texto }
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro = _usuarioFiltro.asStateFlow()
 
