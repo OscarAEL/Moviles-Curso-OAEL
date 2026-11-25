@@ -1,24 +1,13 @@
 package com.eneque.murocampus.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,63 +19,55 @@ fun PantallaLista(
     vm: PostsViewModel,
     modifier: Modifier = Modifier,
     onAbrir: (Int) -> Unit = {},
-    listaState: LazyListState = rememberLazyListState()
+    listaState: LazyListState = rememberLazyListState(),
+    paddingSistema: PaddingValues = PaddingValues()
 ) {
     val estado by vm.listaFiltrada.collectAsStateWithLifecycle()
     val busqueda by vm.busqueda.collectAsStateWithLifecycle()
     val filtro by vm.usuarioFiltro.collectAsStateWithLifecycle()
-    Column(modifier = modifier.fillMaxSize()) {
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                FilterChip(
-                    selected = filtro == null, onClick = { vm.filtrar(null) },
-                    label = { Text("Todos") }
-                )
-            }
-            items((1..10).toList()) { id ->
-                FilterChip(
-                    selected = filtro == id, onClick = { vm.filtrar(id) },
-                    label = { Text("Usuario $id") }
-                )
+    val contador = when (val actual = estado) {
+        is UiState.Exito -> "${actual.datos.size} publicaciones"
+        UiState.Cargando -> "Conectando…"
+        is UiState.Error -> "Muro del campus"
+    }
+    LazyColumn(
+        state = listaState,
+        modifier = modifier.fillMaxSize(),
+        contentPadding = paddingSistema
+    ) {
+        item(key = "encabezado") { EncabezadoCampus(grande = true, contador = contador) }
+        item(key = "busqueda") {
+            CampoBusqueda(busqueda, vm::buscar, Modifier.padding(horizontal = 20.dp).offset(y = (-20).dp))
+        }
+        item(key = "filtros") {
+            LazyRow(
+                contentPadding = PaddingValues(start = 20.dp, end = 24.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item { ChipGrafico("Todos", filtro == null) { vm.filtrar(null) } }
+                items((1..10).toList()) { id ->
+                    ChipGrafico("Usuario $id", filtro == id) { vm.filtrar(id) }
+                }
             }
         }
-        OutlinedTextField(
-            value = busqueda, onValueChange = vm::buscar,
-            label = { Text("Buscar por título") }, singleLine = true,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            when (val actual = estado) {
-                UiState.Cargando -> Cargando()
-                is UiState.Error -> ErrorConReintento(actual.mensaje, vm::cargar)
-                is UiState.Exito -> {
-                    if (actual.datos.isEmpty()) {
-                        Text("Sin publicaciones")
-                    } else {
-                        Column {
-                            Text(
-                                "${actual.datos.size} publicaciones",
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                            LazyColumn(
-                                state = listaState,
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                items(actual.datos, key = { it.id }) { post ->
-                                    TarjetaPost(post.userId, post.title, post.body, { onAbrir(post.id) })
-                                }
-                            }
-                        }
+        when (val actual = estado) {
+            UiState.Cargando -> item { Cargando(Modifier.padding(horizontal = 20.dp, vertical = 28.dp)) }
+            is UiState.Error -> item {
+                ErrorConReintento(actual.mensaje, vm::cargar, Modifier.padding(horizontal = 20.dp, vertical = 28.dp))
+            }
+            is UiState.Exito -> {
+                if (actual.datos.isEmpty()) {
+                    item { SinPublicaciones(Modifier.padding(horizontal = 20.dp, vertical = 28.dp)) }
+                } else {
+                    items(actual.datos, key = { "post-${it.id}" }) { post ->
+                        TarjetaPost(
+                            post.userId, post.title, post.body, { onAbrir(post.id) },
+                            Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                        )
                     }
                 }
             }
         }
+        item(key = "espacio-final") { Spacer(Modifier.height(16.dp)) }
     }
 }

@@ -2,7 +2,10 @@ package com.eneque.murocampus.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val AzulCampus = Color(0xFF1B70A6)
-val AzulCampusClaro = Color(0xFF9ACBFF)
-val AzulSecundario = Color(0xFF506579)
-val AzulSecundarioClaro = Color(0xFFB7C9DE)
+val AzulElectrico = Color(0xFF2840FF)
+val LimaCampus = Color(0xFFD6FF35)
+val RosaCampus = Color(0xFFFF58A3)
+val TintaCampus = Color(0xFF101127)
+val FondoCampus = Color(0xFFEFF2FF)
+val LavandaCampus = Color(0xFFDFE5FF)
+val NaranjaCampus = Color(0xFFFFB347)

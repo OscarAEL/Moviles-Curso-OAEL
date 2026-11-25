@@ -1,72 +1,96 @@
 package com.eneque.murocampus.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eneque.murocampus.ui.theme.LimaCampus
+import com.eneque.murocampus.ui.theme.RosaCampus
 import com.eneque.murocampus.viewmodel.PostsViewModel
 import com.eneque.murocampus.viewmodel.UiState
 
 @Composable
-fun PantallaCrear(vm: PostsViewModel, modifier: Modifier = Modifier) {
+fun PantallaCrear(
+    vm: PostsViewModel, modifier: Modifier = Modifier,
+    paddingSistema: PaddingValues = PaddingValues(), onVolver: () -> Unit = {}
+) {
     var titulo by rememberSaveable { mutableStateOf("") }
     var texto by rememberSaveable { mutableStateOf("") }
     val estado by vm.envio.collectAsStateWithLifecycle()
     val enviando = estado == UiState.Cargando
+    val desplazamiento = rememberLazyListState()
+    val teclado = LocalSoftwareKeyboardController.current
+    val foco = LocalFocusManager.current
     LaunchedEffect(estado) {
         if (estado is UiState.Exito) {
             titulo = ""
             texto = ""
         }
-    }
-    Column(
-        modifier = modifier.imePadding().verticalScroll(rememberScrollState()).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("Crear publicación", style = MaterialTheme.typography.titleLarge)
-        OutlinedTextField(
-            value = titulo, onValueChange = { titulo = it },
-            label = { Text("Título") }, singleLine = true,
-            enabled = !enviando, modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = texto, onValueChange = { texto = it },
-            label = { Text("Contenido") }, minLines = 4,
-            enabled = !enviando, modifier = Modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = { vm.publicar(titulo, texto) },
-            enabled = titulo.isNotBlank() && texto.isNotBlank() && !enviando,
-            modifier = Modifier.fillMaxWidth()
-        ) { Text(if (enviando) "Publicando…" else "Publicar") }
-        when (val actual = estado) {
-            null -> Unit
-            UiState.Cargando -> Text("Enviando publicación…")
-            is UiState.Error -> ErrorConReintento(actual.mensaje, { vm.publicar(titulo, texto) })
-            is UiState.Exito -> {
-                Text(
-                    "Publicado con id ${actual.datos.id}",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text("El servicio simula la creación; la publicación no se guarda en el servidor.")
-            }
+        if (estado is UiState.Exito || estado is UiState.Error) {
+            teclado?.hide()
+            foco.clearFocus()
+            desplazamiento.scrollToItem(0)
         }
+    }
+    LazyColumn(
+        state = desplazamiento,
+        modifier = modifier.fillMaxSize(), contentPadding = paddingSistema,
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        item { EncabezadoCampus(titulo = "Nueva publicación", grande = true, onVolver = onVolver) }
+        when (val actual = estado) {
+            is UiState.Exito -> item {
+                AvisoGrafico(
+                    "Publicado con id ${actual.datos.id}",
+                    "El servicio simula la creación; la publicación no se guarda en el servidor.",
+                    Modifier.padding(horizontal = 20.dp)
+                )
+            }
+            is UiState.Error -> item {
+                ErrorConReintento(actual.mensaje, { vm.publicar(titulo, texto) }, Modifier.padding(horizontal = 20.dp))
+            }
+            else -> Unit
+        }
+        item {
+            CampoGrafico(
+                titulo, { titulo = it }, "Título", LimaCampus,
+                Modifier.padding(horizontal = 20.dp), enabled = !enviando
+            )
+        }
+        item {
+            CampoGrafico(
+                texto, { texto = it }, "Contenido", RosaCampus,
+                Modifier.padding(horizontal = 20.dp), enabled = !enviando, multilinea = true
+            )
+        }
+        item {
+            Text(
+                "El servicio simula la creación; la publicación no se guarda en el servidor.",
+                Modifier.padding(horizontal = 22.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        item {
+            BotonGrafico(
+                if (enviando) "Publicando…" else "Publicar",
+                { vm.publicar(titulo, texto) },
+                Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                enabled = titulo.isNotBlank() && texto.isNotBlank() && !enviando,
+                simbolo = Simbolo.Enviar
+            )
+        }
+        if (enviando) item {
+            Text("Enviando publicación…", Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.labelLarge)
+        }
+        item { Spacer(Modifier.height(20.dp)) }
     }
 }

@@ -32,6 +32,7 @@ com.eneque.murocampus/
 │   └── PostsViewModelFactory.kt
 └── ui/
     ├── Componentes.kt
+    ├── GraficosCampus.kt
     ├── PantallaLista.kt
     ├── PantallaDetalle.kt
     ├── PantallaCrear.kt
@@ -137,8 +138,31 @@ Validación de las mejoras:
 
 Las instrucciones de trabajo, respuestas y decisiones técnicas se registran en [PROMPTS.md](PROMPTS.md).
 
+## Rediseño B con logo de Tecsup
+
+Después de completar el laboratorio se implementó **B · Comunidad gráfica**, la propuesta de Claude elegida por el estudiante.
+
+- Azul eléctrico, lima y rosa; tarjetas con bordes oscuros y sombras sólidas.
+- Archivo Black y DM Sans incluidas localmente.
+- Logo original de Tecsup en una placa clara en el encabezado de las tres pantallas.
+- Lista, detalle, formulario, carga, error, vacío y confirmaciones con una identidad común.
+- Espacio reservado para el botón +, protección de barras del sistema y formulario desplazable con teclado.
+- API, Repository y ViewModel sin cambios.
+
+Verificado con `:app:build` (debug, release con R8, pruebas locales y Android Lint) y ocho pruebas instrumentadas. Se comprobó además el formulario con teclado, POST 101 y recuperación de errores sin conexión.
+
+Detalles de adaptación y referencia: [REDISENO_B.md](docs/REDISENO_B.md). Licencias: [fuentes](docs/fuentes/README.md).
+
+| Lista B | Detalle B |
+| --- | --- |
+| <img src="docs/capturas/redisenob-lista.png" width="240" alt="Lista del rediseño B con logo Tecsup"> | <img src="docs/capturas/redisenob-detalle.png" width="240" alt="Detalle del rediseño B"> |
+
+| Crear B | Publicación enviada |
+| --- | --- |
+| <img src="docs/capturas/redisenob-crear.png" width="240" alt="Formulario del rediseño B"> | <img src="docs/capturas/redisenob-exito.png" width="240" alt="Publicado con id 101 en el rediseño B"> |
+
 ## Historial y uso de IA
 
-La Fase 1 se desarrolla por pasos en `main`; la Fase 2 en `mejora-ia-murocampus`. El docente autorizó IA para ambas fases, según la indicación recibida por el estudiante. El rediseño visual con Claude se hará después de completar el laboratorio.
+La Fase 1 se desarrolla por pasos en `main`; la Fase 2 en `mejora-ia-murocampus`. El docente autorizó IA para ambas fases, según la indicación recibida por el estudiante. Después de completar el laboratorio, Claude propuso las imágenes del rediseño y Codex implementó la opción B elegida por el estudiante.
 
-Las cinco capturas originales corresponden a la Fase 1. Esta rama conserva esa evidencia y agrega las tres mejoras funcionales. El rediseño visual aún no se ha aplicado. El siguiente paso es elegir prototipos con el [prompt para Claude](docs/PROMPT_CLAUDE_REDISENO.md) y compartir las imágenes seleccionadas para implementarlas.
+Las cinco capturas originales corresponden a la Fase 1. Esta rama conserva esa evidencia, agrega las tres mejoras funcionales y, en un commit posterior, el rediseño B. Se conserva el [prompt enviado a Claude](docs/PROMPT_CLAUDE_REDISENO.md) como parte del proceso de diseño.
