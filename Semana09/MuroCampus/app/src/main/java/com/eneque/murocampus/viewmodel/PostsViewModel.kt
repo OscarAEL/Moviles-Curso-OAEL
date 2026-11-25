@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eneque.murocampus.data.PostRepository
 import com.eneque.murocampus.data.mensajeDe
 import com.eneque.murocampus.model.Post
+import com.eneque.murocampus.model.NuevoPost
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -55,6 +56,25 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         cargaDetalle?.cancel()
         detalleId = null
         _detalle.value = UiState.Cargando
+    }
+
+    private val _envio = MutableStateFlow<UiState<Post>?>(null)
+    val envio = _envio.asStateFlow()
+    private var tareaEnvio: Job? = null
+
+    fun reiniciarCreacion() {
+        tareaEnvio?.cancel()
+        _envio.value = null
+    }
+
+    fun publicar(titulo: String, texto: String) {
+        if (titulo.isBlank() || texto.isBlank() || tareaEnvio?.isActive == true) return
+        tareaEnvio = viewModelScope.launch {
+            _envio.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo.trim(), body = texto.trim()))
+                .onSuccess { _envio.value = UiState.Exito(it) }
+                .onFailure { _envio.value = UiState.Error(mensajeDe(it)) }
+        }
     }
 
     init { cargar() }

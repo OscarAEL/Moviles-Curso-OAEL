@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.FloatingActionButton
+import com.eneque.murocampus.ui.PantallaCrear
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,16 +53,27 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MuroCampusApp(vm: PostsViewModel) {
     var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+    var creando by rememberSaveable { mutableStateOf(false) }
     val listaState = rememberLazyListState()
     val volver = {
         vm.cerrarDetalle()
+        vm.reiniciarCreacion()
+        creando = false
         idSeleccionado = null
     }
-    BackHandler(enabled = idSeleccionado != null) { volver() }
+    BackHandler(enabled = idSeleccionado != null || creando) { volver() }
     LaunchedEffect(idSeleccionado) { idSeleccionado?.let(vm::abrir) }
-    MarcoCampus(onVolver = if (idSeleccionado != null) volver else null) { modifier ->
+    MarcoCampus(
+        onVolver = if (idSeleccionado != null || creando) volver else null,
+        onCrear = if (idSeleccionado == null && !creando) ({
+            vm.reiniciarCreacion()
+            creando = true
+        }) else null
+    ) { modifier ->
         val id = idSeleccionado
-        if (id == null) {
+        if (creando) {
+            PantallaCrear(vm, modifier)
+        } else if (id == null) {
             PantallaLista(
                 vm, onAbrir = { idSeleccionado = it },
                 modifier = modifier, listaState = listaState
@@ -73,9 +86,18 @@ fun MuroCampusApp(vm: PostsViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MarcoCampus(onVolver: (() -> Unit)? = null, content: @Composable (Modifier) -> Unit) {
+private fun MarcoCampus(
+    onVolver: (() -> Unit)? = null,
+    onCrear: (() -> Unit)? = null,
+    content: @Composable (Modifier) -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            onCrear?.let { crear ->
+                FloatingActionButton(onClick = crear) { Text("+", style = MaterialTheme.typography.headlineMedium) }
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text("MuroCampus") },
