@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +21,8 @@ import com.eneque.murocampus.viewmodel.UiState
 fun PantallaLista(
     vm: PostsViewModel,
     onAbrir: (Int) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    listaState: LazyListState = rememberLazyListState()
 ) {
     val estado by vm.lista.collectAsStateWithLifecycle()
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -27,6 +30,7 @@ fun PantallaLista(
             UiState.Cargando -> Cargando()
             is UiState.Error -> ErrorConReintento(actual.mensaje, vm::cargar)
             is UiState.Exito -> LazyColumn(
+                state = listaState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)

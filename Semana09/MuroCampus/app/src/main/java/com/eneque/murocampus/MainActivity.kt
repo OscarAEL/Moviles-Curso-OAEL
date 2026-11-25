@@ -2,6 +2,15 @@ package com.eneque.murocampus
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import com.eneque.murocampus.ui.PantallaDetalle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -41,19 +50,42 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MuroCampusApp(vm: PostsViewModel) {
-    MarcoCampus { modifier ->
-        PantallaLista(vm, modifier = modifier)
+    var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+    val listaState = rememberLazyListState()
+    val volver = {
+        vm.cerrarDetalle()
+        idSeleccionado = null
+    }
+    BackHandler(enabled = idSeleccionado != null) { volver() }
+    LaunchedEffect(idSeleccionado) { idSeleccionado?.let(vm::abrir) }
+    MarcoCampus(onVolver = if (idSeleccionado != null) volver else null) { modifier ->
+        val id = idSeleccionado
+        if (id == null) {
+            PantallaLista(
+                vm, onAbrir = { idSeleccionado = it },
+                modifier = modifier, listaState = listaState
+            )
+        } else {
+            PantallaDetalle(vm, id, modifier)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MarcoCampus(content: @Composable (Modifier) -> Unit) {
+private fun MarcoCampus(onVolver: (() -> Unit)? = null, content: @Composable (Modifier) -> Unit) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text("MuroCampus") },
+                navigationIcon = {
+                    onVolver?.let { volver ->
+                        TextButton(onClick = volver) {
+                            Text("Atrás", color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
