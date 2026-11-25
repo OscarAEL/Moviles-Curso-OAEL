@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,23 +16,39 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.eneque.murocampus.data.PostRepositoryRemote
+import com.eneque.murocampus.data.remote.RetrofitClient
+import com.eneque.murocampus.ui.PantallaLista
 import com.eneque.murocampus.ui.theme.MuroCampusTheme
+import com.eneque.murocampus.viewmodel.PostsViewModel
+import com.eneque.murocampus.viewmodel.PostsViewModelFactory
 
 class MainActivity : ComponentActivity() {
+    private val vm: PostsViewModel by viewModels {
+        PostsViewModelFactory(PostRepositoryRemote(RetrofitClient.api))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MuroCampusTheme {
-                MuroCampusApp()
+                MuroCampusApp(vm)
             }
         }
     }
 }
 
+@Composable
+fun MuroCampusApp(vm: PostsViewModel) {
+    MarcoCampus { modifier ->
+        PantallaLista(vm, modifier = modifier)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MuroCampusApp() {
+private fun MarcoCampus(content: @Composable (Modifier) -> Unit) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -45,11 +61,7 @@ fun MuroCampusApp() {
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        )
+        content(Modifier.fillMaxSize().padding(innerPadding))
     }
 }
 
@@ -57,6 +69,6 @@ fun MuroCampusApp() {
 @Composable
 private fun MuroCampusPreview() {
     MuroCampusTheme {
-        MuroCampusApp()
+        MarcoCampus {}
     }
 }
