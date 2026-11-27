@@ -22,6 +22,23 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     val permiso = _permiso.asStateFlow()
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje = _mensaje.asStateFlow()
+    private val _escuchandoAvion = MutableStateFlow(false)
+    val escuchandoAvion = _escuchandoAvion.asStateFlow()
+
+    fun cambiarEscucha(valor: Boolean) {
+        _escuchandoAvion.value = valor
+    }
+
+    fun alCambiarModoAvion(activo: Boolean) {
+        if (!_escuchandoAvion.value) return
+        viewModelScope.launch {
+            val aviso = repo.registrar(
+                "Modo avión", if (activo) "Activado" else "Desactivado", Origen.MODO_AVION
+            )
+            _eventos.emit(aviso)
+        }
+    }
+
     private var trabajo: Job? = null
     private val _faltan = MutableStateFlow<Int?>(null)
     val faltan = _faltan.asStateFlow()

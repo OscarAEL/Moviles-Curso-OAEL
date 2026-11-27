@@ -1,5 +1,9 @@
 package com.eneque.avisoscampus.ui
 
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
+import com.eneque.avisoscampus.receiver.ModoAvionReceiver
 import android.Manifest
 import android.app.Activity
 import android.os.Build
@@ -32,6 +36,19 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     }
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
+    val escuchando by vm.escuchandoAvion.collectAsState()
+    DisposableEffect(escuchando, contexto) {
+        if (escuchando) {
+            val receptor = ModoAvionReceiver(vm::alCambiarModoAvion)
+            ContextCompat.registerReceiver(
+                contexto, receptor, IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
+        }
+    }
     var explicarPermiso by rememberSaveable { mutableStateOf(false) }
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         vm.permisoRespondido(it)
@@ -121,7 +138,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             TarjetaFuncion("Receptor de anuncios") {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Escuchar el modo avión", Modifier.weight(1f))
-                    Switch(checked = false, onCheckedChange = null)
+                    Switch(checked = escuchando, onCheckedChange = vm::cambiarEscucha)
                 }
             }
             TarjetaFuncion("Historial") { Text("Sin avisos todavía") }
