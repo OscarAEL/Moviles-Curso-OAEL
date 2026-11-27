@@ -27,6 +27,9 @@ import com.eneque.avisoscampus.viewmodel.AvisosViewModel
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    LaunchedEffect(vm, contexto) {
+        vm.eventos.collect { aviso -> Notificador.mostrar(contexto, aviso) }
+    }
     val permiso by vm.permiso.collectAsState()
     var explicarPermiso by rememberSaveable { mutableStateOf(false) }
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -107,7 +110,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }) { Text("Permitir notificaciones") }
             }
             TarjetaFuncion("Avisos") {
-                Button(onClick = {}, enabled = false) { Text("Mostrar aviso") }
+                Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
             }
             TarjetaFuncion("Recordatorio") {
                 Button(onClick = {}, enabled = false) { Text("Recordar en 10 s") }
