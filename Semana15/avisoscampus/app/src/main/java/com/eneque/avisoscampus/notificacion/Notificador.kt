@@ -1,5 +1,8 @@
 package com.eneque.avisoscampus.notificacion
 
+import android.app.PendingIntent
+import android.content.Intent
+import com.eneque.avisoscampus.MainActivity
 import android.annotation.SuppressLint
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -29,7 +32,10 @@ object Notificador {
         if (context.getSystemService(NotificationManager::class.java)
                 .getNotificationChannel(CANAL)?.importance == NotificationManager.IMPORTANCE_NONE
         ) return false
+        val intent = Intent(context, MainActivity::class.java)
+        val pendiente = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val notificacion = NotificationCompat.Builder(context, CANAL)
+            .setContentIntent(pendiente)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
