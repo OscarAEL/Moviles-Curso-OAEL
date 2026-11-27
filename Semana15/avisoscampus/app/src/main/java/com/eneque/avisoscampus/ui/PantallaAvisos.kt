@@ -1,5 +1,6 @@
 package com.eneque.avisoscampus.ui
 
+import android.provider.Settings
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
@@ -32,8 +33,11 @@ import com.eneque.avisoscampus.viewmodel.AvisosViewModel
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     LaunchedEffect(vm, contexto) {
-        vm.eventos.collect { aviso -> Notificador.mostrar(contexto, aviso) }
+        vm.eventos.collect { aviso ->
+            if (!Notificador.mostrar(contexto, aviso)) vm.noSePudoMostrar()
+        }
     }
+    val mensaje by vm.mensaje.collectAsState()
     val avisos by vm.avisos.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
@@ -127,6 +131,21 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         else -> vm.permisoRespondido(true)
                     }
                 }) { Text("Permitir notificaciones") }
+                if (permiso == PermisoUi.Denegado || mensaje != null) {
+                    OutlinedButton(onClick = {
+                        contexto.startActivity(
+                            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                        )
+                    }) { Text("Abrir ajustes") }
+                }
+                mensaje?.let {
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.small
+                    ) { Text(it, Modifier.padding(12.dp)) }
+                }
             }
             TarjetaFuncion("Avisos") {
                 Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
