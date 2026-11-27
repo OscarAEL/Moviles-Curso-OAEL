@@ -30,12 +30,22 @@ Rama: `mejora-ia-avisoscampus`.
 | Dos canales | Los recordatorios usan **Urgentes** con importancia alta; los demás avisos usan **Avisos**. | Notificador |
 | Texto expandible | BigTextStyle conserva el cuerpo completo; el botón genera un texto ficticio largo para demostrarlo. | Notificador y ViewModel |
 | Historial persistente | DataStore guarda el historial y conserva los IDs al volver a abrir la app. | Repository, Application y ViewModel |
+| Rediseño visual Tecsup Cyber-Tech | Identidad visual moderna con logo institucional de Tecsup, SplashScreen animado, paleta Cyber-Tech y subpaneles. | UI, Theme y Drawable |
 
 En esta rama, Application crea una sola instancia de DataStore y la inyecta al Repository. `registrar` es suspend: primero completa la escritura atómica y después el ViewModel emite el evento. Los IDs se calculan dentro de `updateData` para evitar duplicados entre escrituras concurrentes.
 
 Se usa un formato binario local versionado mediante `AvisosSerializer`, sin plugins adicionales de generación de código. Si un archivo es ilegible, no se reemplaza automáticamente con uno vacío; al intentar guardar se muestra un error. Una falla de guardado no publica una notificación que afirme haberse guardado.
 
 La importancia alta permite avisos emergentes según la configuración de Android y del usuario. La persistencia del historial no convierte la corrutina del recordatorio en una alarma que sobreviva al cierre del proceso.
+
+### Rediseño visual: Tecsup Cyber-Tech
+
+Se implementó un rediseño visual de alta fidelidad basado en la identidad oficial de Tecsup:
+- **Splash Screen:** pantalla de bienvenida animada con halo cyan, isotipo oficial de Tecsup, tipografía técnica y barra de carga.
+- **TopAppBar institucional:** incorpora el imagotipo de Tecsup, separador vertical luminoso y título `AvisosCampus`.
+- **Paleta Tecsup Cyber-Tech:** Cyan oficial (`#00A9E0`), Cyan claro (`#3DD3FF`), fondo medianoche (`#050B1A`), tarjetas con gradiente (`#0E1D3A` a `#0A1630`) y micro-bordes luminosos (`#17406B`).
+- **Historial con subpaneles:** cada aviso se presenta en una tarjeta oscura individual (`#08122A`) con chip de origen dot-indicator y cifras horarias monoespaciadas.
+- **Compatibilidad y arquitectura:** se mantuvo la arquitectura MVVM + Repository, todos los textos y selectores semánticos requeridos por las pruebas, aprobando el 100% de pruebas unitarias e instrumentadas.
 
 Las instrucciones y decisiones de IA están en [PROMPTS.md](PROMPTS.md).
 
@@ -65,6 +75,7 @@ com.eneque.avisoscampus/
 └── ui/
     ├── PantallaAvisos.kt
     ├── HistorialAvisos.kt
+    ├── SplashScreen.kt
     └── theme/
 ```
 
