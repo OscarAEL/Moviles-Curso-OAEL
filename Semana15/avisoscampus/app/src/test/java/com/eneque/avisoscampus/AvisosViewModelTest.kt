@@ -85,6 +85,26 @@ class AvisosViewModelTest {
         assertEquals(2, vm.avisos.value.size)
     }
 
+    @Test fun falloDeGuardadoNoEmiteNiSeConfundeConUnPermiso() = runTest(dispatcher) {
+        val repo = object : com.eneque.avisoscampus.data.AvisosRepository {
+            override val avisos = kotlinx.coroutines.flow.MutableStateFlow<List<Aviso>>(emptyList())
+            override suspend fun registrar(titulo: String, texto: String, origen: Origen): Aviso {
+                throw java.io.IOException("Fallo simulado")
+            }
+        }
+        val vm = AvisosViewModel(repo)
+        val eventos = mutableListOf<Aviso>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.eventos.collect { eventos.add(it) } }
+        vm.avisarAhora()
+        runCurrent()
+        assertTrue(eventos.isEmpty())
+        assertTrue(vm.avisos.value.isEmpty())
+        assertEquals("No se pudo guardar el aviso. Inténtalo de nuevo.", vm.mensaje.value)
+        assertFalse(vm.necesitaAjustes.value)
+        vm.permisoRespondido(true)
+        assertNotNull(vm.mensaje.value)
+    }
+
     @Test fun botonGeneraIdsDistintosYOrdenRecientePrimero() = runTest(dispatcher) {
         val vm = AvisosViewModel(AvisosRepositoryMemoria())
         vm.avisarAhora()

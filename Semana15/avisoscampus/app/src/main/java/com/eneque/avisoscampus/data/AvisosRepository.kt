@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 interface AvisosRepository {
     val avisos: StateFlow<List<Aviso>>
-    fun registrar(titulo: String, texto: String, origen: Origen): Aviso
+    suspend fun registrar(titulo: String, texto: String, origen: Origen): Aviso
 }
 
 class AvisosRepositoryMemoria : AvisosRepository {
@@ -19,11 +19,10 @@ class AvisosRepositoryMemoria : AvisosRepository {
     override val avisos = _avisos.asStateFlow()
     private var siguiente = 1
 
-    @Synchronized
-    override fun registrar(titulo: String, texto: String, origen: Origen): Aviso {
+    override suspend fun registrar(titulo: String, texto: String, origen: Origen): Aviso = synchronized(this) {
         val hora = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
         val aviso = Aviso(siguiente++, titulo, texto, origen, hora)
         _avisos.value = listOf(aviso) + _avisos.value
-        return aviso
+        aviso
     }
 }

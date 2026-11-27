@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.1")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.1")
+    implementation("androidx.datastore:datastore-core:1.3.0")
     testImplementation(libs.junit)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))

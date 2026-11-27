@@ -16,6 +16,7 @@ import androidx.test.uiautomator.Until
 import com.eneque.avisoscampus.viewmodel.AvisosViewModel
 import com.eneque.avisoscampus.model.Origen
 import java.io.File
+import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.Assume.*
@@ -33,6 +34,8 @@ class AceptacionTest {
     @Before fun preparar() {
         assumeTrue(Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
             regla.activity, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+        runBlocking { (regla.activity.application as AvisosApp).almacenAvisos.updateData { emptyList() } }
+        regla.waitUntil(5000) { vm.avisos.value.isEmpty() }
         manager.cancelAll()
         device.executeShellCommand("cmd statusbar collapse")
         device.setOrientationNatural()
@@ -146,6 +149,10 @@ class SinPermisoTest {
             != PackageManager.PERMISSION_GRANTED)
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val manager = regla.activity.getSystemService(NotificationManager::class.java)
+        runBlocking { (regla.activity.application as AvisosApp).almacenAvisos.updateData { emptyList() } }
+        regla.waitUntil(5000) {
+            ViewModelProvider(regla.activity)[AvisosViewModel::class.java].avisos.value.isEmpty()
+        }
         regla.onNodeWithText("Permitir notificaciones").performClick()
         val negar = device.wait(Until.findObject(By.res("com.android.permissioncontroller", "permission_deny_button")), 5000)
         assertNotNull("Debe aparecer el diálogo nativo de permiso", negar)
@@ -156,6 +163,9 @@ class SinPermisoTest {
             ViewModelProvider(regla.activity)[AvisosViewModel::class.java].mensaje.value != null
         }
         assertTrue(manager.activeNotifications.isEmpty())
+        regla.waitUntil(5000) {
+            ViewModelProvider(regla.activity)[AvisosViewModel::class.java].avisos.value.size == 1
+        }
         assertEquals(1, ViewModelProvider(regla.activity)[AvisosViewModel::class.java].avisos.value.size)
         regla.onNodeWithText("Sin permiso: el aviso se guardó en el historial, pero no se mostró").assertExists()
         regla.onNodeWithText("Abrir ajustes").performScrollTo()

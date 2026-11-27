@@ -21,6 +21,31 @@ Este proyecto forma parte del repositorio existente [Moviles-Curso-OAEL](https:/
 
 La cuenta regresiva y el historial sobreviven a la rotación mediante el ViewModel. En esta fase el historial está en memoria: termina al morir el proceso. El recordatorio usa una corrutina del ViewModel, por lo que funciona al minimizar mientras el proceso siga vivo; no sustituye una alarma persistente y no se garantiza después de forzar la detención, matar el proceso o reiniciar el dispositivo.
 
+## Mejoras de la FASE 2
+
+Rama: `mejora-ia-avisoscampus`.
+
+| Mejora | Comportamiento | Capas |
+|---|---|---|
+| Dos canales | Los recordatorios usan **Urgentes** con importancia alta; los demás avisos usan **Avisos**. | Notificador |
+| Texto expandible | BigTextStyle conserva el cuerpo completo; el botón genera un texto ficticio largo para demostrarlo. | Notificador y ViewModel |
+| Historial persistente | DataStore guarda el historial y conserva los IDs al volver a abrir la app. | Repository, Application y ViewModel |
+
+En esta rama, Application crea una sola instancia de DataStore y la inyecta al Repository. `registrar` es suspend: primero completa la escritura atómica y después el ViewModel emite el evento. Los IDs se calculan dentro de `updateData` para evitar duplicados entre escrituras concurrentes.
+
+Se usa un formato binario local versionado mediante `AvisosSerializer`, sin plugins adicionales de generación de código. Si un archivo es ilegible, no se reemplaza automáticamente con uno vacío; al intentar guardar se muestra un error. Una falla de guardado no publica una notificación que afirme haberse guardado.
+
+La importancia alta permite avisos emergentes según la configuración de Android y del usuario. La persistencia del historial no convierte la corrutina del recordatorio en una alarma que sobreviva al cierre del proceso.
+
+Las instrucciones y decisiones de IA están en [PROMPTS.md](PROMPTS.md).
+
+Resultado final de esta rama: **10 pruebas locales y 9 instrumentadas correctas**, además de compilación y Lint. Se comprobó el historial después de detener y reiniciar el proceso.
+
+| Evidencia de mejora | Captura |
+|---|---|
+| Texto completo expandido | ![Texto expandido](docs/capturas/06-texto-expandido.png) |
+| Historial recuperado después de cerrar el proceso | ![Historial persistente](docs/capturas/07-historial-persistente.png) |
+
 ## Estructura
 
 ```text
@@ -28,7 +53,10 @@ com.eneque.avisoscampus/
 ├── AvisosApp.kt
 ├── MainActivity.kt
 ├── model/Modelos.kt
-├── data/AvisosRepository.kt
+├── data/
+│   ├── AvisosRepository.kt
+│   ├── AvisosRepositoryDataStore.kt
+│   └── AvisosSerializer.kt
 ├── notificacion/Notificador.kt
 ├── receiver/ModoAvionReceiver.kt
 ├── viewmodel/
@@ -46,7 +74,9 @@ com.eneque.avisoscampus/
 flowchart TD
     UI["PantallaAvisos · Compose"] -->|"acciones del usuario"| VM["AvisosViewModel"]
     VM -->|"registrar"| R["AvisosRepository · interface"]
-    R --> M["AvisosRepositoryMemoria"]
+    R --> D["AvisosRepositoryDataStore"]
+    D --> F["DataStore · archivo local"]
+    R -.-> M["AvisosRepositoryMemoria · pruebas"]
     R -->|"StateFlow de historial"| VM
     VM -->|"StateFlow: permiso, cuenta, escucha y mensaje"| UI
     VM -->|"SharedFlow de Aviso"| UI
@@ -104,6 +134,6 @@ Una notificación local sirve para eventos conocidos por el dispositivo, como un
 
 ## Git y uso de IA
 
-La FASE 1 se desarrolla en `main`, con un commit por paso (base, pasos 1 a 8 y documentación). La FASE 2 se realizará en `mejora-ia-avisoscampus`, nombre acordado para este repositorio compartido con otras semanas.
+La FASE 1 se desarrolla en `main`, con un commit por paso (base, pasos 1 a 8 y documentación). La FASE 2 se desarrolla en `mejora-ia-avisoscampus`, nombre acordado para este repositorio compartido con otras semanas.
 
-Según la autorización del docente comunicada por el estudiante, se permite IA en ambas fases. No se presenta el trabajo como realizado sin asistencia. El registro de las mejoras de la segunda fase se documentará en `PROMPTS.md`.
+Según la autorización del docente comunicada por el estudiante, se permite IA en ambas fases. No se presenta el trabajo como realizado sin asistencia. El registro de las mejoras de la segunda fase está en [PROMPTS.md](PROMPTS.md).

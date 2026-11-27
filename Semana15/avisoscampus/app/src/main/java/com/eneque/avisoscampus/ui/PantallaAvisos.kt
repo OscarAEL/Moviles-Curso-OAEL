@@ -38,6 +38,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
     val mensaje by vm.mensaje.collectAsState()
+    val necesitaAjustes by vm.necesitaAjustes.collectAsState()
     val avisos by vm.avisos.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
@@ -131,7 +132,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         else -> vm.permisoRespondido(true)
                     }
                 }) { Text("Permitir notificaciones") }
-                if (permiso == PermisoUi.Denegado || mensaje != null) {
+                if (permiso == PermisoUi.Denegado || necesitaAjustes) {
                     OutlinedButton(onClick = {
                         contexto.startActivity(
                             Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)

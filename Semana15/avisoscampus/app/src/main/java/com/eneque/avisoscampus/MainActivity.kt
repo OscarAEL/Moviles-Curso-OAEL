@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.eneque.avisoscampus.data.AvisosRepositoryMemoria
 import com.eneque.avisoscampus.ui.PantallaAvisos
 import com.eneque.avisoscampus.ui.theme.AvisosCampusTheme
 import com.eneque.avisoscampus.viewmodel.AvisosViewModel
@@ -18,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AvisosCampusTheme {
                 val vm: AvisosViewModel = viewModel(
-                    factory = AvisosViewModelFactory(AvisosRepositoryMemoria())
+                    factory = AvisosViewModelFactory((application as AvisosApp).repository)
                 )
                 PantallaAvisos(vm)
             }
