@@ -34,6 +34,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(vm, contexto) {
         vm.eventos.collect { aviso -> Notificador.mostrar(contexto, aviso) }
     }
+    val avisos by vm.avisos.collectAsState()
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
@@ -141,7 +142,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     Switch(checked = escuchando, onCheckedChange = vm::cambiarEscucha)
                 }
             }
-            TarjetaFuncion("Historial") { Text("Sin avisos todavía") }
+            HistorialAvisos(avisos)
         }
     }
 }
