@@ -31,6 +31,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         vm.eventos.collect { aviso -> Notificador.mostrar(contexto, aviso) }
     }
     val permiso by vm.permiso.collectAsState()
+    val faltan by vm.faltan.collectAsState()
     var explicarPermiso by rememberSaveable { mutableStateOf(false) }
     val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         vm.permisoRespondido(it)
@@ -113,8 +114,9 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 Button(onClick = vm::avisarAhora) { Text("Mostrar aviso") }
             }
             TarjetaFuncion("Recordatorio") {
-                Button(onClick = {}, enabled = false) { Text("Recordar en 10 s") }
-                OutlinedButton(onClick = {}, enabled = false) { Text("Cancelar") }
+                Button(onClick = { vm.recordarEn() }, enabled = faltan == null) { Text("Recordar en 10 s") }
+                OutlinedButton(onClick = vm::cancelarRecordatorio, enabled = faltan != null) { Text("Cancelar") }
+                faltan?.let { Text("Faltan $it s", style = MaterialTheme.typography.bodyLarge) }
             }
             TarjetaFuncion("Receptor de anuncios") {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

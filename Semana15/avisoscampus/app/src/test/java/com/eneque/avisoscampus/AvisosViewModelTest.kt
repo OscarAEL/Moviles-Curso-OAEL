@@ -1,0 +1,68 @@
+package com.eneque.avisoscampus
+
+import com.eneque.avisoscampus.data.AvisosRepositoryMemoria
+import com.eneque.avisoscampus.model.Aviso
+import com.eneque.avisoscampus.model.Origen
+import com.eneque.avisoscampus.viewmodel.AvisosViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.*
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class AvisosViewModelTest {
+    private val dispatcher = StandardTestDispatcher()
+
+    @Before fun preparar() { Dispatchers.setMain(dispatcher) }
+    @After fun terminar() { Dispatchers.resetMain() }
+
+    @Test fun recordatorioCuentaDiezSegundosYNoSeDuplica() = runTest(dispatcher) {
+        val vm = AvisosViewModel(AvisosRepositoryMemoria())
+        val eventos = mutableListOf<Aviso>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.eventos.collect { eventos.add(it) } }
+        vm.recordarEn()
+        runCurrent()
+        assertEquals(10, vm.faltan.value)
+        vm.recordarEn()
+        advanceTimeBy(9000)
+        runCurrent()
+        assertEquals(1, vm.faltan.value)
+        assertTrue(vm.avisos.value.isEmpty())
+        advanceTimeBy(1000)
+        runCurrent()
+        assertNull(vm.faltan.value)
+        assertEquals(1, eventos.size)
+        assertEquals(Origen.RECORDATORIO, eventos.single().origen)
+        assertEquals(1, vm.avisos.value.size)
+    }
+
+    @Test fun cancelarNoRegistraNiEmiteYPermiteReiniciar() = runTest(dispatcher) {
+        val vm = AvisosViewModel(AvisosRepositoryMemoria())
+        val eventos = mutableListOf<Aviso>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.eventos.collect { eventos.add(it) } }
+        vm.recordarEn()
+        advanceTimeBy(5000)
+        vm.cancelarRecordatorio()
+        runCurrent()
+        assertNull(vm.faltan.value)
+        advanceTimeBy(10000)
+        assertTrue(vm.avisos.value.isEmpty())
+        assertTrue(eventos.isEmpty())
+        vm.recordarEn(1)
+        advanceUntilIdle()
+        assertEquals(1, vm.avisos.value.size)
+    }
+
+    @Test fun botonGeneraIdsDistintosYOrdenRecientePrimero() = runTest(dispatcher) {
+        val vm = AvisosViewModel(AvisosRepositoryMemoria())
+        vm.avisarAhora()
+        vm.avisarAhora()
+        runCurrent()
+        assertEquals(listOf(2, 1), vm.avisos.value.map { it.id })
+        assertTrue(vm.avisos.value.all { it.origen == Origen.BOTON })
+    }
+}
