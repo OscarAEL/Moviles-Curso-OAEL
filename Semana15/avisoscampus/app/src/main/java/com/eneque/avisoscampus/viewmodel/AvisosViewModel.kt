@@ -17,5 +17,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     val permiso = _permiso.asStateFlow()
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje = _mensaje.asStateFlow()
-    // Las funciones se incorporan en los pasos 2 a 8 del laboratorio.
+    fun permisoRespondido(concedido: Boolean) {
+        _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
+    }
 }
