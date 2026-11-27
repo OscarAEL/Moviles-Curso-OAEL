@@ -57,6 +57,34 @@ class AvisosViewModelTest {
         assertEquals(1, vm.avisos.value.size)
     }
 
+    @Test fun permisoDenegadoConservaHistorialYSeLimpiaAlConceder() = runTest(dispatcher) {
+        val vm = AvisosViewModel(AvisosRepositoryMemoria())
+        vm.permisoRespondido(false)
+        vm.avisarAhora()
+        runCurrent()
+        vm.noSePudoMostrar()
+        assertEquals(1, vm.avisos.value.size)
+        assertNotNull(vm.mensaje.value)
+        vm.permisoRespondido(true)
+        assertNull(vm.mensaje.value)
+    }
+
+    @Test fun modoAvionSoloRegistraCuandoSeEscucha() = runTest(dispatcher) {
+        val vm = AvisosViewModel(AvisosRepositoryMemoria())
+        vm.alCambiarModoAvion(true)
+        runCurrent()
+        assertTrue(vm.avisos.value.isEmpty())
+        vm.cambiarEscucha(true)
+        vm.alCambiarModoAvion(true)
+        vm.alCambiarModoAvion(false)
+        runCurrent()
+        assertEquals(listOf("Desactivado", "Activado"), vm.avisos.value.map { it.texto })
+        vm.cambiarEscucha(false)
+        vm.alCambiarModoAvion(true)
+        runCurrent()
+        assertEquals(2, vm.avisos.value.size)
+    }
+
     @Test fun botonGeneraIdsDistintosYOrdenRecientePrimero() = runTest(dispatcher) {
         val vm = AvisosViewModel(AvisosRepositoryMemoria())
         vm.avisarAhora()
