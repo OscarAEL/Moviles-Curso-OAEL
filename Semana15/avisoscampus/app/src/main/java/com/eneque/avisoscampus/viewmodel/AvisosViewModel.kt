@@ -68,7 +68,13 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
 
     fun avisarAhora() {
         viewModelScope.launch {
-            val aviso = repo.registrar("Tarea lista", "Tu entrega fue registrada", Origen.BOTON)
+            val aviso = repo.registrar(
+                "Tarea lista",
+                "Tu entrega fue registrada. Aviso ficticio del campus: recuerda revisar los requisitos " +
+                    "del laboratorio, comprobar las capturas solicitadas y preparar la explicación de " +
+                    "tu arquitectura MVVM para la próxima sesión.",
+                Origen.BOTON
+            )
             _eventos.emit(aviso)
         }
     }

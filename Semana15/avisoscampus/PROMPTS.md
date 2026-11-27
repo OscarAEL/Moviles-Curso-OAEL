@@ -7,6 +7,7 @@ Rama: `mejora-ia-avisoscampus`.
 | Prompt o instrucción de trabajo | Propuesta de la IA | Qué adapté o descarté | Por qué |
 |---|---|---|---|
 | Separar los recordatorios urgentes de los avisos normales manteniendo MVVM + Repository. | Crear Avisos con IMPORTANCE_DEFAULT y Urgentes con IMPORTANCE_HIGH; elegir el canal por el origen del aviso. | Se conserva el canal original y se comprueba el bloqueo del canal elegido antes de notificar. No se mueve NotificationManager al ViewModel. | El usuario controla cada canal por separado y la lógica del ViewModel sigue siendo comprobable sin Android. |
+| Mostrar textos largos completos al expandir una notificación. | Añadir NotificationCompat.BigTextStyle y un texto ficticio extenso para demostrarlo. | El estilo se configura solamente en Notificador; el ViewModel decide el contenido del aviso. | La presentación permanece separada de la lógica y el texto completo se conserva en el historial y en la notificación expandida. |
 
 ## Criterios de revisión
 
